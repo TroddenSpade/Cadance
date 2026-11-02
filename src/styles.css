@@ -125,6 +125,113 @@ strong {
   border-radius: 6px;
 }
 
+/* ───────────── install prompt ───────────── */
+
+.install-prompt {
+  position: fixed;
+  right: 26px;
+  bottom: 26px;
+  z-index: 55;
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  width: min(380px, calc(100vw - 40px));
+  padding: 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  background: rgba(20, 23, 29, 0.97);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+  animation: install-prompt-in 0.4s cubic-bezier(0.22, 0.8, 0.24, 1) both;
+}
+
+@keyframes install-prompt-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.install-prompt-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--accent-line);
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.install-prompt-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.install-prompt-copy strong {
+  font-size: 13px;
+}
+
+.install-prompt-copy p {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.install-prompt-copy b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.install-prompt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.install-prompt-actions .button {
+  padding: 7px 12px;
+  font-size: 11.5px;
+}
+
+.install-prompt-close {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  padding: 3px;
+  color: var(--faint);
+}
+
+.install-prompt-close:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 1080px) {
+  .install-prompt {
+    left: 12px;
+    right: 12px;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .install-prompt {
+    animation: none;
+  }
+}
+
 /* ───────────── shell ───────────── */
 
 .app-shell {

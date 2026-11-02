@@ -26,7 +26,8 @@ export type IconName =
   | 'book'
   | 'trophy'
   | 'cloud'
-  | 'user';
+  | 'user'
+  | 'download';
 
 const paths: Record<IconName, React.ReactNode> = {
   today: (
@@ -147,6 +148,12 @@ const paths: Record<IconName, React.ReactNode> = {
     <>
       <circle cx="12" cy="8" r="3.5" />
       <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+    </>
+  ),
+  download: (
+    <>
+      <path d="M12 3v11m0 0 4-4m-4 4-4-4" />
+      <path d="M4.5 17.5v1A2.5 2.5 0 0 0 7 21h10a2.5 2.5 0 0 0 2.5-2.5v-1" />
     </>
   ),
   trophy: (

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import Icon, { type IconName } from './components/Icons';
+import InstallPrompt from './components/InstallPrompt';
 import { useProgress, levelFromXp, syncStatusLabel, todayKey, ProgressProvider } from './lib/progress';
 import Courses from './pages/Courses';
 import CoursePage from './pages/CoursePage';
@@ -136,6 +137,7 @@ function Shell() {
         </Routes>
       </main>
       <MobileNav />
+      <InstallPrompt />
     </div>
   );
 }

@@ -45,6 +45,8 @@ The production output is written to `dist/`.
 
 The app precaches the shell, icons, and the bundled Noto Music font. Once loaded, lessons, exercises, and the instrument surfaces work without a network connection.
 
+Cadence also offers an in-app install prompt. Chromium browsers get an **Install app** button backed by the native install flow; iOS gets the Share → **Add to Home Screen** steps. Choosing **Not now** snoozes the prompt for 14 days, and it never appears when the app is already installed.
+
 ## Deploy to GitHub Pages
 
 The repository includes `.github/workflows/deploy.yml`, which builds the app and publishes `dist/` whenever `main` is pushed.

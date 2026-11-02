@@ -79,7 +79,7 @@ Enable it once:
 1. Create a free project at [supabase.com](https://supabase.com).
 2. In **SQL Editor**, run [`supabase/schema.sql`](supabase/schema.sql). It creates the `progress` table and row-level security policies so each user can only read and write their own row.
 3. In **Authentication → URL Configuration**, set **Site URL** to the deployed address (for example `https://parsasam.ir/Cadance/`), and add that address plus `http://localhost:5173/` to **Redirect URLs**. The email link returns to the app root, where Supabase's PKCE flow completes.
-4. Copy the project URL and the **anon public** key from **Project Settings → API** into `.env.local`:
+4. Copy the project URL and the **anon public** key from **Project Settings → API** into `.env.local`. The URL is the project root only — `https://<project-ref>.supabase.co`, **not** the `/rest/v1/` endpoint:
 
    ```bash
    cp .env.example .env.local

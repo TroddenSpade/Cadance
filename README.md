@@ -45,6 +45,31 @@ The production output is written to `dist/`.
 
 The app precaches the shell, icons, and the bundled Noto Music font. Once loaded, lessons, exercises, and the instrument surfaces work without a network connection.
 
+## Deploy to GitHub Pages
+
+The repository includes `.github/workflows/deploy.yml`, which builds the app and publishes `dist/` whenever `main` is pushed.
+
+1. Create a GitHub repository and push this project to its `main` branch.
+2. In the repository, open **Settings → Pages**.
+3. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+4. Push to `main` (or run **Deploy to GitHub Pages** from the Actions tab).
+
+The workflow detects the deployment path automatically:
+
+- A project repository such as `cadence` is served from `https://<user>.github.io/cadence/` and is built with `BASE_PATH=/cadence/`.
+- A user site repository named `<user>.github.io` is served from the domain root and is built with `BASE_PATH=/`.
+
+For a custom domain, add the domain in **Settings → Pages**, and add a `public/CNAME` file containing the domain. The workflow detects that file and builds for the domain root instead of the repository subpath.
+
+To reproduce a Pages build locally:
+
+```bash
+BASE_PATH=/cadence/ npm run build
+BASE_PATH=/cadence/ npm run preview
+```
+
+If you only want to serve it from a plain GitHub repository without Actions, you can build with `BASE_PATH=/<repo>/` and publish the contents of `dist/` to a `gh-pages` branch, but the included workflow is the simpler path.
+
 ## Wrap as an Android APK
 
 The repository includes `capacitor.config.json` with `webDir: "dist"`. Capacitor's Android project is generated locally and is not committed.

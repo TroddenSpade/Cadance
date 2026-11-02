@@ -2,7 +2,12 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// GitHub Pages project sites live under /<repo>/. Set BASE_PATH when building
+// for Pages; local development and root-hosted sites keep "/".
+const base = process.env.BASE_PATH ?? '/';
+
 export default defineConfig({
+  base,
   plugins: [
     react(),
     VitePWA({
@@ -17,8 +22,8 @@ export default defineConfig({
         background_color: '#0c0d10',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
-        scope: '/',
+        start_url: './',
+        scope: './',
         categories: ['education', 'music'],
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },

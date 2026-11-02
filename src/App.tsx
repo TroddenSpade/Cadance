@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import Icon, { type IconName } from './components/Icons';
-import { useProgress, levelFromXp, todayKey, ProgressProvider } from './lib/progress';
+import { useProgress, levelFromXp, syncStatusLabel, todayKey, ProgressProvider } from './lib/progress';
 import Courses from './pages/Courses';
 import CoursePage from './pages/CoursePage';
 import Dashboard from './pages/Dashboard';
@@ -28,7 +28,7 @@ function ScrollToTop() {
 }
 
 function Sidebar() {
-  const { state, dueSkills } = useProgress();
+  const { state, dueSkills, email, status } = useProgress();
   const levelInfo = levelFromXp(state.xp);
   return (
     <aside className="sidebar">
@@ -53,6 +53,10 @@ function Sidebar() {
       </nav>
 
       <div className="sidebar-foot">
+        <NavLink to="/settings" className={`sidebar-sync ${status}`}>
+          <Icon name="cloud" size={15} />
+          <span>{email ? syncStatusLabel[status] : 'Sync across devices'}</span>
+        </NavLink>
         <div className="level-card">
           <div className="level-card-top">
             <span>

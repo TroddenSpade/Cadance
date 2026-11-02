@@ -11,7 +11,7 @@ The interface is installable as a PWA and is structured so the same build can be
 - **Daily practice** driven by per-skill strength, review streaks, and expanding review intervals. Missed skills return sooner.
 - **Piano, guitar, or both.** Note-finding, chord-building, and scale-building questions render on the selected instrument surface. Pitch class is what counts, so any octave or fret position works.
 - **Synthesized audio** for piano and Karplus–Strong guitar, generated locally with the Web Audio API. No audio files to download.
-- **Offline support** through a service worker. Progress, settings, and review history live in `localStorage`.
+- **Offline support** through a service worker. Progress, settings, and review history live in `localStorage`, with optional account sync across devices.
 - **Responsive layout** with a desktop sidebar and a mobile bottom navigation bar.
 
 ## Run it
@@ -59,7 +59,7 @@ The workflow detects the deployment path automatically:
 - A project repository such as `cadence` is served from `https://<user>.github.io/cadence/` and is built with `BASE_PATH=/cadence/`.
 - A user site repository named `<user>.github.io` is served from the domain root and is built with `BASE_PATH=/`.
 
-For a custom domain, add the domain in **Settings → Pages**, and add a `public/CNAME` file containing the domain. The workflow detects that file and builds for the domain root instead of the repository subpath.
+For a custom domain configured in **Settings → Pages**, the project site still lives under `/<repo>/`, so leave the automatic base path alone. The workflow only switches to `/` when a `public/CNAME` file exists, which is appropriate when the site is genuinely served from the domain root.
 
 To reproduce a Pages build locally:
 
@@ -69,6 +69,40 @@ BASE_PATH=/cadence/ npm run preview
 ```
 
 If you only want to serve it from a plain GitHub repository without Actions, you can build with `BASE_PATH=/<repo>/` and publish the contents of `dist/` to a `gh-pages` branch, but the included workflow is the simpler path.
+
+## Accounts and cross-device sync
+
+Progress is local-first: the app works fully offline and keeps writing to `localStorage`. Signing in adds an optional copy in Supabase so lessons, skills, XP, streaks, and settings follow you between phone and computer. A build without Supabase credentials keeps working normally and shows a short setup note in Settings instead.
+
+Enable it once:
+
+1. Create a free project at [supabase.com](https://supabase.com).
+2. In **SQL Editor**, run [`supabase/schema.sql`](supabase/schema.sql). It creates the `progress` table and row-level security policies so each user can only read and write their own row.
+3. In **Authentication → URL Configuration**, set **Site URL** to the deployed address (for example `https://parsasam.ir/Cadance/`), and add that address plus `http://localhost:5173/` to **Redirect URLs**. The email link returns to the app root, where Supabase's PKCE flow completes.
+4. Copy the project URL and the **anon public** key from **Project Settings → API** into `.env.local`:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+5. For GitHub Pages, add both names as repository **variables** under **Settings → Secrets and variables → Actions → Variables**: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. The workflow passes them into the build.
+
+Then open **Settings → Account**, enter an email, and follow the link. There is no password to store. The anon key is safe to ship in the bundle because row-level security restricts every request to the signed-in user.
+
+How merging works:
+
+- XP and daily question counts are tracked **per device**. Merging takes the maximum per device and then sums, so syncing the same two devices repeatedly never double counts.
+- Lesson records keep the earliest completion, the best score, and the highest attempt count.
+- Skills keep the most recently reviewed record.
+- Settings follow the most recent change; a fresh device adopts the account's settings instead of overwriting them with defaults.
+- Resetting progress records a reset timestamp, so the next sync clears the other devices instead of restoring old data.
+- Practice is never blocked on the network. Changes are pushed shortly after activity and pulled when the app regains focus.
+
+Supabase's built-in email sender is rate-limited and intended for testing. For real sign-ups, configure SMTP under **Authentication → Emails** with any transactional provider.
+
+**Android note:** the native app cannot yet receive an `https://` email link. Completing sign-in in the APK needs a custom scheme (for example `com.cadence.musictheory://auth`) plus `@capacitor/browser` and `@capacitor/app` listeners. Until that is wired, sync works in the browser and installed PWA on both devices.
+
+**Backups:** **Settings → Data → Export backup** downloads a JSON snapshot. **Import** restores one and treats it as a reset, so it replaces older copies on other devices.
 
 ## Wrap as an Android APK
 
@@ -124,10 +158,14 @@ src/
     audio.ts              Web Audio piano and guitar synthesis
     exercises.ts          question generators, grading, topic presets
     music.ts              pitch, intervals, chords, scales, key signatures
-    progress.tsx          persistence, XP, streaks, spaced repetition
+    progress.tsx          React state, auth, sync, XP, spaced repetition
+    progressState.ts      document shape, per-device counters, merge rules
+    supabase.ts           optional Supabase client (env-driven)
     courseStats.ts        lesson/course progress helpers
   pages/                  dashboard, courses, lesson, practice, trainer, settings
   styles.css              design system and responsive rules
+supabase/
+  schema.sql              progress table, RLS policies, updated_at trigger
 public/
   fonts/NotoMusic-Regular.ttf
   icons/
@@ -142,7 +180,7 @@ Each exercise answer updates every skill attached to that question:
 - Strength rises with correct answers and falls with misses. The daily queue combines due reviews with the weakest skills, and falls back to a foundation mix when no history exists.
 - Repeated questions on the same skill within a ten-minute sitting do not advance the interval. The skill is scheduled once, so a lesson cannot inflate a review streak.
 
-The scheduler is intentionally local-first: all state is in `localStorage` under `cadence.progress.v1`. Clearing site data resets progress.
+The scheduler is intentionally local-first: all state is in `localStorage` under `cadence.progress.v1`. Clearing site data resets the local copy. An account only adds a synced copy; offline practice still works and merges when the connection returns.
 
 ## Settings
 
@@ -160,4 +198,5 @@ The scheduler is intentionally local-first: all state is in `localStorage` under
 | `npm run dev` | Start the Vite development server |
 | `npm run build` | Type-check and build the production bundle |
 | `npm run preview` | Serve the production build locally |
+| `npm test` | Run the progress merge and migration tests |
 | `npm run typecheck` | Run TypeScript without emitting files |

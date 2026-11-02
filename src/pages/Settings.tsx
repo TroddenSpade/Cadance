@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import Icon from '../components/Icons';
 import { synth } from '../lib/audio';
 import type { IconName } from '../components/Icons';
-import { levelFromXp, useProgress, type InstrumentMode } from '../lib/progress';
+import { levelFromXp, syncStatusLabel, todayKey, useProgress, type InstrumentMode } from '../lib/progress';
 
 const INSTRUMENTS: Array<{ id: InstrumentMode; title: string; description: string; icon: IconName }> = [
   {
@@ -25,10 +25,143 @@ const INSTRUMENTS: Array<{ id: InstrumentMode; title: string; description: strin
   },
 ];
 
+function formatSyncedAt(value: number | null): string {
+  if (!value) return 'not yet';
+  return new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
+}
+
+function AccountPanel() {
+  const { configured, status, email, lastSyncedAt, syncError, signIn, signOut, syncNow } = useProgress();
+  const [address, setAddress] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!address.trim()) return;
+    setBusy(true);
+    setNotice(null);
+    const result = await signIn(address);
+    setBusy(false);
+    setNotice(
+      result.ok
+        ? `Check ${address.trim()} for a sign-in link. It may take a minute.`
+        : (result.error ?? 'Could not send the link.'),
+    );
+  };
+
+  return (
+    <section className="panel settings-panel account-panel">
+      <div className="panel-head">
+        <div>
+          <span className="eyebrow">Account</span>
+          <h2>Sync across phone and computer</h2>
+        </div>
+        <span className={`sync-pill ${status}`}>
+          <span className="sync-dot" />
+          {syncStatusLabel[status]}
+        </span>
+      </div>
+
+      {!configured ? (
+        <p className="settings-note">
+          Cross-device sync is not configured in this build, so progress stays on this device. Set
+          <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> when building to enable accounts —
+          the README has the setup steps. You can still move progress between devices with a backup file.
+        </p>
+      ) : email ? (
+        <div className="sync-account">
+          <div className="sync-identity">
+            <span className="sync-avatar">
+              <Icon name="user" size={20} />
+            </span>
+            <div>
+              <strong>{email}</strong>
+              <small>
+                {syncError
+                  ? syncError
+                  : status === 'synced'
+                    ? `Last synced ${formatSyncedAt(lastSyncedAt)}`
+                    : syncStatusLabel[status]}
+              </small>
+            </div>
+          </div>
+          <div className="button-row">
+            <button
+              className="button secondary small"
+              onClick={() => void syncNow()}
+              disabled={status === 'syncing'}
+            >
+              <Icon name="refresh" size={14} /> Sync now
+            </button>
+            <button className="button ghost small" onClick={() => void signOut()}>
+              Sign out
+            </button>
+          </div>
+          <p className="settings-note">
+            Practice works offline. Changes merge with your account when you reconnect, and resetting progress on one
+            device clears it everywhere.
+          </p>
+        </div>
+      ) : (
+        <form className="sync-form" onSubmit={submit}>
+          <p className="settings-note">
+            Sign in with an email link — no password to remember. Your lessons, reviews, XP, and streaks then follow
+            you between devices. Progress stays on this device and keeps working offline.
+          </p>
+          <div className="sync-input-row">
+            <label className="sr-only" htmlFor="sync-email">
+              Email address
+            </label>
+            <input
+              id="sync-email"
+              className="sync-input"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+            />
+            <button className="button primary small" type="submit" disabled={busy}>
+              {busy ? 'Sending…' : 'Email me a link'}
+            </button>
+          </div>
+          {notice && <p className="sync-notice">{notice}</p>}
+        </form>
+      )}
+    </section>
+  );
+}
+
 export default function Settings() {
-  const { state, updateSettings, resetProgress, resetAll } = useProgress();
+  const { state, updateSettings, resetProgress, resetAll, exportProgress, importProgress } = useProgress();
   const [confirmReset, setConfirmReset] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
   const levelInfo = levelFromXp(state.xp);
+
+  const exportBackup = () => {
+    const blob = new Blob([exportProgress()], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `cadence-backup-${todayKey()}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importBackup = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    const text = await file.text();
+    const confirmed = window.confirm(
+      'Replace the progress on this device with this backup? If you are signed in, the synced copy is replaced too.',
+    );
+    if (!confirmed) return;
+    const result = importProgress(text);
+    window.alert(result.ok ? 'Backup restored.' : (result.error ?? 'Could not restore that backup.'));
+  };
 
   const testTone = (timbre: 'piano' | 'guitar') => {
     synth.setTimbre(timbre);
@@ -60,6 +193,8 @@ export default function Settings() {
       </header>
 
       <div className="settings-grid">
+        <AccountPanel />
+
         <section className="panel settings-panel">
           <div className="panel-head">
             <div>
@@ -224,7 +359,7 @@ export default function Settings() {
             </div>
             <div>
               <Icon name="music" size={18} />
-              <span>All progress stored locally on this device</span>
+              <span>Local-first progress, with optional cross-device sync</span>
             </div>
           </div>
           <p className="settings-fineprint">
@@ -237,7 +372,28 @@ export default function Settings() {
           <div className="panel-head">
             <div>
               <span className="eyebrow">Data</span>
-              <h2>Reset</h2>
+              <h2>Backup & reset</h2>
+            </div>
+          </div>
+          <div className="backup-row">
+            <div>
+              <strong>Backup file</strong>
+              <p>Save a JSON snapshot, or restore one here or on another device.</p>
+            </div>
+            <div className="button-row">
+              <button className="button secondary small" onClick={exportBackup}>
+                Export backup
+              </button>
+              <button className="button ghost small" onClick={() => fileRef.current?.click()}>
+                Import
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="application/json,.json"
+                hidden
+                onChange={(event) => void importBackup(event)}
+              />
             </div>
           </div>
           <div className="danger-actions">

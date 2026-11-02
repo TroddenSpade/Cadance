@@ -24,7 +24,9 @@ export type IconName =
   | 'headphones'
   | 'metronome'
   | 'book'
-  | 'trophy';
+  | 'trophy'
+  | 'cloud'
+  | 'user';
 
 const paths: Record<IconName, React.ReactNode> = {
   today: (
@@ -136,6 +138,15 @@ const paths: Record<IconName, React.ReactNode> = {
     <>
       <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z" />
       <path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20" />
+    </>
+  ),
+  cloud: (
+    <path d="M7 18.5a4.5 4.5 0 0 1-.6-8.96 5.5 5.5 0 0 1 10.5-1.7A4.25 4.25 0 0 1 17.5 18.5H7Z" />
+  ),
+  user: (
+    <>
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
     </>
   ),
   trophy: (

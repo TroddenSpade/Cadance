@@ -7,3 +7,6 @@ dist-ssr
 .vite
 android
 ios
+.env
+.env.*
+!.env.example

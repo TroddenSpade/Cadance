@@ -1,0 +1,8 @@
+{
+  "appId": "com.cadence.musictheory",
+  "appName": "Cadence",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -246,14 +246,14 @@ class SynthEngine {
   }
 
   /** Play a rhythm as a pitched pulse. `tempo` is seconds per beat. */
-  playRhythm(items: RhythmItem[], tempo = 0.46) {
+  playRhythm(items: RhythmItem[], tempo = 0.46, midi = 84) {
     this.stopAll();
     let cursor = 0;
     items.forEach((item) => {
       if (!item.rest) {
         const onBar = Math.abs(cursor % 4) < 1e-6;
         const beats = Math.abs(item.beats);
-        this.playPiano(84, cursor * tempo, Math.max(0.2, beats * tempo * 0.95), onBar ? 0.75 : 0.55);
+        this.playNote(midi, cursor * tempo, Math.max(0.2, beats * tempo * 0.95), onBar ? 0.75 : 0.55);
       }
       cursor += Math.abs(item.beats);
     });

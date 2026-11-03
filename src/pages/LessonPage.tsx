@@ -3,12 +3,14 @@ import { Link, useParams } from 'react-router-dom';
 import ExerciseSession from '../components/ExerciseSession';
 import Icon from '../components/Icons';
 import InstrumentSurface from '../components/InstrumentSurface';
+import LessonInstrument from '../components/LessonInstrument';
 import Metronome from '../components/Metronome';
 import NoteText from '../components/NoteText';
 import RhythmDisplay from '../components/RhythmDisplay';
 import RichText from '../components/RichText';
 import Staff from '../components/Staff';
 import { COURSE_MAP, LESSON_MAP, LEVELS, nextLesson, previousLesson } from '../data/curriculum';
+import { LESSON_INSTRUMENT_DEMOS } from '../data/instrumentExamples';
 import { synth } from '../lib/audio';
 import { exerciseSkillLabel } from '../lib/exercises';
 import { useProgress } from '../lib/progress';
@@ -49,6 +51,7 @@ export default function LessonPage() {
   const next = nextLesson(lesson.id);
   const questionCount = lesson.exercises.reduce((sum, exercise) => sum + exercise.count, 0);
   const skillIds = Array.from(new Set(lesson.exercises.flatMap((exercise) => exercise.skills)));
+  const instrumentDemos = LESSON_INSTRUMENT_DEMOS[lesson.id] ?? [];
 
   const playSection = (audio: NonNullable<(typeof lesson.sections)[number]['audio']>) => {
     synth.setTimbre(settings.timbre);
@@ -107,6 +110,11 @@ export default function LessonPage() {
             <span>
               <Icon name="headphones" size={15} /> Listening included
             </span>
+            {instrumentDemos.length > 0 && (
+              <span>
+                <Icon name="piano" size={15} /> Guided instrument practice
+              </span>
+            )}
             {isComplete && (
               <span className="done-chip">
                 <Icon name="check" size={13} /> Completed · best {Math.round((progress?.bestScore ?? 0) * 100)}%
@@ -138,6 +146,11 @@ export default function LessonPage() {
                   <Staff spec={section.staff} />
                 </div>
               )}
+              {instrumentDemos
+                .filter((demo) => demo.afterSection === index)
+                .map((demo, demoIndex) => (
+                  <LessonInstrument key={`${index}-${demoIndex}`} spec={demo.spec} />
+                ))}
               {section.rhythm && (
                 <div className="notation-panel rhythm-panel lesson-notation">
                   <RhythmDisplay items={section.rhythm.items} />

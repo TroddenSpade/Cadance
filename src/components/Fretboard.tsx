@@ -1,4 +1,5 @@
 import { midiToName, noteLabelLines, noteName, pitchClass, type Letter, type NoteNaming } from '../lib/music';
+import type { GuitarSpot } from '../lib/types';
 import type { MarkState } from './Piano';
 
 interface FretboardProps {
@@ -8,6 +9,10 @@ interface FretboardProps {
   naming?: NoteNaming;
   disabled?: boolean;
   preferFlats?: boolean;
+  /** Exact suggested positions. When present, these replace pitch-class marks. */
+  spots?: GuitarSpot[];
+  /** Pitch classes drawn with root emphasis inside `spots`. */
+  rootPitchClasses?: number[];
 }
 
 const STRINGS = [
@@ -34,6 +39,8 @@ export default function Fretboard({
   naming = 'both',
   disabled = false,
   preferFlats = false,
+  spots,
+  rootPitchClasses = [],
 }: FretboardProps) {
   const width = 920;
   const height = TOP + STRING_GAP * 5 + 58;
@@ -102,7 +109,14 @@ export default function Fretboard({
         {STRINGS.map((string, stringIndex) =>
           Array.from({ length: FRETS + 1 }, (_, fret) => {
             const midi = string.midi + fret;
-            const mark = marks[pitchClass(midi)];
+            const spot = spots?.find((item) => item.string === stringIndex && item.fret === fret);
+            const mark = spots
+              ? spot
+                ? rootPitchClasses.includes(pitchClass(midi))
+                  ? 'root'
+                  : 'lesson'
+                : undefined
+              : marks[pitchClass(midi)];
             const xStart = fret === 0 ? 12 : LEFT + (fret - 1) * fretWidth + 2;
             const xEnd = fret === 0 ? LEFT - 2 : LEFT + fret * fretWidth - 2;
             const y = stringY(stringIndex);
@@ -110,7 +124,7 @@ export default function Fretboard({
             const letter = name[0] as Letter;
             const accidental = name.includes('♯') ? 1 : name.includes('♭') ? -1 : 0;
             const displayName = noteName(letter, accidental, naming);
-            const showName = showLabels && (fret === 0 || Boolean(mark));
+            const showName = showLabels && (spot ? true : fret === 0 || Boolean(mark));
             return (
               <g
                 key={`pos-${stringIndex}-${fret}`}
@@ -127,11 +141,18 @@ export default function Fretboard({
                 }}
               >
                 <rect x={xStart} y={y - 14} width={Math.max(xEnd - xStart, 18)} height={28} rx={5} className="fret-hit" />
-                {mark && <circle cx={(xStart + xEnd) / 2} cy={y} r={10} className="fret-mark-dot" />}
+                {mark && (
+                  <circle
+                    cx={spot && fret === 0 ? LEFT - 12 : (xStart + xEnd) / 2}
+                    cy={y}
+                    r={10}
+                    className="fret-mark-dot"
+                  />
+                )}
                 {showName && (
                   <text
-                    x={fret === 0 ? LEFT - 48 : (xStart + xEnd) / 2}
-                    y={fret === 0 ? y + 20 : y - 14}
+                    x={spot && fret === 0 ? LEFT - 12 : fret === 0 ? LEFT - 48 : (xStart + xEnd) / 2}
+                    y={spot ? y - 14 : fret === 0 ? y + 20 : y - 14}
                     textAnchor="middle"
                     className={`fret-note-label ${mark ? 'visible' : ''}`}
                   >

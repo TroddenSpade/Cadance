@@ -32,6 +32,37 @@ export interface StaffSpec {
   chord?: boolean;
 }
 
+/** A suggested position on the guitar neck. String 0 is the high E string. */
+export interface GuitarSpot {
+  string: number;
+  fret: number;
+}
+
+/**
+ * A guided instrument example shown inside a lesson section.
+ *
+ * `notes` are the sounding pitches used for the keyboard display and for
+ * playback. `guitarSpots` are an explicit hand position; when omitted, the
+ * fretboard marks every occurrence of the notes' pitch classes.
+ */
+export interface InstrumentDemoSpec {
+  title?: string;
+  body?: string;
+  notes: number[];
+  mode?: 'sequence' | 'chord';
+  tempo?: number;
+  preferFlats?: boolean;
+  pianoStart?: number;
+  pianoEnd?: number;
+  guitarSpots?: GuitarSpot[];
+  rootPitchClasses?: number[];
+  /** Play a real rhythm instead of a sequence of pitches. */
+  rhythm?: RhythmItem[];
+  /** Optional chord progression for playback. `notes` still controls the display. */
+  chords?: number[][];
+  caption?: string;
+}
+
 export interface RhythmSpec {
   items: RhythmItem[];
 }

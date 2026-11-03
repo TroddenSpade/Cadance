@@ -1825,6 +1825,90 @@ strong {
   margin: 24px 0 10px;
 }
 
+.lesson-instrument {
+  margin: 24px 0 10px;
+  padding: 16px;
+  border: 1px solid rgba(232, 181, 104, 0.26);
+  border-radius: 16px;
+  background:
+    radial-gradient(520px 220px at 12% 0, rgba(232, 181, 104, 0.075), transparent 72%),
+    #0d0f13;
+}
+
+.lesson-instrument-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.lesson-instrument-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.lesson-instrument-title > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lesson-instrument-title strong {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.lesson-instrument-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.lesson-instrument-play {
+  flex-shrink: 0;
+}
+
+.lesson-instrument-body {
+  font-size: 13.5px;
+  line-height: 1.72;
+  color: #ddd7cc;
+  margin-bottom: 14px;
+}
+
+.lesson-instrument-body p + p {
+  margin-top: 10px;
+}
+
+.lesson-instrument-surface {
+  padding: 10px 12px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #08090c;
+}
+
+.lesson-instrument-surface .instrument-surface {
+  gap: 14px;
+}
+
+.lesson-instrument-caption {
+  margin-top: 10px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--faint);
+}
+
 .staff,
 .rhythm-display {
   display: block;
@@ -2473,6 +2557,22 @@ strong {
   fill: #a8752f;
 }
 
+.piano-key.white.mark-root rect:first-child {
+  fill: var(--accent);
+}
+
+.piano-key.black.mark-root rect:first-child {
+  fill: #b07f33;
+}
+
+.piano-key.white.mark-lesson rect:first-child {
+  fill: #d8c4a0;
+}
+
+.piano-key.black.mark-lesson rect:first-child {
+  fill: #826331;
+}
+
 .piano-key.white.mark-correct rect:first-child {
   fill: #b9dfc1;
 }
@@ -2536,7 +2636,9 @@ strong {
 }
 
 .piano-key.mark-correct .piano-label,
-.piano-key.mark-selected .piano-label {
+.piano-key.mark-selected .piano-label,
+.piano-key.mark-root .piano-label,
+.piano-key.mark-lesson .piano-label {
   fill: #221a0d;
 }
 
@@ -2611,6 +2713,14 @@ strong {
   fill: rgba(232, 181, 104, 0.2);
 }
 
+.fret-position.mark-root .fret-hit {
+  fill: rgba(232, 181, 104, 0.24);
+}
+
+.fret-position.mark-lesson .fret-hit {
+  fill: rgba(232, 181, 104, 0.13);
+}
+
 .fret-position.mark-correct .fret-hit {
   fill: rgba(143, 202, 155, 0.14);
 }
@@ -2623,6 +2733,16 @@ strong {
   fill: var(--accent);
   stroke: #17120a;
   stroke-width: 1.5;
+}
+
+.fret-position.mark-lesson .fret-mark-dot {
+  fill: #c9a15d;
+}
+
+.fret-position.mark-root .fret-mark-dot {
+  fill: var(--accent-bright);
+  stroke: #17120a;
+  stroke-width: 2;
 }
 
 .fret-position.mark-correct .fret-mark-dot {
@@ -4515,6 +4635,24 @@ strong {
   .notation-panel {
     padding: 6px;
     margin: 18px 0 6px;
+  }
+
+  .lesson-instrument {
+    padding: 12px;
+    margin: 20px 0 8px;
+  }
+
+  .lesson-instrument-top {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .lesson-instrument-play {
+    width: 100%;
+  }
+
+  .lesson-instrument-surface {
+    padding: 6px;
   }
 
   .practice-banner {

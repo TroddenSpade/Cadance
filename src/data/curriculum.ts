@@ -514,7 +514,7 @@ Players naturally lean on strong beats. Composers play with that expectation thr
             heading: 'Simple and compound',
             body: `Meters that divide the beat into two are **simple** (2/4, 3/4, 4/4). Meters that divide the beat into three are **compound** (6/8, 9/8, 12/8).
 
-6/8 is not the same feel as 3/4, even though both contain six eighth notes' worth of time. 6/8 pulses in two broad beats, each split into three.`,
+6/8 is not the same feel as 3/4. In 3/4 there are three quarter-note beats, each divisible into two eighths; in 6/8 there are six eighth-note units grouped into two broad beats, each split into three. Clap **1 – 2 – 3 – 4 – 5 – 6** with weight on 1 and 4, then compare it with **1 – 2 – 3** in 3/4. On guitar, strum a C chord twice per 6/8 bar and three times per 3/4 bar; the arm feels the difference immediately.`,
             audio: block([60, 64, 67]),
             audioLabel: 'Hear a C major triad — one pulse, many possible groupings',
           },
@@ -852,9 +852,9 @@ F major is the exception: with only one flat, there is no second-to-last flat. M
           },
           {
             heading: 'Hearing flat keys',
-            body: `Flat keys tend to feel warmer and softer on the piano because the black keys sit comfortably under the fingers. On guitar, flat keys often require barre shapes and can sound rounder.
+            body: `Flat keys have a distinct physical layout. B♭ major uses two black keys (B♭ and E♭), while B major uses all five; on the piano the hand sits differently even though the interval pattern is identical. On guitar, B♭ major can be played from the A string 1st fret through the D string 8th fret, while B major shifts the same shape up one fret.
 
-Play a B♭ major scale and a B major scale back to back. Same pattern, different physical layout, subtly different colour.`,
+Play a B♭ major scale and a B major scale back to back. Same pattern, different physical layout. Many players describe flat keys as rounder, but that impression comes from fingering and register as much as from the notes themselves.`,
             audio: seq([58, 60, 62, 63, 65, 67, 69, 70], 0.38),
             audioLabel: 'Hear a B♭ major scale',
           },
@@ -973,7 +973,7 @@ The only difference is the third — one semitone changes the entire emotional c
             heading: 'Build them anywhere',
             body: `On a piano, find the root, count four semitones for a major third or three for a minor third, then count seven semitones from the root for the fifth.
 
-On a guitar, a major triad can be played with the familiar open C, G, D, A, and E shapes. A minor triad lowers the third by one fret. Barre chords move the same shapes across the neck.
+On a guitar, the familiar open C, G, D, A, and E shapes are major triads. To hear the third move, compare A major \`x 0 2 2 2 0\` with A minor \`x 0 2 2 1 0\`: the only change is the B string, from the 2nd fret to the 1st. Barre chords move the same shapes across the neck, so one fingering gives you all twelve roots.
 
 In notation, the root is not always the lowest note. That is a question of inversion, coming next.`,
           },
@@ -1686,7 +1686,7 @@ Parallel perfect fifths and octaves are avoided in classical counterpoint becaus
           },
           {
             heading: 'Good voicings',
-            body: `Keep voices within their ranges, avoid crossing, and space the lower voices more widely than the upper ones. A root-position triad sounds full when the root is doubled, especially in four-part writing.
+            body: `Keep voices within their ranges, avoid crossing, and observe the spacing rule: the gap between bass and tenor may be wide — up to a twelfth — while the upper three voices stay close together, usually within an octave. A root-position triad sounds full when the root is doubled, especially in four-part writing.
 
 Play a I–IV–V–I progression in four voices. Then play it again, keeping each voice within a step or two. The second version will sound more like music and less like a chord chart.`,
           },
@@ -2007,7 +2007,7 @@ Analyse by **function and key**, not by bar count alone.`,
             body: `Extensions continue stacking thirds above a seventh chord:
 
 - **9th:** add the ninth (C9 = C–E–G–B♭–D).
-- **11th:** add the eleventh (usually sharped on dominant chords: C7♯11).
+- **11th:** add the eleventh. On a dominant chord the natural 11 clashes with the major third, so it is usually raised (**C7♯11**); a natural 11 is more common on minor chords (**Cm11**).
 - **13th:** add the thirteenth (C13 = C–E–G–B♭–A).
 
 In practice, some lower notes are omitted to avoid muddiness. A jazz pianist might voice a C13 as E–A–B♭–D.`,

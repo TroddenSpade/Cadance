@@ -1,5 +1,6 @@
 import { synth } from '../lib/audio';
 import { useProgress } from '../lib/progress';
+import type { GuitarSpot } from '../lib/types';
 import Fretboard from './Fretboard';
 import Icon from './Icons';
 import Piano, { type MarkState } from './Piano';
@@ -11,6 +12,11 @@ interface InstrumentSurfaceProps {
   showLabelsOverride?: boolean;
   label?: boolean;
   preferFlats?: boolean;
+  pianoKeys?: number[];
+  pianoStart?: number;
+  pianoEnd?: number;
+  guitarSpots?: GuitarSpot[];
+  rootPitchClasses?: number[];
 }
 
 export default function InstrumentSurface({
@@ -20,6 +26,11 @@ export default function InstrumentSurface({
   showLabelsOverride,
   label = true,
   preferFlats = false,
+  pianoKeys,
+  pianoStart,
+  pianoEnd,
+  guitarSpots,
+  rootPitchClasses,
 }: InstrumentSurfaceProps) {
   const { settings } = useProgress();
   const showLabels = showLabelsOverride ?? settings.showLabels;
@@ -48,6 +59,10 @@ export default function InstrumentSurface({
             naming={settings.noteNaming}
             disabled={disabled}
             preferFlats={preferFlats}
+            startMidi={pianoStart}
+            endMidi={pianoEnd}
+            markedKeys={pianoKeys}
+            rootPitchClasses={rootPitchClasses}
           />
         </div>
       )}
@@ -66,6 +81,8 @@ export default function InstrumentSurface({
             naming={settings.noteNaming}
             disabled={disabled}
             preferFlats={preferFlats}
+            spots={guitarSpots}
+            rootPitchClasses={rootPitchClasses}
           />
         </div>
       )}

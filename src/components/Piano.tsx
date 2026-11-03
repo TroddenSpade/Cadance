@@ -7,7 +7,7 @@ import {
   type NoteNaming,
 } from '../lib/music';
 
-export type MarkState = 'correct' | 'wrong' | 'selected' | 'target';
+export type MarkState = 'correct' | 'wrong' | 'selected' | 'target' | 'lesson' | 'root';
 
 interface PianoProps {
   onNote?: (midi: number) => void;
@@ -19,6 +19,10 @@ interface PianoProps {
   endMidi?: number;
   height?: number;
   preferFlats?: boolean;
+  /** Exact keys to mark. When present, these replace the pitch-class `marks`. */
+  markedKeys?: number[];
+  /** Pitch classes drawn with root emphasis inside `markedKeys`. */
+  rootPitchClasses?: number[];
 }
 
 const WHITE_WIDTH = 50;
@@ -42,6 +46,8 @@ export default function Piano({
   startMidi = 48,
   endMidi = 72,
   preferFlats = false,
+  markedKeys,
+  rootPitchClasses = [],
 }: PianoProps) {
   const whites: number[] = [];
   const blacks: number[] = [];
@@ -51,6 +57,14 @@ export default function Piano({
   }
   const width = whites.length * WHITE_WIDTH;
   const height = WHITE_HEIGHT + 6;
+
+  const markFor = (midi: number): MarkState | undefined => {
+    if (markedKeys) {
+      if (!markedKeys.includes(midi)) return undefined;
+      return rootPitchClasses.includes(pitchClass(midi)) ? 'root' : 'lesson';
+    }
+    return marks[pitchClass(midi)];
+  };
 
   const whiteIndex = (midi: number) => whites.filter((value) => value < midi).length;
 
@@ -63,7 +77,7 @@ export default function Piano({
         aria-label="Piano keyboard"
       >
         {whites.map((midi, index) => {
-          const mark = marks[pitchClass(midi)];
+          const mark = markFor(midi);
           const name = midiToName(midi, preferFlats);
           const lines = labelLines(midi, preferFlats, naming);
           return (
@@ -115,7 +129,7 @@ export default function Piano({
         {blacks.map((midi) => {
           const before = whiteIndex(midi);
           const x = before * WHITE_WIDTH - BLACK_WIDTH / 2;
-          const mark = marks[pitchClass(midi)];
+          const mark = markFor(midi);
           const name = midiToName(midi, preferFlats);
           const lines = labelLines(midi, preferFlats, naming);
           return (

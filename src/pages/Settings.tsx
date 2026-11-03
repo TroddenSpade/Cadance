@@ -3,6 +3,15 @@ import Icon from '../components/Icons';
 import { synth } from '../lib/audio';
 import type { IconName } from '../components/Icons';
 import { levelFromXp, syncStatusLabel, todayKey, useProgress, type InstrumentMode } from '../lib/progress';
+import {
+  installSnoozed,
+  isChromium,
+  isIos,
+  isStandalone,
+  showInstallPromptNow,
+  snoozeInstall,
+  useInstallPrompt,
+} from '../lib/install';
 
 const INSTRUMENTS: Array<{ id: InstrumentMode; title: string; description: string; icon: IconName }> = [
   {
@@ -29,6 +38,63 @@ function formatSyncedAt(value: number | null): string {
   if (!value) return 'not yet';
   return new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 }
+
+function InstallRow() {
+  const { available, install } = useInstallPrompt();
+  const [installed] = useState(() => isStandalone());
+  const [ios] = useState(() => isIos());
+  const [chromium] = useState(() => isChromium());
+  const [busy, setBusy] = useState(false);
+  const [snoozed, setSnoozed] = useState(() => installSnoozed());
+
+  const run = async () => {
+    setBusy(true);
+    const outcome = await install();
+    setBusy(false);
+    if (outcome !== 'accepted') snoozeInstall();
+  };
+
+  return (
+    <div className="backup-row install-row">
+      <div>
+        <strong>Install app</strong>
+        <p>
+          {installed
+            ? 'Cadence is installed and runs in its own window.'
+            : 'Add Cadence to your home screen or desktop for offline practice and a full-screen experience.'}
+        </p>
+      </div>
+      <div className="button-row">
+        {installed ? (
+          <span className="install-state">
+            <Icon name="check" size={14} /> Installed
+          </span>
+        ) : available ? (
+          <button className="button primary small" onClick={() => void run()} disabled={busy}>
+            {busy ? 'Opening…' : 'Install app'}
+          </button>
+        ) : snoozed ? (
+          <button
+            className="button ghost small"
+            onClick={() => {
+              showInstallPromptNow();
+              setSnoozed(false);
+            }}
+          >
+            Show reminder
+          </button>
+        ) : ios ? (
+          <span className="install-hint">Share → Add to Home Screen</span>
+        ) : chromium ? (
+          <span className="install-hint">Address-bar install icon, or ⋮ → Install Cadence</span>
+        ) : (
+          <span className="install-hint">Try Chrome, Edge, or Safari on iOS</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 function AccountPanel() {
   const { configured, status, email, lastSyncedAt, syncError, signIn, signOut, syncNow } = useProgress();
@@ -362,10 +428,8 @@ export default function Settings() {
               <span>Local-first progress, with optional cross-device sync</span>
             </div>
           </div>
-          <p className="settings-fineprint">
-            Install: open the browser menu and choose “Add to Home Screen”. Android packaging instructions are in the
-            project README.
-          </p>
+          <InstallRow />
+          <p className="settings-fineprint">Android packaging instructions are in the project README.</p>
         </section>
 
         <section className="panel settings-panel danger-panel">

@@ -12,6 +12,16 @@
       content="Cadence is an interactive trainer for music theory reading and listening, with piano and guitar."
     />
     <title>Cadence — Music Theory Trainer</title>
+    <script>
+      // Capture the install event before the app module loads. Chrome can fire
+      // it during startup, and an event missed then is gone for good.
+      window.__cadenceInstallPrompt = null;
+      window.addEventListener('beforeinstallprompt', function (event) {
+        event.preventDefault();
+        window.__cadenceInstallPrompt = event;
+        window.dispatchEvent(new Event('cadence:install-available'));
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>

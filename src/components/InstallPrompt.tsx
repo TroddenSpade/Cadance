@@ -1,121 +1,76 @@
 import { useEffect, useState } from 'react';
 import Icon from './Icons';
+import {
+  INSTALL_SHOW_EVENT,
+  clearInstallSnooze,
+  installSnoozed,
+  isChromium,
+  isIos,
+  isStandalone,
+  snoozeInstall,
+  useInstallPrompt,
+} from '../lib/install';
 
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
-}
-
-const DISMISS_KEY = 'cadence.install.dismissed.v1';
-const SNOOZE_DAYS = 14;
-const SHOW_DELAY = 2500;
-
-function isStandalone(): boolean {
-  return (
-    window.matchMedia('(display-mode: standalone)').matches ||
-    (navigator as Navigator & { standalone?: boolean }).standalone === true
-  );
-}
-
-function isIos(): boolean {
-  return (
-    /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  );
-}
-
-function snoozed(): boolean {
-  try {
-    const dismissedAt = Number(localStorage.getItem(DISMISS_KEY) ?? 0);
-    return dismissedAt > 0 && Date.now() - dismissedAt < SNOOZE_DAYS * 24 * 60 * 60 * 1000;
-  } catch {
-    return false;
-  }
-}
-
-function snooze(): void {
-  try {
-    localStorage.setItem(DISMISS_KEY, String(Date.now()));
-  } catch {
-    /* private mode or storage disabled */
-  }
-}
-
-function clearSnooze(): void {
-  try {
-    localStorage.removeItem(DISMISS_KEY);
-  } catch {
-    /* ignore */
-  }
-}
+const SHOW_DELAY = 1500;
 
 /**
- * Offers installation once the browser says the PWA is installable. Chromium
- * fires `beforeinstallprompt`; iOS has no such event, so it gets a short
- * Share → Add to Home Screen hint instead. Dismissals snooze for two weeks.
+ * Offers installation as soon as the app is running as a normal tab.
+ *
+ * Chromium normally fires `beforeinstallprompt`, captured early in index.html,
+ * which lets us open the native install dialog. That event depends on browser
+ * heuristics and never fires in some browsers, so Chromium without it gets the
+ * manual browser-menu route instead of silence. iOS has no event at all and
+ * always gets the Share → Add to Home Screen hint. Dismissals snooze for a day.
  */
 export default function InstallPrompt() {
-  const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const { available, install } = useInstallPrompt();
+  const [ios] = useState(() => isIos());
+  const [chromium] = useState(() => isChromium());
   const [visible, setVisible] = useState(false);
-  const [ios, setIos] = useState(false);
   const [installing, setInstalling] = useState(false);
 
+  const eligible = available || ios || chromium;
+
   useEffect(() => {
-    if (isStandalone() || snoozed()) return;
-    let timer = 0;
+    if (!eligible || isStandalone()) return;
+    if (installSnoozed()) return;
+    const timer = window.setTimeout(() => setVisible(true), SHOW_DELAY);
+    return () => window.clearTimeout(timer);
+  }, [eligible]);
 
-    const onBeforeInstall = (event: Event) => {
-      event.preventDefault();
-      setPromptEvent(event as BeforeInstallPromptEvent);
-      setIos(false);
-      timer = window.setTimeout(() => setVisible(true), SHOW_DELAY);
+  useEffect(() => {
+    // Settings can bring the reminder back without a reload.
+    const onShow = () => {
+      if (!eligible || isStandalone()) return;
+      setVisible(true);
     };
+    window.addEventListener(INSTALL_SHOW_EVENT, onShow);
+    return () => window.removeEventListener(INSTALL_SHOW_EVENT, onShow);
+  }, [eligible]);
+
+  useEffect(() => {
     const onInstalled = () => {
-      window.clearTimeout(timer);
+      clearInstallSnooze();
       setVisible(false);
-      setPromptEvent(null);
-      clearSnooze();
     };
-
-    window.addEventListener('beforeinstallprompt', onBeforeInstall);
     window.addEventListener('appinstalled', onInstalled);
-
-    // Safari never fires beforeinstallprompt, so show the manual route.
-    if (isIos()) {
-      timer = window.setTimeout(() => {
-        setIos(true);
-        setVisible(true);
-      }, SHOW_DELAY);
-    }
-
-    return () => {
-      window.clearTimeout(timer);
-      window.removeEventListener('beforeinstallprompt', onBeforeInstall);
-      window.removeEventListener('appinstalled', onInstalled);
-    };
+    return () => window.removeEventListener('appinstalled', onInstalled);
   }, []);
 
   if (!visible) return null;
 
   const dismiss = () => {
     setVisible(false);
-    snooze();
+    snoozeInstall();
   };
 
-  const install = async () => {
-    if (!promptEvent) return;
+  const runInstall = async () => {
+    if (installing) return;
     setInstalling(true);
-    try {
-      await promptEvent.prompt();
-      const choice = await promptEvent.userChoice;
-      if (choice.outcome === 'dismissed') snooze();
-    } catch {
-      snooze();
-    } finally {
-      setInstalling(false);
-      setVisible(false);
-      setPromptEvent(null);
-    }
+    const outcome = await install();
+    setInstalling(false);
+    setVisible(false);
+    if (outcome !== 'accepted') snoozeInstall();
   };
 
   return (
@@ -129,12 +84,17 @@ export default function InstallPrompt() {
           <p>
             Tap the Share button, then <b>Add to Home Screen</b> to install it.
           </p>
-        ) : (
+        ) : available ? (
           <p>Install for offline practice and a full-screen, app-like experience.</p>
+        ) : (
+          <p>
+            Install for offline practice. Open the browser menu (<b>⋮</b>) and choose <b>Install Cadence</b>, or use the
+            install icon in the address bar.
+          </p>
         )}
         <div className="install-prompt-actions">
-          {!ios && (
-            <button className="button primary small" onClick={() => void install()} disabled={installing}>
+          {available && (
+            <button className="button primary small" onClick={() => void runInstall()} disabled={installing}>
               {installing ? 'Opening…' : 'Install app'}
             </button>
           )}

@@ -3,6 +3,7 @@ import Icon from '../components/Icons';
 import { synth } from '../lib/audio';
 import type { IconName } from '../components/Icons';
 import { levelFromXp, syncStatusLabel, todayKey, useProgress, type InstrumentMode } from '../lib/progress';
+import type { NoteNaming } from '../lib/music';
 import {
   installSnoozed,
   isChromium,
@@ -31,6 +32,27 @@ const INSTRUMENTS: Array<{ id: InstrumentMode; title: string; description: strin
     title: 'Both surfaces',
     description: 'Show piano and guitar together. Answer on either one.',
     icon: 'music',
+  },
+];
+
+const NAMING_OPTIONS: Array<{ id: NoteNaming; title: string; example: string; description: string }> = [
+  {
+    id: 'letters',
+    title: 'ABC',
+    example: 'C · D · E',
+    description: 'Letter names only, the standard in English theory.',
+  },
+  {
+    id: 'solfege',
+    title: 'Do Re Mi',
+    example: 'Do · Re · Mi',
+    description: 'Solfège only, with fixed do for every written note.',
+  },
+  {
+    id: 'both',
+    title: 'Both',
+    example: 'C (Do) · D (Re)',
+    description: 'Show the letter and its solfège translation together.',
   },
 ];
 
@@ -291,6 +313,37 @@ export default function Settings() {
           <p className="settings-note">
             Labels are hidden while you answer instrument questions, then revealed with the feedback. This keeps
             note-finding a real test.
+          </p>
+        </section>
+
+        <section className="panel settings-panel">
+          <div className="panel-head">
+            <div>
+              <span className="eyebrow">Note names</span>
+              <h2>ABC or Do Re Mi?</h2>
+            </div>
+          </div>
+          <div className="naming-choice">
+            {NAMING_OPTIONS.map((option) => (
+              <button
+                key={option.id}
+                className={`naming-option ${state.settings.noteNaming === option.id ? 'selected' : ''}`}
+                onClick={() => updateSettings({ noteNaming: option.id })}
+              >
+                <span className="naming-title">{option.title}</span>
+                <span className="naming-example">{option.example}</span>
+                <small>{option.description}</small>
+                {state.settings.noteNaming === option.id && (
+                  <span className="choice-check">
+                    <Icon name="check" size={13} />
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+          <p className="settings-note">
+            Applies to lessons, exercises, staff examples, and the piano and guitar labels. <strong>Both</strong> is the
+            default; solfège uses fixed do, so C is always Do.
           </p>
         </section>
 

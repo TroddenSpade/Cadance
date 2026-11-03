@@ -45,6 +45,7 @@ export default function InstrumentSurface({
             onNote={handleNote}
             marks={marks}
             showLabels={showLabels}
+            naming={settings.noteNaming}
             disabled={disabled}
             preferFlats={preferFlats}
           />
@@ -62,6 +63,7 @@ export default function InstrumentSurface({
             onNote={handleNote}
             marks={marks}
             showLabels={showLabels}
+            naming={settings.noteNaming}
             disabled={disabled}
             preferFlats={preferFlats}
           />

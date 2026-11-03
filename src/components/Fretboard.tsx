@@ -1,10 +1,11 @@
-import { midiToName, pitchClass } from '../lib/music';
+import { midiToName, noteLabelLines, noteName, pitchClass, type Letter, type NoteNaming } from '../lib/music';
 import type { MarkState } from './Piano';
 
 interface FretboardProps {
   onNote?: (midi: number, stringIndex: number, fret: number) => void;
   marks?: Record<number, MarkState>;
   showLabels?: boolean;
+  naming?: NoteNaming;
   disabled?: boolean;
   preferFlats?: boolean;
 }
@@ -30,6 +31,7 @@ export default function Fretboard({
   onNote,
   marks = {},
   showLabels = true,
+  naming = 'both',
   disabled = false,
   preferFlats = false,
 }: FretboardProps) {
@@ -77,12 +79,22 @@ export default function Fretboard({
 
         {STRINGS.map((string, index) => {
           const y = stringY(index);
+          const labelName = midiToName(string.midi, preferFlats);
+          const letter = labelName[0] as Letter;
+          const accidental = labelName.includes('♯') ? 1 : labelName.includes('♭') ? -1 : 0;
+          const octave = Math.floor(string.midi / 12) - 1;
+          const lines = noteLabelLines(letter, accidental, naming).map((line) => `${line}${octave}`);
           return (
             <g key={string.midi}>
               <line x1={LEFT - 26} x2={RIGHT} y1={y} y2={y} className="string-line" strokeWidth={2.8 - index * 0.3} />
-              <text x={LEFT - 34} y={y + 4} textAnchor="end" className="string-label">
-                {string.label}
+              <text x={LEFT - 34} y={lines.length > 1 ? y : y + 4} textAnchor="end" className="string-label">
+                {lines[0]}
               </text>
+              {lines[1] && (
+                <text x={LEFT - 34} y={y + 10} textAnchor="end" className="string-label string-solfege">
+                  {lines[1]}
+                </text>
+              )}
             </g>
           );
         })}
@@ -95,6 +107,9 @@ export default function Fretboard({
             const xEnd = fret === 0 ? LEFT - 2 : LEFT + fret * fretWidth - 2;
             const y = stringY(stringIndex);
             const name = midiToName(midi, preferFlats);
+            const letter = name[0] as Letter;
+            const accidental = name.includes('♯') ? 1 : name.includes('♭') ? -1 : 0;
+            const displayName = noteName(letter, accidental, naming);
             const showName = showLabels && (fret === 0 || Boolean(mark));
             return (
               <g
@@ -103,7 +118,7 @@ export default function Fretboard({
                 onClick={() => !disabled && onNote?.(midi, stringIndex, fret)}
                 role="button"
                 tabIndex={disabled ? -1 : 0}
-                aria-label={`${string.name} string, fret ${fret}, ${name}`}
+                aria-label={`${string.name} string, fret ${fret}, ${displayName}`}
                 onKeyDown={(event) => {
                   if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
                     event.preventDefault();
@@ -120,7 +135,7 @@ export default function Fretboard({
                     textAnchor="middle"
                     className={`fret-note-label ${mark ? 'visible' : ''}`}
                   >
-                    {name}
+                    {displayName}
                   </text>
                 )}
               </g>

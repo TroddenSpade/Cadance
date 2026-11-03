@@ -10,6 +10,7 @@ The interface is installable as a PWA and is structured so the same build can be
 - **Lesson exercises** for staff reading, note finding, heard and written intervals, chord quality and inversion, chord and scale building, key signatures, rhythm counting and dictation, melodic dictation, scale degrees, and chord progressions.
 - **Daily practice** driven by per-skill strength, review streaks, and expanding review intervals. Missed skills return sooner.
 - **Piano, guitar, or both.** Note-finding, chord-building, and scale-building questions render on the selected instrument surface. Pitch class is what counts, so any octave or fret position works.
+- **ABC, Do Re Mi, or both.** Note names appear in the selected system across lessons, exercises, staff examples, and the instrument labels. The default shows the letter with solfège in parentheses, such as `C (Do)`.
 - **Synthesized audio** for piano and Karplus–Strong guitar, generated locally with the Web Audio API. No audio files to download.
 - **Offline support** through a service worker. Progress, settings, and review history live in `localStorage`, with optional account sync across devices.
 - **Responsive layout** with a desktop sidebar and a mobile bottom navigation bar.
@@ -188,6 +189,7 @@ The scheduler is intentionally local-first: all state is in `localStorage` under
 
 - **Instrument:** piano, guitar, or both.
 - **Timbre:** synthesized piano or guitar.
+- **Note names:** **ABC** (C, D, E), **Do Re Mi** (fixed do: C is always Do), or **Both** (C (Do), D (Re)). Both is the default and applies to lessons, exercise prompts and choices, staff examples, and the piano and guitar labels.
 - **Note labels:** show or hide note names on the instrument surfaces.
 - **Autoplay:** play listening questions automatically.
 - **Sound:** globally mute or enable audio.
@@ -200,5 +202,5 @@ The scheduler is intentionally local-first: all state is in `localStorage` under
 | `npm run dev` | Start the Vite development server |
 | `npm run build` | Type-check and build the production bundle |
 | `npm run preview` | Serve the production build locally |
-| `npm test` | Run the progress merge and migration tests |
+| `npm test` | Run the note-naming, progress merge, and migration tests |
 | `npm run typecheck` | Run TypeScript without emitting files |

@@ -4,6 +4,7 @@ import ExerciseSession from '../components/ExerciseSession';
 import Icon from '../components/Icons';
 import InstrumentSurface from '../components/InstrumentSurface';
 import Metronome from '../components/Metronome';
+import NoteText from '../components/NoteText';
 import RhythmDisplay from '../components/RhythmDisplay';
 import RichText from '../components/RichText';
 import Staff from '../components/Staff';
@@ -75,7 +76,11 @@ export default function LessonPage() {
       <nav className="breadcrumbs" aria-label="Breadcrumb">
         <Link to="/courses">Courses</Link>
         <Icon name="chevron" size={13} />
-        {course && <Link to={`/courses/${course.id}`}>{course.title}</Link>}
+        {course && (
+          <Link to={`/courses/${course.id}`}>
+            <NoteText text={course.title} />
+          </Link>
+        )}
         <Icon name="chevron" size={13} />
         <span>Lesson {lessonIndex + 1}</span>
       </nav>
@@ -83,10 +88,15 @@ export default function LessonPage() {
       <header className="lesson-header">
         <div className="lesson-header-main">
           <span className="eyebrow">
-            {level?.title} · {course?.title} · Lesson {lessonIndex + 1} of {course?.lessons.length}
+            {level?.title} · <NoteText text={course?.title ?? ''} /> · Lesson {lessonIndex + 1} of{' '}
+            {course?.lessons.length}
           </span>
-          <h1>{lesson.title}</h1>
-          <p>{lesson.summary}</p>
+          <h1>
+            <NoteText text={lesson.title} />
+          </h1>
+          <p>
+            <NoteText text={lesson.summary} />
+          </p>
           <div className="lesson-meta">
             <span>
               <Icon name="clock" size={15} /> {lesson.minutes} min read
@@ -117,7 +127,9 @@ export default function LessonPage() {
               {section.heading && (
                 <div className="section-heading">
                   <span className="section-number">{String(index + 1).padStart(2, '0')}</span>
-                  <h2>{section.heading}</h2>
+                  <h2>
+                    <NoteText text={section.heading} />
+                  </h2>
                 </div>
               )}
               <RichText body={section.body} />
@@ -138,7 +150,9 @@ export default function LessonPage() {
                   </span>
                   <span>
                     <strong>Listen</strong>
-                    <small>{section.audioLabel ?? 'Play example'}</small>
+                    <small>
+                      <NoteText text={section.audioLabel ?? 'Play example'} />
+                    </small>
                   </span>
                   <Icon name="play" size={16} className="listen-play" />
                 </button>
@@ -222,7 +236,7 @@ export default function LessonPage() {
             {prev ? (
               <Link to={`/lesson/${prev.id}`} className="pager-link prev">
                 <span>Previous</span>
-                <strong>{prev.title}</strong>
+                <strong><NoteText text={prev.title} /></strong>
               </Link>
             ) : (
               <span />
@@ -230,7 +244,7 @@ export default function LessonPage() {
             {next ? (
               <Link to={`/lesson/${next.id}`} className="pager-link next">
                 <span>Next lesson</span>
-                <strong>{next.title}</strong>
+                <strong><NoteText text={next.title} /></strong>
               </Link>
             ) : (
               <Link to="/courses" className="pager-link next">

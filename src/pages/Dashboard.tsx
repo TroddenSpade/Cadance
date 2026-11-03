@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icons';
+import NoteText from '../components/NoteText';
 import ProgressRing from '../components/ProgressRing';
 import { ALL_LESSONS, COURSES, LEVELS } from '../data/curriculum';
 import { exerciseSkillLabel, STARTER_SPECS } from '../lib/exercises';
@@ -172,9 +173,15 @@ export default function Dashboard() {
               {course?.glyph}
             </div>
             <div className="continue-copy">
-              <span className="course-level">{LEVELS.find((level) => level.id === course?.level)?.title} · {course?.title}</span>
-              <h3>{lesson.title}</h3>
-              <p>{lesson.summary}</p>
+              <span className="course-level">
+                {LEVELS.find((level) => level.id === course?.level)?.title} · <NoteText text={course?.title ?? ''} />
+              </span>
+              <h3>
+                <NoteText text={lesson.title} />
+              </h3>
+              <p>
+                <NoteText text={lesson.summary} />
+              </p>
               <div className="inline-progress">
                 <div className="progress-track">
                   <div className="progress-fill" style={{ width: `${Math.round((course ? coursePercent(course, state) : 0) * 100)}%` }} />

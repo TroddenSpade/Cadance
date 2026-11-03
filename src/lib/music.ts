@@ -37,6 +37,177 @@ export function spelledPitchName(pitch: SpelledPitch): string {
   return `${pitch.letter}${ACCIDENTAL_SYMBOL[pitch.accidental] ?? ''}`;
 }
 
+/** Which note-name system to display. */
+export type NoteNaming = 'letters' | 'solfege' | 'both';
+
+export const SOLFEGE_NAMES: Record<Letter, string> = {
+  C: 'Do',
+  D: 'Re',
+  E: 'Mi',
+  F: 'Fa',
+  G: 'Sol',
+  A: 'La',
+  B: 'Si',
+};
+
+export function solfegePitchName(letter: Letter, accidental = 0): string {
+  return `${SOLFEGE_NAMES[letter]}${ACCIDENTAL_SYMBOL[accidental] ?? ''}`;
+}
+
+/**
+ * A note as shown in the UI: letter name, solfège name, or both.
+ * Both keeps the letter first, because the staff and keyboard are introduced
+ * with letters; solfège reads as the translation in parentheses.
+ */
+export function noteName(letter: Letter, accidental = 0, naming: NoteNaming = 'letters'): string {
+  const letters = `${letter}${ACCIDENTAL_SYMBOL[accidental] ?? ''}`;
+  if (naming === 'letters') return letters;
+  const solfege = solfegePitchName(letter, accidental);
+  return naming === 'solfege' ? solfege : `${letters} (${solfege})`;
+}
+
+export function noteNameFull(
+  letter: Letter,
+  accidental: number,
+  octave: number,
+  naming: NoteNaming = 'letters',
+): string {
+  const letters = `${letter}${ACCIDENTAL_SYMBOL[accidental] ?? ''}${octave}`;
+  if (naming === 'letters') return letters;
+  const solfege = `${solfegePitchName(letter, accidental)}${octave}`;
+  return naming === 'solfege' ? solfege : `${letters} (${solfege})`;
+}
+
+export function midiNoteName(midi: number, naming: NoteNaming = 'letters', preferFlats = false): string {
+  const label = (preferFlats ? FLAT_NAMES : SHARP_NAMES)[pitchClass(midi)];
+  const letter = label[0] as Letter;
+  const accidental = label.includes('♯') ? 1 : label.includes('♭') ? -1 : 0;
+  return noteName(letter, accidental, naming);
+}
+
+export function midiNoteNameFull(midi: number, naming: NoteNaming = 'letters', preferFlats = false): string {
+  const label = (preferFlats ? FLAT_NAMES : SHARP_NAMES)[pitchClass(midi)];
+  const letter = label[0] as Letter;
+  const accidental = label.includes('♯') ? 1 : label.includes('♭') ? -1 : 0;
+  return noteNameFull(letter, accidental, octaveOf(midi), naming);
+}
+
+export interface NamedPitch {
+  letter: Letter;
+  accidental?: number;
+}
+
+/** Stacked labels for tight surfaces such as piano keys. */
+export function noteLabelLines(letter: Letter, accidental = 0, naming: NoteNaming = 'letters'): string[] {
+  if (naming === 'both') return [noteName(letter, accidental, 'letters'), solfegePitchName(letter, accidental)];
+  return [noteName(letter, accidental, naming)];
+}
+
+/** Join several notes, e.g. a chord or scale: `C–E–G (Do–Mi–Sol)`. */
+export function noteSequence(notes: NamedPitch[], naming: NoteNaming = 'letters', separator = '–'): string {
+  const letters = notes.map((pitch) => `${pitch.letter}${ACCIDENTAL_SYMBOL[pitch.accidental ?? 0] ?? ''}`);
+  if (naming === 'letters') return letters.join(separator);
+  const solfege = notes.map((pitch) => solfegePitchName(pitch.letter, pitch.accidental ?? 0));
+  return naming === 'solfege' ? solfege.join(separator) : `${letters.join(separator)} (${solfege.join(separator)})`;
+}
+
+/** Key names such as `B♭ major` become `B♭ (Si♭) major` in both mode. */
+export function keyNoteName(name: string, naming: NoteNaming = 'letters'): string {
+  if (naming === 'letters') return name;
+  const match = /^([A-G])([♯♭]?)(.*)$/.exec(name);
+  if (!match) return name;
+  const [, letter, accidental, rest] = match;
+  const solfege = `${SOLFEGE_NAMES[letter as Letter]}${accidental}`;
+  return naming === 'solfege' ? `${solfege}${rest}` : `${letter}${accidental} (${solfege})${rest}`;
+}
+
+const MUSIC_TERMS = /^(?:major|minor)\b/i;
+const NOTE_TOKEN = /^(?:[A-G])(?:[♯♭𝄪𝄫])?(?:\d+)?$/;
+/** Common chord-quality suffixes, so `Dm`, `Cmaj7`, and `B°` stay intact. */
+const CHORD_SUFFIX =
+  '(?:(?:maj|min|dim|aug|sus|add|m|M|°|ø|\\+)?(?:\\d+)?(?:[♯♭](?:5|9|11|13))?)';
+const NOTE_INLINE = new RegExp(
+  `(^|[^A-Za-z0-9])([A-G])([♯♭𝄪𝄫])?(${CHORD_SUFFIX})(?=$|[^A-Za-z0-9])`,
+  'g',
+);
+
+function isSentenceStart(text: string, index: number): boolean {
+  const before = text.slice(0, index);
+  const trimmed = before.trimEnd();
+  if (!trimmed) return true;
+  if (/\n\s*$/.test(before)) return true;
+  return /[.!?:;*_>-]$/.test(trimmed);
+}
+
+/** Phrases where a sentence-start `A major/minor` is the article, not the note. */
+function isGenericArticle(after: string): boolean {
+  return /^(?:major|minor)\s+(?:\d+(?:st|nd|rd|th)|third|fifth|seventh|triad|chord|scale\s+(?:starting|beginning|built|with))\b/i.test(
+    after.trimStart(),
+  );
+}
+
+/** Formal section labels use the same letters as notes: `A′`, `return of A`, `A (4 bars)`. */
+function isSectionLabel(before: string, after: string): boolean {
+  const rest = after.trimStart();
+  if (/^[′″']/.test(rest)) return true;
+  if (/^\(\s*\d+\s*bars?\b/i.test(rest)) return true;
+  return /\b(?:return of|section|form|theme|phrase|label|part)\s*$/i.test(before);
+}
+
+/**
+ * Add solfège to note names inside prose without touching ordinary words.
+ *
+ * A lone uppercase `A` at the start of a sentence is treated as the article,
+ * not the note, which is the only real ambiguity in English. Everywhere else
+ * an uppercase A–G is a note name, including in lists such as `E–G–B–D–F`.
+ */
+export function annotateNoteNames(text: string, naming: NoteNaming): string {
+  if (naming === 'letters' || !text) return text;
+  if (text === text.trim() && NOTE_TOKEN.test(text)) {
+    const match = /^([A-G])([♯♭])?(\d+)?$/.exec(text);
+    if (match) {
+      const [, letter, accidental, octave] = match;
+      const value = accidental === '♯' ? 1 : accidental === '♭' ? -1 : 0;
+      return octave
+        ? noteNameFull(letter as Letter, value, Number(octave), naming)
+        : noteName(letter as Letter, value, naming);
+    }
+  }
+
+  let result = '';
+  let cursor = 0;
+  const pattern = new RegExp(NOTE_INLINE.source, 'g');
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(text)) !== null) {
+    const [whole, prefix, letter, accidental, suffix] = match;
+    const start = match.index + prefix.length;
+    const end = start + whole.length - prefix.length;
+    const after = text.slice(end);
+    const before = text.slice(0, start);
+    result += text.slice(cursor, start);
+
+    const isLoneA = letter === 'A' && !accidental && !suffix;
+    const followedByTerm = MUSIC_TERMS.test(after.trimStart());
+    const inSequence = /[–-]$/.test(before.trimEnd()) || /^[–-]/.test(after.trimStart());
+    const isArticle =
+      isSectionLabel(before, after) ||
+      (isLoneA &&
+        !inSequence &&
+        isSentenceStart(text, start) &&
+        (isGenericArticle(after) || !followedByTerm));
+    if (isArticle) {
+      result += text.slice(start, end);
+    } else {
+      const letters = `${letter}${accidental ?? ''}${suffix}`;
+      const solfege = `${SOLFEGE_NAMES[letter as Letter]}${accidental ?? ''}${suffix}`;
+      result +=
+        naming === 'solfege' ? solfege : naming === 'both' ? `${letters} (${solfege})` : letters;
+    }
+    cursor = end;
+  }
+  return result + text.slice(cursor);
+}
+
 /** Spell the note a given diatonic and chromatic distance above a root. */
 export function spellFromRoot(root: SpelledPitch, letterSteps: number, semitones: number): SpelledPitch {
   const rootIndex = LETTERS.indexOf(root.letter);

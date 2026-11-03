@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import Icon from '../components/Icons';
+import NoteText from '../components/NoteText';
 import { COURSE_MAP, LEVELS } from '../data/curriculum';
 import { completedLessonsInCourse, coursePercent } from '../lib/courseStats';
 import { useProgress } from '../lib/progress';
@@ -26,7 +27,9 @@ export default function CoursePage() {
         <Icon name="chevron" size={13} />
         <span>{level?.title}</span>
         <Icon name="chevron" size={13} />
-        <span>{course.title}</span>
+        <span>
+          <NoteText text={course.title} />
+        </span>
       </nav>
 
       <header className="course-hero">
@@ -35,8 +38,12 @@ export default function CoursePage() {
           <span className="eyebrow">
             {level?.title} level
           </span>
-          <h1>{course.title}</h1>
-          <p>{course.subtitle}</p>
+          <h1>
+            <NoteText text={course.title} />
+          </h1>
+          <p>
+            <NoteText text={course.subtitle} />
+          </p>
           <div className="course-hero-meta">
             <span>
               <Icon name="book" size={16} /> {course.lessons.length} lessons
@@ -85,11 +92,15 @@ export default function CoursePage() {
                     </span>
                     <div className="lesson-row-copy">
                       <div className="lesson-row-title">
-                        <h3>{lesson.title}</h3>
+                        <h3>
+                          <NoteText text={lesson.title} />
+                        </h3>
                         {isNext && <span className="next-chip">Up next</span>}
                         {progress?.completedAt && <span className="done-chip">Done</span>}
                       </div>
-                      <p>{lesson.summary}</p>
+                      <p>
+                        <NoteText text={lesson.summary} />
+                      </p>
                       <div className="lesson-row-meta">
                         <span>
                           <Icon name="clock" size={13} /> {lesson.minutes} min

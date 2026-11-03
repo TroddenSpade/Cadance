@@ -1,14 +1,16 @@
 import type { ReactNode } from 'react';
+import { annotateNoteNames, type NoteNaming } from '../lib/music';
+import { useProgress } from '../lib/progress';
 
-function inline(text: string, keyPrefix: string): ReactNode[] {
+function inline(text: string, keyPrefix: string, naming: NoteNaming): ReactNode[] {
   const tokens = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g).filter(Boolean);
   return tokens.map((token, index) => {
     const key = `${keyPrefix}-${index}`;
     if (token.startsWith('**') && token.endsWith('**')) {
-      return <strong key={key}>{token.slice(2, -2)}</strong>;
+      return <strong key={key}>{annotateNoteNames(token.slice(2, -2), naming)}</strong>;
     }
     if (token.startsWith('*') && token.endsWith('*')) {
-      return <em key={key}>{token.slice(1, -1)}</em>;
+      return <em key={key}>{annotateNoteNames(token.slice(1, -1), naming)}</em>;
     }
     if (token.startsWith('`') && token.endsWith('`')) {
       return (
@@ -17,11 +19,13 @@ function inline(text: string, keyPrefix: string): ReactNode[] {
         </code>
       );
     }
-    return token;
+    return annotateNoteNames(token, naming);
   });
 }
 
 export default function RichText({ body, className = '' }: { body: string; className?: string }) {
+  const { settings } = useProgress();
+  const naming = settings.noteNaming;
   const blocks = body.split(/\n\n+/);
   return (
     <div className={`rich-text ${className}`}>
@@ -31,7 +35,7 @@ export default function RichText({ body, className = '' }: { body: string; class
           return (
             <ul key={blockIndex}>
               {lines.map((line, index) => (
-                <li key={index}>{inline(line.replace(/^\s*-\s*/, ''), `${blockIndex}-${index}`)}</li>
+                <li key={index}>{inline(line.replace(/^\s*-\s*/, ''), `${blockIndex}-${index}`, naming)}</li>
               ))}
             </ul>
           );
@@ -41,12 +45,12 @@ export default function RichText({ body, className = '' }: { body: string; class
           return (
             <ol key={blockIndex}>
               {lines.map((line, index) => (
-                <li key={index}>{inline(line.replace(/^\s*\d+\.\s*/, ''), `${blockIndex}-${index}`)}</li>
+                <li key={index}>{inline(line.replace(/^\s*\d+\.\s*/, ''), `${blockIndex}-${index}`, naming)}</li>
               ))}
             </ol>
           );
         }
-        return <p key={blockIndex}>{inline(block, String(blockIndex))}</p>;
+        return <p key={blockIndex}>{inline(block, String(blockIndex), naming)}</p>;
       })}
     </div>
   );

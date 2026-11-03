@@ -2512,6 +2512,21 @@ strong {
   fill: #b9b3a7;
 }
 
+.piano-label.piano-solfege {
+  font-size: 8.5px;
+  font-weight: 500;
+  opacity: 0.78;
+}
+
+.piano-label.black-label.piano-solfege {
+  font-size: 7.5px;
+}
+
+.string-solfege {
+  font-size: 8.5px;
+  opacity: 0.78;
+}
+
 .piano-octave {
   font-family: var(--sans);
   font-size: 8.5px;
@@ -3715,6 +3730,59 @@ strong {
   font-size: 10px;
   color: var(--faint);
   line-height: 1.5;
+}
+
+.naming-choice {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.naming-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 15px;
+  text-align: left;
+  transition: 0.16s;
+}
+
+.naming-option:hover {
+  border-color: var(--line-strong);
+}
+
+.naming-option.selected {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.naming-title {
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.1;
+}
+
+.naming-example {
+  font-size: 11.5px;
+  color: var(--accent);
+  letter-spacing: 0.01em;
+}
+
+.naming-option small {
+  font-size: 10px;
+  line-height: 1.45;
+  color: var(--faint);
+}
+
+@media (max-width: 640px) {
+  .naming-choice {
+    grid-template-columns: 1fr;
+  }
 }
 
 .choice-check {

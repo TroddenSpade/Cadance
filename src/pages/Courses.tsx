@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icons';
+import NoteText from '../components/NoteText';
 import { COURSES, LEVELS, type Course } from '../data/curriculum';
 import { completedLessonsInCourse, coursePercent, overallPercent, totalCompleted } from '../lib/courseStats';
 import { ALL_LESSONS } from '../data/curriculum';
@@ -30,8 +31,12 @@ function CourseCard({ course }: { course: Course }) {
           )}
         </span>
       </div>
-      <h3>{course.title}</h3>
-      <p>{course.subtitle}</p>
+      <h3>
+        <NoteText text={course.title} />
+      </h3>
+      <p>
+        <NoteText text={course.subtitle} />
+      </p>
       <div className="course-card-meta">
         <span>
           <Icon name="book" size={14} /> {course.lessons.length} lessons

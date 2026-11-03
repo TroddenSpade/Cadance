@@ -6,7 +6,7 @@ import {
   correctInstrumentAnswer,
   generateSession,
 } from '../lib/exercises';
-import { pitchClass } from '../lib/music';
+import { annotateNoteNames, pitchClass } from '../lib/music';
 import { useProgress } from '../lib/progress';
 import type { ExerciseSpec, Question, SessionResult } from '../lib/types';
 import Icon from './Icons';
@@ -61,6 +61,8 @@ export default function ExerciseSession({
   const [result, setResult] = useState<SessionResult | null>(null);
 
   const question = questions[index];
+  const naming = settings.noteNaming;
+  const noteText = (value: string) => annotateNoteNames(value, naming);
   const isInstrumentQuestion =
     question?.kind === 'find-note' || question?.kind === 'chord-build' || question?.kind === 'scale-build';
   const isSequence = Boolean(question?.targetMidis);
@@ -314,8 +316,8 @@ export default function ExerciseSession({
 
       <div className="question-card">
         <div className="question-body">
-          <h2 className="question-prompt">{question.prompt}</h2>
-          {question.instruction && <p className="question-instruction">{question.instruction}</p>}
+          <h2 className="question-prompt">{noteText(question.prompt)}</h2>
+          {question.instruction && <p className="question-instruction">{noteText(question.instruction)}</p>}
 
           {question.staff && (
             <div className="notation-panel">
@@ -370,7 +372,7 @@ export default function ExerciseSession({
                         <RhythmDisplay items={rhythm} compact barEvery={4} />
                       </span>
                     ) : (
-                      <span className="choice-text">{choice}</span>
+                      <span className="choice-text">{noteText(choice)}</span>
                     )}
                     {phase === 'feedback' && isAnswer && <Icon name="check" size={17} />}
                   </button>
@@ -442,17 +444,17 @@ export default function ExerciseSession({
               </span>
               <strong>{answers[answers.length - 1] ? 'Correct' : 'Not quite'}</strong>
               {!answers[answers.length - 1] && !question.choiceRhythms && (
-                <span className="feedback-answer">Answer: {question.answer}</span>
+                <span className="feedback-answer">Answer: {noteText(question.answer)}</span>
               )}
             </div>
-            <p>{question.explanation}</p>
+            <p>{noteText(question.explanation)}</p>
             {isInstrumentQuestion && phase === 'feedback' && instrumentAnswer.length > 0 && (
               <p className="feedback-answer-line">
                 Target {question.kind === 'find-note' ? 'note' : question.kind === 'chord-build' ? 'chord tones' : 'scale'}:{' '}
-                <strong>{question.targetLabel ?? instrumentAnswer.map((midi) => midi % 12).join('–')}</strong>
+                <strong>{noteText(question.targetLabel ?? instrumentAnswer.map((midi) => midi % 12).join('–'))}</strong>
               </p>
             )}
-            {question.hint && !answers[answers.length - 1] && <p className="feedback-hint">Tip: {question.hint}</p>}
+            {question.hint && !answers[answers.length - 1] && <p className="feedback-hint">Tip: {noteText(question.hint)}</p>}
             <button className="button primary" onClick={next}>
               {index + 1 >= questions.length ? 'See results' : 'Continue'}
               <Icon name="arrow" size={17} />

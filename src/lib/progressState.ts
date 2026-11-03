@@ -1,5 +1,5 @@
 import type { Timbre } from './audio';
-import { clamp } from './music';
+import { clamp, type NoteNaming } from './music';
 
 export type InstrumentMode = 'piano' | 'guitar' | 'both';
 
@@ -7,6 +7,7 @@ export interface Settings {
   instrument: InstrumentMode;
   timbre: Timbre;
   showLabels: boolean;
+  noteNaming: NoteNaming;
   autoPlay: boolean;
   dailyGoal: number;
   sound: boolean;
@@ -70,6 +71,7 @@ export const defaultSettings: Settings = {
   instrument: 'both',
   timbre: 'piano',
   showLabels: true,
+  noteNaming: 'both',
   autoPlay: true,
   dailyGoal: 20,
   sound: true,
@@ -222,6 +224,8 @@ function sanitizeSettings(raw: unknown): Settings {
     instrument,
     timbre: value.timbre === 'guitar' ? 'guitar' : 'piano',
     showLabels: value.showLabels !== false,
+    noteNaming:
+      value.noteNaming === 'letters' || value.noteNaming === 'solfege' ? value.noteNaming : 'both',
     autoPlay: value.autoPlay !== false,
     dailyGoal: Math.round(clamp(asNumber(value.dailyGoal, defaultSettings.dailyGoal), 5, 200)),
     sound: value.sound !== false,

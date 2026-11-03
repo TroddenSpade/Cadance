@@ -67,8 +67,8 @@ export default function Courses() {
           <span className="eyebrow">The curriculum</span>
           <h1>From first notes to master form.</h1>
           <p>
-            Fourteen courses in five levels. Each lesson ends with interactive reading and listening exercises, and
-            every answer feeds the daily review queue.
+            {COURSES.length} courses in five levels, from first notes to post-tonal analysis. Each lesson ends with
+            interactive reading and listening exercises, and every answer feeds the daily review queue.
           </p>
         </div>
         <div className="header-stat">

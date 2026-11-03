@@ -1,13 +1,13 @@
 # Cadence
 
-Cadence is a web-based, interactive music theory trainer for **reading** and **listening**. It moves from first principles to advanced analysis through 14 courses and 44 lessons. Every lesson section pairs its explanation with a guided piano and guitar example, and every lesson ends with exercises plus a spaced-recall practice queue that keeps earlier material alive.
+Cadence is a web-based, interactive music theory trainer for **reading** and **listening**. It moves from first principles to advanced analysis through 22 courses and 77 lessons. Every lesson section pairs its explanation with a guided piano and guitar example, and every lesson ends with exercises plus a spaced-recall practice queue that keeps earlier material alive.
 
 The interface is installable as a PWA and is structured so the same build can be wrapped as an Android APK with Capacitor.
 
 ## What is included
 
 - **Structured curriculum** across five levels: Foundations, Beginner, Intermediate, Advanced, and Master.
-- **Guided instrument examples in every section.** Each concept is explained with exact piano keys and guitar string/fret positions, a short “Hear it” playback, and a caption naming the musical point. There are 132 section-level examples across the 44 lessons.
+- **Guided instrument examples in every section.** Each concept is explained with exact piano keys and guitar string/fret positions, a short “Hear it” playback, and a caption naming the musical point. There are 198 section-level examples across the 77 lessons.
 - **Lesson exercises** for staff reading, note finding, heard and written intervals, chord quality and inversion, chord and scale building, key signatures, rhythm counting and dictation, melodic dictation, scale degrees, and chord progressions.
 - **Daily practice** driven by per-skill strength, review streaks, and expanding review intervals. Missed skills return sooner.
 - **Piano, guitar, or both.** Note-finding, chord-building, and scale-building questions render on the selected instrument surface. Pitch class is what counts, so any octave or fret position works.
@@ -157,7 +157,8 @@ npx cap sync android
 src/
   App.tsx                 app shell, navigation, routes
   components/             staff, piano, fretboard, rhythm, session engine
-  data/curriculum.ts      14 courses, 44 lessons, levels, skill blueprints
+  data/curriculum.ts      core courses, levels, skill blueprints
+  data/expansion/         advanced courses and their instrument examples
   lib/
     audio.ts              Web Audio piano and guitar synthesis
     exercises.ts          question generators, grading, topic presets

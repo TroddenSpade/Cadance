@@ -1,5 +1,6 @@
 import type { RhythmItem } from '../lib/music';
 import type { GuitarSpot, InstrumentDemoSpec } from '../lib/types';
+import { EXPANSION_LESSON_INSTRUMENT_DEMOS } from './expansion';
 
 /**
  * Guided keyboard and fretboard examples for the lesson explanations.
@@ -2337,11 +2338,12 @@ const EXTRA_LESSON_INSTRUMENT_DEMOS: Record<string, LessonInstrumentDemo[]> = {
   ],
 };
 
-export const LESSON_INSTRUMENT_DEMOS: Record<string, LessonInstrumentDemo[]> = Object.fromEntries(
-  Object.entries(CORE_LESSON_INSTRUMENT_DEMOS).map(([lessonId, demos]) => [
+export const LESSON_INSTRUMENT_DEMOS: Record<string, LessonInstrumentDemo[]> = Object.fromEntries([
+  ...Object.entries(CORE_LESSON_INSTRUMENT_DEMOS).map(([lessonId, demos]) => [
     lessonId,
     [...demos, ...(EXTRA_LESSON_INSTRUMENT_DEMOS[lessonId] ?? [])].sort(
       (a, b) => a.afterSection - b.afterSection,
     ),
   ]),
-);
+  ...Object.entries(EXPANSION_LESSON_INSTRUMENT_DEMOS),
+]);

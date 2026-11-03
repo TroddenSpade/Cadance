@@ -1,5 +1,6 @@
 import type { Accidental, Letter, RhythmItem } from '../lib/music';
 import type { AudioSpec, ExerciseConfig, ExerciseSpec, StaffNoteSpec, StaffSpec } from '../lib/types';
+import { EXPANSION_COURSES } from './expansion';
 
 export type LevelId = 'foundations' | 'beginner' | 'intermediate' | 'advanced' | 'master';
 
@@ -2097,7 +2098,7 @@ Play each version, then compare which one tells the story you intended. Write a 
     ],
   },
 
-  // MORE_COURSES
+  ...EXPANSION_COURSES,
 ];
 
 export const COURSE_MAP: Record<string, Course> = Object.fromEntries(COURSES.map((course) => [course.id, course]));

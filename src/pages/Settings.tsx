@@ -2,6 +2,7 @@ import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import Icon from '../components/Icons';
 import { synth } from '../lib/audio';
 import type { IconName } from '../components/Icons';
+import { ALL_LESSONS, COURSES } from '../data/curriculum';
 import { levelFromXp, syncStatusLabel, todayKey, useProgress, type InstrumentMode } from '../lib/progress';
 import type { NoteNaming } from '../lib/music';
 import {
@@ -466,7 +467,9 @@ export default function Settings() {
           <div className="about-list">
             <div>
               <Icon name="piano" size={18} />
-              <span>14 courses · 44 lessons · piano & guitar</span>
+              <span>
+                {COURSES.length} courses · {ALL_LESSONS.length} lessons · piano & guitar
+              </span>
             </div>
             <div>
               <Icon name="headphones" size={18} />

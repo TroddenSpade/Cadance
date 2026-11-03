@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icons';
+import MetronomeFigure from '../components/MetronomeFigure';
 import {
   MAX_BPM,
   MIN_BPM,
@@ -92,15 +93,7 @@ export default function MetronomePage() {
 
       <section className="metronome-stage panel">
         <div className={`metronome-stage-visual ${running ? 'running' : ''}`}>
-          <div className="metronome-pendulum" aria-hidden="true">
-            <div
-              className="metronome-pendulum-arm"
-              style={{ animationDuration: `${60 / settings.bpm}s` }}
-            >
-              <span className="metronome-pendulum-weight" />
-            </div>
-            <span className="metronome-pendulum-base" />
-          </div>
+          <MetronomeFigure bpm={settings.bpm} running={running} accented={running && beat === 0} />
           <div className="metronome-stage-tempo">
             <strong>{settings.bpm}</strong>
             <span>BPM</span>
@@ -158,8 +151,8 @@ export default function MetronomePage() {
           </div>
         </div>
         <p className="metronome-hint">
-          Tap <kbd>T</kbd> or use Tap tempo to set the pulse by feel. <kbd>Space</kbd> starts and stops; <kbd>↑</kbd>{' '}
-          <kbd>↓</kbd> nudge the tempo.
+          The brass weight follows the tempo up and down the scale. Tap <kbd>T</kbd> or use Tap tempo to set the pulse by
+          feel. <kbd>Space</kbd> starts and stops; <kbd>↑</kbd> <kbd>↓</kbd> nudge the tempo.
         </p>
       </section>
 

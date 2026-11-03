@@ -13,7 +13,7 @@ The interface is installable as a PWA and is structured so the same build can be
 - **Piano, guitar, or both.** Note-finding, chord-building, and scale-building questions render on the selected instrument surface. Pitch class is what counts, so any octave or fret position works.
 - **ABC, Do Re Mi, or both.** Note names appear in the selected system across lessons, exercises, staff examples, and the instrument labels. The default shows the letter with solfège in parentheses, such as `C (Do)`.
 - **Synthesized audio** for piano and Karplus–Strong guitar, generated locally with the Web Audio API. No audio files to download.
-- **Metronome** with a floating dock that follows you through the app and a full settings page. It supports 2/4–7/8 meters, eighth-note and triplet subdivisions, downbeat accents, tap tempo, and independent volume, and it schedules clicks on the AudioContext clock so the pulse does not drift.
+- **Metronome** with a floating dock that follows you through the app and a full settings page. The page shows a mechanical metronome whose brass weight slides up and down a printed tempo scale as you change tempo, while the rod swings in time. It supports 2/4–7/8 meters, eighth-note and triplet subdivisions, downbeat accents, tap tempo, and independent volume, and it schedules clicks on the AudioContext clock so the pulse does not drift.
 - **Tuner** with live microphone pitch detection. Presets cover guitar, bass, ukulele, violin, viola, cello, double bass, mandolin, banjo, and chromatic piano, alongside alternate tunings such as Drop D, DADGAD, open G/D/E, and custom string sets. It shows cents, a needle, a string-by-string target, configurable A4 reference pitch, and playable reference tones.
 - **Offline support** through a service worker. Progress, settings, and review history live in `localStorage`, with optional account sync across devices.
 - **Responsive layout** with a desktop sidebar and a mobile bottom navigation bar.
@@ -158,7 +158,7 @@ npx cap sync android
 ```text
 src/
   App.tsx                 app shell, navigation, routes
-  components/             staff, piano, fretboard, rhythm, session engine, metronome dock
+  components/             staff, piano, fretboard, rhythm, session engine, metronome dock and figure
   data/curriculum.ts      core courses, levels, skill blueprints
   data/expansion/         advanced courses and their instrument examples
   lib/

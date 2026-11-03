@@ -20,6 +20,15 @@ class SynthEngine {
     this.timbre = timbre;
   }
 
+  /** Create or resume the audio context from a user gesture. */
+  unlock() {
+    this.ensure();
+  }
+
+  get currentTime(): number {
+    return this.ensure().currentTime;
+  }
+
   setMuted(muted: boolean) {
     this.muted = muted;
     if (muted) this.stopAll();
@@ -113,6 +122,27 @@ class SynthEngine {
     if (this.muted) return;
     if (this.timbre === 'guitar') this.playGuitar(midi, when, velocity);
     else this.playPiano(midi, when, duration, velocity);
+  }
+
+  /** Play an exact frequency, used for tuner reference tones at any A4. */
+  playTone(frequency: number, duration = 1.8, velocity = 0.55) {
+    if (this.muted) return;
+    this.stopAll();
+    const { ctx } = this.output();
+    const t = ctx.currentTime + LOOKAHEAD;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = frequency;
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.24 * velocity, t + 0.03);
+    gain.gain.setValueAtTime(0.24 * velocity, t + duration - 0.12);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    osc.connect(gain);
+    this.connectVoice(gain);
+    osc.start(t);
+    osc.stop(t + duration + 0.02);
+    this.track(osc);
   }
 
   private playPiano(midi: number, when: number, duration: number, velocity: number) {
@@ -224,21 +254,32 @@ class SynthEngine {
     });
   }
 
-  private click(when: number, accent = false) {
+  /**
+   * Schedule a click at an absolute AudioContext time. The metronome uses this
+   * with a lookahead scheduler so tempo stays steady even when the main thread
+   * is busy.
+   */
+  scheduleMetronomeClick(time: number, accent = false, volume = 1, subdivision = false) {
     if (this.muted) return;
-    const { ctx } = this.output();
-    const t = ctx.currentTime + when + LOOKAHEAD;
+    const ctx = this.ensure();
+    const t = Math.max(ctx.currentTime, time);
+    const level = Math.max(0, Math.min(1, volume));
+    if (level === 0) return;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'square';
-    osc.frequency.value = accent ? 1568 : 1046;
-    gain.gain.setValueAtTime(accent ? 0.14 : 0.1, t);
+    osc.frequency.value = subdivision ? 1760 : accent ? 1568 : 1046;
+    gain.gain.setValueAtTime((subdivision ? 0.045 : accent ? 0.14 : 0.1) * level, t);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
     osc.connect(gain);
     gain.connect(this.master!);
     osc.start(t);
     osc.stop(t + 0.06);
     this.track(osc);
+  }
+
+  private click(when: number, accent = false) {
+    this.scheduleMetronomeClick(this.ensure().currentTime + when + LOOKAHEAD, accent);
   }
 
   playMetronomeClick(accent = false) {

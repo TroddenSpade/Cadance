@@ -2,21 +2,27 @@ import { useEffect } from 'react';
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import Icon, { type IconName } from './components/Icons';
 import InstallPrompt from './components/InstallPrompt';
+import MetronomeDock from './components/MetronomeDock';
+import { MetronomeProvider } from './lib/metronome';
 import { useProgress, levelFromXp, syncStatusLabel, todayKey, ProgressProvider } from './lib/progress';
 import Courses from './pages/Courses';
 import CoursePage from './pages/CoursePage';
 import Dashboard from './pages/Dashboard';
 import LessonPage from './pages/LessonPage';
+import MetronomePage from './pages/MetronomePage';
 import NotFound from './pages/NotFound';
 import Practice from './pages/Practice';
 import Settings from './pages/Settings';
+import Tools from './pages/Tools';
 import Trainer from './pages/Trainer';
+import Tuner from './pages/Tuner';
 
 const NAV: Array<{ to: string; label: string; icon: IconName; end?: boolean }> = [
   { to: '/', label: 'Today', icon: 'today', end: true },
   { to: '/courses', label: 'Courses', icon: 'courses' },
   { to: '/practice', label: 'Practice', icon: 'practice' },
   { to: '/trainer', label: 'Trainer', icon: 'trainer' },
+  { to: '/tools', label: 'Tools', icon: 'tools' },
   { to: '/settings', label: 'Settings', icon: 'settings' },
 ];
 
@@ -132,11 +138,15 @@ function Shell() {
           <Route path="/lesson/:lessonId" element={<LessonPage />} />
           <Route path="/practice" element={<Practice />} />
           <Route path="/trainer" element={<Trainer />} />
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/metronome" element={<MetronomePage />} />
+          <Route path="/tuner" element={<Tuner />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <MobileNav />
+      <MetronomeDock />
       <InstallPrompt />
     </div>
   );
@@ -145,8 +155,10 @@ function Shell() {
 export default function App() {
   return (
     <ProgressProvider>
-      <ScrollToTop />
-      <Shell />
+      <MetronomeProvider>
+        <ScrollToTop />
+        <Shell />
+      </MetronomeProvider>
     </ProgressProvider>
   );
 }

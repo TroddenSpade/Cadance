@@ -23,6 +23,8 @@ export type IconName =
   | 'target'
   | 'headphones'
   | 'metronome'
+  | 'tuner'
+  | 'tools'
   | 'book'
   | 'trophy'
   | 'cloud'
@@ -133,6 +135,19 @@ const paths: Record<IconName, React.ReactNode> = {
     <>
       <path d="M9 4h6l4 17H5L9 4Z" />
       <path d="M8 14h8M12 8l5-3" />
+    </>
+  ),
+  tuner: (
+    <>
+      <path d="M8 3v7a4 4 0 0 0 8 0V3" />
+      <path d="M8 3h2M14 3h2M12 14v7M9 21h6" />
+    </>
+  ),
+  tools: (
+    <>
+      <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
+      <circle cx="15" cy="7" r="2.2" />
+      <circle cx="9" cy="17" r="2.2" />
     </>
   ),
   book: (

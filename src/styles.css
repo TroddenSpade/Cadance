@@ -519,7 +519,7 @@ html.lang-fa .sidebar-language-label {
 }
 
 .language-toggle-label:lang(fa) {
-  font-family: 'Estedad', Tahoma, sans-serif;
+  font-family: 'IRANSans', Tahoma, sans-serif;
   font-size: 12px;
 }
 
@@ -6401,24 +6401,44 @@ kbd {
 
 /* ───────────── Persian / RTL ───────────── */
 
-/* Estedad: modern Persian sans for body copy. The Arabic subset keeps Latin
-   text on the app's original sans-serif stack. */
+/* IRANSans: Persian UI/body sans. The Arabic subset keeps Latin text on the
+   app's original sans-serif stack. */
 @font-face {
-  font-family: 'Estedad';
-  src: url('/fonts/Estedad-Arabic.woff2') format('woff2');
-  font-weight: 100 900;
+  font-family: 'IRANSans';
+  src: url('/fonts/IRANSans-Regular.woff2') format('woff2');
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
   unicode-range: U+0600-06FF, U+0750-077F, U+08E3-08FF, U+200C-200E, U+2010-2011,
     U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
 }
 
-/* Markazi Text: Persian serif for headings, matching the editorial serif of
-   the English interface. */
 @font-face {
-  font-family: 'Markazi Text';
-  src: url('/fonts/MarkaziText-Arabic.woff2') format('woff2');
-  font-weight: 400 700;
+  font-family: 'IRANSans';
+  src: url('/fonts/IRANSans-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08E3-08FF, U+200C-200E, U+2010-2011,
+    U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+
+@font-face {
+  font-family: 'IRANSans';
+  src: url('/fonts/IRANSans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08E3-08FF, U+200C-200E, U+2010-2011,
+    U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+
+/* Nazanin: classic Persian serif for headings, matching the editorial serif
+   of the English interface. */
+@font-face {
+  font-family: 'Nazanin';
+  src: url('/fonts/Nazanin-Regular.woff2') format('woff2');
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
   unicode-range: U+0600-06FF, U+0750-077F, U+08E3-08FF, U+200C-200E, U+2010-2011,
@@ -6426,18 +6446,18 @@ kbd {
 }
 
 html.lang-fa {
-  --serif: 'Markazi Text', 'Iowan Old Style', 'Palatino Linotype', Palatino,
-    'Book Antiqua', Georgia, serif;
-  --sans: 'Estedad', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
+  --serif: 'Nazanin', 'B Nazanin', 'Iowan Old Style', 'Palatino Linotype',
+    Palatino, 'Book Antiqua', Georgia, serif;
+  --sans: 'IRANSans', 'IRANSansWeb', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 html.lang-fa h1,
 html.lang-fa h2,
 html.lang-fa h3 {
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
 html.lang-fa .eyebrow,

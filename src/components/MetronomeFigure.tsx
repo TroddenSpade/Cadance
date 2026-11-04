@@ -78,7 +78,14 @@ export default function MetronomeFigure({
           <stop offset="0.45" stopColor="#e8b568" />
           <stop offset="1" stopColor="#a9752e" />
         </linearGradient>
-        <linearGradient id={`${uid}-rod`} x1="0" y1="0" x2="1" y2="0">
+        <linearGradient
+          id={`${uid}-rod`}
+          gradientUnits="userSpaceOnUse"
+          x1="108"
+          y1="0"
+          x2="112"
+          y2="0"
+        >
           <stop offset="0" stopColor="#77746c" />
           <stop offset="0.5" stopColor="#e4ded0" />
           <stop offset="1" stopColor="#8c8880" />
@@ -154,14 +161,13 @@ export default function MetronomeFigure({
         className="metronome-figure-rod"
         style={{ animationDuration: `${60 / Math.max(1, bpm)}s` }}
       >
-        <line
-          x1="110"
-          y1="250"
-          x2="110"
-          y2="36"
-          stroke={`url(#${uid}-rod)`}
-          strokeWidth="2.6"
-          strokeLinecap="round"
+        <rect
+          x="108.7"
+          y="36"
+          width="2.6"
+          height="214"
+          rx="1.3"
+          fill={`url(#${uid}-rod)`}
         />
         <circle cx="110" cy="36" r="2.2" fill="#d9d3c4" />
         <g

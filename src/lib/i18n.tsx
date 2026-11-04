@@ -19,6 +19,15 @@ function readStoredLanguage(): Language {
   }
 }
 
+/** Whether this device already has an explicit language choice. */
+export function hasStoredLanguage(): boolean {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 let language: Language = readStoredLanguage();
 
 export function getLanguage(): Language {
@@ -56,13 +65,13 @@ export function initLanguage(): void {
 }
 
 export function setLanguage(next: Language): void {
-  if (next === language) return;
-  language = next;
   try {
     window.localStorage.setItem(STORAGE_KEY, next);
   } catch {
     /* storage may be unavailable */
   }
+  if (next === language) return;
+  language = next;
   applyDocument();
   listeners.forEach((listener) => listener());
 }

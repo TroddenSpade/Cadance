@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import Icon, { type IconName } from './components/Icons';
 import InstallPrompt from './components/InstallPrompt';
+import LanguageModal from './components/LanguageModal';
 import LanguageToggle from './components/LanguageToggle';
 import MetronomeDock from './components/MetronomeDock';
 import UpdatePrompt from './components/UpdatePrompt';
@@ -160,6 +161,7 @@ function Shell() {
       <MetronomeDock />
       <InstallPrompt />
       <UpdatePrompt />
+      <LanguageModal />
     </div>
   );
 }

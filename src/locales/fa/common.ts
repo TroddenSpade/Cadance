@@ -15,6 +15,11 @@ export const faCommon: Record<string, string> = {
   'Main navigation': 'ناوبری اصلی',
   'Switch to Persian': 'تغییر به فارسی',
   'Switch to English': 'تغییر به انگلیسی',
+  'Welcome to Cadence': 'به کادنس خوش آمدید',
+  'Choose your language': 'زبان خود را انتخاب کنید',
+  'Pick the language you want to use. You can change it later in Settings.':
+    'زبانی را که می‌خواهید استفاده کنید انتخاب کنید. بعداً می‌توانید آن را در تنظیمات تغییر دهید.',
+  'The choice is remembered on this device.': 'انتخاب شما روی این دستگاه ذخیره می‌شود.',
   'Sync across devices': 'همگام‌سازی بین دستگاه‌ها',
   Level: 'سطح',
   'Level {level} · {title}': 'سطح {level} · {title}',

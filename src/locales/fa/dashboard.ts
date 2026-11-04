@@ -15,8 +15,9 @@ export const faDashboard: Record<string, string> = {
   'Good morning': 'صبح بخیر',
   'Good afternoon': 'بعد از ظهر بخیر',
   'Good evening': 'عصر بخیر',
-  '{greeting}. Keep the': '{greeting}.',
-  cadence: 'ریتم را زنده نگه دار',
+  '{greeting}.': '{greeting}.',
+  'Keep the': 'ریتم را',
+  cadence: 'زنده نگه دار',
   'Read a little, hear a little, play a little. Cadence turns music theory into a daily habit — on piano, guitar, or both.':
     'کمی بخوان، کمی بشنو، کمی بنواز. کادنس تئوری موسیقی را به عادتی روزانه تبدیل می‌کند — با پیانو، گیتار یا هر دو.',
   'Review lesson': 'مرور درس',

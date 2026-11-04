@@ -1045,6 +1045,11 @@ html.lang-fa .sidebar-language-label {
   font-style: italic;
 }
 
+.hero h1 .hero-greeting,
+.hero h1 .hero-motto {
+  display: block;
+}
+
 .hero-lead {
   max-width: 540px;
   color: var(--muted);

@@ -51,7 +51,10 @@ export default function Dashboard() {
         <div className="hero-copy">
           <span className="eyebrow">{dateLabel}</span>
           <h1>
-            {t('{greeting}. Keep the', { greeting })} <em>{t('cadence')}</em>.
+            <span className="hero-greeting">{t('{greeting}.', { greeting })}</span>
+            <span className="hero-motto">
+              {t('Keep the')} <em>{t('cadence')}</em>.
+            </span>
           </h1>
           <p className="hero-lead">
             {t('Read a little, hear a little, play a little. Cadence turns music theory into a daily habit — on piano, guitar, or both.')}

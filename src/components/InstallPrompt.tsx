@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useI18n } from '../lib/i18n';
 import Icon from './Icons';
 import {
   INSTALL_SHOW_EVENT,
@@ -23,6 +24,7 @@ const SHOW_DELAY = 1500;
  * always gets the Share → Add to Home Screen hint. Dismissals snooze for a day.
  */
 export default function InstallPrompt() {
+  const { t } = useI18n();
   const { available, install } = useInstallPrompt();
   const [ios] = useState(() => isIos());
   const [chromium] = useState(() => isChromium());
@@ -79,36 +81,37 @@ export default function InstallPrompt() {
   };
 
   return (
-    <aside className="install-prompt" role="dialog" aria-label="Install Cadence">
+    <aside className="install-prompt" role="dialog" aria-label={t('Install Cadence')}>
       <span className="install-prompt-icon">
         <Icon name="download" size={20} />
       </span>
       <div className="install-prompt-copy">
-        <strong>Keep Cadence with you</strong>
+        <strong>{t('Keep Cadence with you')}</strong>
         {ios ? (
           <p>
-            Tap the Share button, then <b>Add to Home Screen</b> to install it.
+            {t('Tap the Share button, then')} <b>{t('Add to Home Screen')}</b> {t('to install it.')}
           </p>
         ) : available ? (
-          <p>Install for offline practice and a full-screen, app-like experience.</p>
+          <p>{t('Install for offline practice and a full-screen, app-like experience.')}</p>
         ) : (
           <p>
-            Install for offline practice. Open the browser menu (<b>⋮</b>) and choose <b>Install Cadence</b>, or use the
-            install icon in the address bar.
+            {t('Install for offline practice. Open the browser menu (')}<b>⋮</b>
+            {t(') and choose')} <b>{t('Install Cadence')}</b>
+            {t(', or use the install icon in the address bar.')}
           </p>
         )}
         <div className="install-prompt-actions">
           {available && (
             <button className="button primary small" onClick={() => void runInstall()} disabled={installing}>
-              {installing ? 'Opening…' : 'Install app'}
+              {installing ? t('Opening…') : t('Install app')}
             </button>
           )}
           <button className="button ghost small" onClick={dismiss}>
-            Not now
+            {t('Not now')}
           </button>
         </div>
       </div>
-      <button className="install-prompt-close" onClick={dismiss} aria-label="Dismiss install prompt">
+      <button className="install-prompt-close" onClick={dismiss} aria-label={t('Dismiss install prompt')}>
         <Icon name="close" size={14} />
       </button>
     </aside>

@@ -9,10 +9,10 @@ import NoteText from '../components/NoteText';
 import RhythmDisplay from '../components/RhythmDisplay';
 import RichText from '../components/RichText';
 import Staff from '../components/Staff';
-import { COURSE_MAP, LESSON_MAP, LEVELS, nextLesson, previousLesson } from '../data/curriculum';
-import { LESSON_INSTRUMENT_DEMOS } from '../data/instrumentExamples';
+import { useCurriculum } from '../data/i18n';
 import { synth } from '../lib/audio';
 import { exerciseSkillLabel } from '../lib/exercises';
+import { useI18n } from '../lib/i18n';
 import { useProgress } from '../lib/progress';
 import type { SessionResult } from '../lib/types';
 import NotFound from './NotFound';
@@ -23,12 +23,14 @@ function slug(text: string): string {
 
 export default function LessonPage() {
   const { lessonId } = useParams();
+  const { t } = useI18n();
+  const { lessonMap, courseMap, levels, lessonDemos, nextLesson, previousLesson } = useCurriculum();
   const { state, settings, finishLesson } = useProgress();
   const [sessionActive, setSessionActive] = useState(false);
   const [sessionKey, setSessionKey] = useState(0);
   const [lastResult, setLastResult] = useState<SessionResult | null>(null);
   const sessionRef = useRef<HTMLDivElement | null>(null);
-  const lesson = lessonId ? LESSON_MAP[lessonId] : undefined;
+  const lesson = lessonId ? lessonMap[lessonId] : undefined;
 
   useEffect(() => {
     synth.setTimbre(settings.timbre);
@@ -42,8 +44,8 @@ export default function LessonPage() {
 
   if (!lesson) return <NotFound />;
 
-  const course = COURSE_MAP[lesson.courseId];
-  const level = LEVELS.find((item) => item.id === course?.level);
+  const course = courseMap[lesson.courseId];
+  const level = levels.find((item) => item.id === course?.level);
   const progress = state.lessons[lesson.id];
   const isComplete = Boolean(progress?.completedAt);
   const lessonIndex = course?.lessons.findIndex((item) => item.id === lesson.id) ?? 0;
@@ -51,7 +53,7 @@ export default function LessonPage() {
   const next = nextLesson(lesson.id);
   const questionCount = lesson.exercises.reduce((sum, exercise) => sum + exercise.count, 0);
   const skillIds = Array.from(new Set(lesson.exercises.flatMap((exercise) => exercise.skills)));
-  const instrumentDemos = LESSON_INSTRUMENT_DEMOS[lesson.id] ?? [];
+  const instrumentDemos = lessonDemos[lesson.id] ?? [];
 
   const playSection = (audio: NonNullable<(typeof lesson.sections)[number]['audio']>) => {
     synth.setTimbre(settings.timbre);
@@ -76,8 +78,8 @@ export default function LessonPage() {
 
   return (
     <div className="page lesson-page" style={{ '--course-color': course?.color ?? '#e6b566' } as React.CSSProperties}>
-      <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <Link to="/courses">Courses</Link>
+      <nav className="breadcrumbs" aria-label={t('Breadcrumb')}>
+        <Link to="/courses">{t('Courses')}</Link>
         <Icon name="chevron" size={13} />
         {course && (
           <Link to={`/courses/${course.id}`}>
@@ -85,14 +87,14 @@ export default function LessonPage() {
           </Link>
         )}
         <Icon name="chevron" size={13} />
-        <span>Lesson {lessonIndex + 1}</span>
+        <span>{t('Lesson {n}', { n: lessonIndex + 1 })}</span>
       </nav>
 
       <header className="lesson-header">
         <div className="lesson-header-main">
           <span className="eyebrow">
-            {level?.title} · <NoteText text={course?.title ?? ''} /> · Lesson {lessonIndex + 1} of{' '}
-            {course?.lessons.length}
+            {level?.title} · <NoteText text={course?.title ?? ''} /> ·{' '}
+            {t('Lesson {n} of {total}', { n: lessonIndex + 1, total: course?.lessons.length ?? 0 })}
           </span>
           <h1>
             <NoteText text={lesson.title} />
@@ -102,29 +104,30 @@ export default function LessonPage() {
           </p>
           <div className="lesson-meta">
             <span>
-              <Icon name="clock" size={15} /> {lesson.minutes} min read
+              <Icon name="clock" size={15} /> {t('{n} min read', { n: lesson.minutes })}
             </span>
             <span>
-              <Icon name="practice" size={15} /> {questionCount} exercise questions
+              <Icon name="practice" size={15} /> {t('{n} exercise questions', { n: questionCount })}
             </span>
             <span>
-              <Icon name="headphones" size={15} /> Listening included
+              <Icon name="headphones" size={15} /> {t('Listening included')}
             </span>
             {instrumentDemos.length > 0 && (
               <span>
-                <Icon name="piano" size={15} /> Guided instrument practice
+                <Icon name="piano" size={15} /> {t('Guided instrument practice')}
               </span>
             )}
             {isComplete && (
               <span className="done-chip">
-                <Icon name="check" size={13} /> Completed · best {Math.round((progress?.bestScore ?? 0) * 100)}%
+                <Icon name="check" size={13} />{' '}
+                {t('Completed · best {percent}%', { percent: Math.round((progress?.bestScore ?? 0) * 100) })}
               </span>
             )}
           </div>
         </div>
         <div className="lesson-header-badge">
           <span className="lesson-big-number">{String(lessonIndex + 1).padStart(2, '0')}</span>
-          <span>Lesson</span>
+          <span>{t('Lesson')}</span>
         </div>
       </header>
 
@@ -162,9 +165,9 @@ export default function LessonPage() {
                     <Icon name="headphones" size={18} />
                   </span>
                   <span>
-                    <strong>Listen</strong>
+                    <strong>{t('Listen')}</strong>
                     <small>
-                      <NoteText text={section.audioLabel ?? 'Play example'} />
+                      <NoteText text={section.audioLabel ?? t('Play example')} />
                     </small>
                   </span>
                   <Icon name="play" size={16} className="listen-play" />
@@ -180,11 +183,17 @@ export default function LessonPage() {
                 <Icon name="practice" size={24} />
               </div>
               <div className="practice-banner-copy">
-                <span className="eyebrow">Exercises</span>
-                <h2>{sessionActive ? 'Practice this lesson' : 'Put the lesson into your hands and ears'}</h2>
+                <span className="eyebrow">{t('Exercises')}</span>
+                <h2>
+                  {sessionActive
+                    ? t('Practice this lesson')
+                    : t('Put the lesson into your hands and ears')}
+                </h2>
                 <p>
-                  {questionCount} questions · score 70% or higher to complete the lesson. Every answer updates your
-                  review schedule.
+                  {t(
+                    '{n} questions · score 70% or higher to complete the lesson. Every answer updates your review schedule.',
+                    { n: questionCount },
+                  )}
                 </p>
                 <div className="skill-cloud compact">
                   {skillIds.map((skill) => (
@@ -203,7 +212,7 @@ export default function LessonPage() {
                   }}
                 >
                   <Icon name="play" size={16} />
-                  {isComplete ? 'Practise again' : 'Start exercises'}
+                  {isComplete ? t('Practise again') : t('Start exercises')}
                 </button>
               )}
             </div>
@@ -212,7 +221,7 @@ export default function LessonPage() {
               <div className="session-embed" key={sessionKey}>
                 <ExerciseSession
                   specs={lesson.exercises}
-                  title="Lesson exercises"
+                  title={t('Lesson exercises')}
                   context="lesson"
                   passThreshold={0.7}
                   onFinish={handleFinish}
@@ -229,26 +238,32 @@ export default function LessonPage() {
                 </span>
                 <div>
                   <strong>
-                    {lastResult.accuracy >= 0.7 ? 'Exercises complete' : 'Keep working on this lesson'}
+                    {lastResult.accuracy >= 0.7
+                      ? t('Exercises complete')
+                      : t('Keep working on this lesson')}
                   </strong>
                   <p>
-                    You scored {Math.round(lastResult.accuracy * 100)}% ({lastResult.correct}/{lastResult.total}).{' '}
+                    {t('You scored {percent}% ({correct}/{total}).', {
+                      percent: Math.round(lastResult.accuracy * 100),
+                      correct: lastResult.correct,
+                      total: lastResult.total,
+                    })}{' '}
                     {lastResult.accuracy >= 0.7
-                      ? 'The lesson is marked complete and these skills are now in your review queue.'
-                      : 'Review the sections above, then try the exercises again.'}
+                      ? t('The lesson is marked complete and these skills are now in your review queue.')
+                      : t('Review the sections above, then try the exercises again.')}
                   </p>
                 </div>
                 <button className="button secondary small" onClick={() => setSessionActive(true)}>
-                  Try again
+                  {t('Try again')}
                 </button>
               </div>
             )}
           </div>
 
-          <nav className="lesson-pager" aria-label="Lesson navigation">
+          <nav className="lesson-pager" aria-label={t('Lesson navigation')}>
             {prev ? (
               <Link to={`/lesson/${prev.id}`} className="pager-link prev">
-                <span>Previous</span>
+                <span>{t('Previous')}</span>
                 <strong><NoteText text={prev.title} /></strong>
               </Link>
             ) : (
@@ -256,13 +271,13 @@ export default function LessonPage() {
             )}
             {next ? (
               <Link to={`/lesson/${next.id}`} className="pager-link next">
-                <span>Next lesson</span>
+                <span>{t('Next lesson')}</span>
                 <strong><NoteText text={next.title} /></strong>
               </Link>
             ) : (
               <Link to="/courses" className="pager-link next">
-                <span>Finish</span>
-                <strong>Back to all courses</strong>
+                <span>{t('Finish')}</span>
+                <strong>{t('Back to all courses')}</strong>
               </Link>
             )}
           </nav>
@@ -270,7 +285,7 @@ export default function LessonPage() {
 
         <aside className="lesson-aside">
           <section className="panel side-sticky">
-            <span className="eyebrow">In this lesson</span>
+            <span className="eyebrow">{t('In this lesson')}</span>
             <nav className="toc">
               {lesson.sections.map((section, index) => (
                 <a key={index} href={section.heading ? `#${slug(section.heading)}` : '#'} onClick={(event) => {
@@ -280,7 +295,7 @@ export default function LessonPage() {
                   }
                 }}>
                   <span>{String(index + 1).padStart(2, '0')}</span>
-                  {section.heading ?? 'Introduction'}
+                  {section.heading ?? t('Introduction')}
                 </a>
               ))}
               <a
@@ -291,23 +306,23 @@ export default function LessonPage() {
                 }}
               >
                 <span>→</span>
-                Exercises
+                {t('Exercises')}
               </a>
             </nav>
 
             <div className="aside-divider" />
 
-            <span className="eyebrow">Your instrument</span>
+            <span className="eyebrow">{t('Your instrument')}</span>
             <div className="aside-instrument">
               <Icon name={settings.instrument === 'guitar' ? 'guitar' : 'piano'} size={18} />
               <strong>
                 {settings.instrument === 'both'
-                  ? 'Piano & guitar'
+                  ? t('Piano & guitar')
                   : settings.instrument === 'piano'
-                    ? 'Piano'
-                    : 'Guitar'}
+                    ? t('Piano')
+                    : t('Guitar')}
               </strong>
-              <Link to="/settings">Change</Link>
+              <Link to="/settings">{t('Change')}</Link>
             </div>
             <div className="aside-instrument-preview">
               <InstrumentSurface
@@ -317,7 +332,9 @@ export default function LessonPage() {
                 showLabelsOverride={false}
               />
             </div>
-            <p className="side-note">Tap instruments in exercises to answer. Sound follows your timbre setting.</p>
+            <p className="side-note">
+              {t('Tap instruments in exercises to answer. Sound follows your timbre setting.')}
+            </p>
           </section>
         </aside>
       </div>

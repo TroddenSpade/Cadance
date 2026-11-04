@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n';
 import { KEY_SIG_POSITIONS, diatonicStep, type Letter } from '../lib/music';
 import type { StaffSpec } from '../lib/types';
 
@@ -29,6 +30,7 @@ function ledgerYs(y: number, x: number) {
 }
 
 export default function Staff({ spec, className = '' }: { spec: StaffSpec; className?: string }) {
+  const { t } = useI18n();
   const clef = spec.clef;
   const keyCount = spec.keySig?.count ?? 0;
   const keyType = spec.keySig?.type;
@@ -69,12 +71,21 @@ export default function Staff({ spec, className = '' }: { spec: StaffSpec; class
         }))
       : [];
 
+  const staffLabel =
+    clef === 'treble'
+      ? t(spec.notes.length === 1 ? 'treble clef staff with {count} note' : 'treble clef staff with {count} notes', {
+          count: spec.notes.length,
+        })
+      : t(spec.notes.length === 1 ? 'bass clef staff with {count} note' : 'bass clef staff with {count} notes', {
+          count: spec.notes.length,
+        });
+
   return (
     <svg
       className={`staff ${className}`}
       viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
       role="img"
-      aria-label={`${clef} clef staff with ${spec.notes.length} ${spec.notes.length === 1 ? 'note' : 'notes'}`}
+      aria-label={staffLabel}
     >
       {[0, 1, 2, 3, 4].map((line) => (
         <line

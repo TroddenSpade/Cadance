@@ -6,10 +6,12 @@ import ProgressRing from '../components/ProgressRing';
 import { STARTER_SPECS, exerciseSkillLabel } from '../lib/exercises';
 import { SKILL_BLUEPRINTS } from '../data/curriculum';
 import { todayCount } from '../lib/courseStats';
+import { useI18n } from '../lib/i18n';
 import { useProgress } from '../lib/progress';
 import type { ExerciseSpec, SessionResult } from '../lib/types';
 
 export default function Practice() {
+  const { t, formatDate } = useI18n();
   const { state, settings, dueSkills } = useProgress();
   const [started, setStarted] = useState(false);
   const [sessionKey, setSessionKey] = useState(0);
@@ -33,20 +35,26 @@ export default function Practice() {
   const totalQuestions = specs.reduce((sum, spec) => sum + spec.count, 0);
   const today = todayCount(state);
   const goalPercent = Math.min(100, (today / settings.dailyGoal) * 100);
-  const dateLabel = new Intl.DateTimeFormat('en', { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date());
+  const dateLabel = formatDate(new Date(), { weekday: 'long', month: 'long', day: 'numeric' });
+  const instrumentLabel =
+    settings.instrument === 'both'
+      ? t('Piano & guitar')
+      : settings.instrument === 'piano'
+        ? t('Piano')
+        : t('Guitar');
 
   if (started) {
     return (
       <div className="page practice-page">
-        <nav className="breadcrumbs" aria-label="Breadcrumb">
-          <Link to="/">Today</Link>
+        <nav className="breadcrumbs" aria-label={t('Breadcrumb')}>
+          <Link to="/">{t('Today')}</Link>
           <Icon name="chevron" size={13} />
-          <span>Daily practice</span>
+          <span>{t('Daily practice')}</span>
         </nav>
         <ExerciseSession
           key={sessionKey}
           specs={specs}
-          title={isStarter ? 'Starter session' : 'Daily practice'}
+          title={isStarter ? t('Starter session') : t('Daily practice')}
           context="practice"
           onFinish={(result) => setLastResult(result)}
           onDone={() => {
@@ -64,21 +72,22 @@ export default function Practice() {
       <header className="page-header">
         <div>
           <span className="eyebrow">{dateLabel}</span>
-          <h1>Daily practice</h1>
+          <h1>{t('Daily practice')}</h1>
           <p>
-            A short adaptive session built from what you have learned. Skills return just before you are likely to
-            forget them, then at wider intervals as they stick.
+            {t(
+              'A short adaptive session built from what you have learned. Skills return just before you are likely to forget them, then at wider intervals as they stick.',
+            )}
           </p>
         </div>
         <div className="header-stat practice-header-stat">
           <ProgressRing percent={goalPercent}>
             <strong>{today}</strong>
-            <span>of {settings.dailyGoal}</span>
+            <span>{t('of {n}', { n: settings.dailyGoal })}</span>
           </ProgressRing>
           <div>
-            <span className="eyebrow">Daily goal</span>
-            <strong>{Math.max(0, settings.dailyGoal - today)} questions to go</strong>
-            <small>{dueSkills.length} reviews due now</small>
+            <span className="eyebrow">{t('Daily goal')}</span>
+            <strong>{t('{n} questions to go', { n: Math.max(0, settings.dailyGoal - today) })}</strong>
+            <small>{t('{n} reviews due now', { n: dueSkills.length })}</small>
           </div>
         </div>
       </header>
@@ -89,14 +98,17 @@ export default function Practice() {
             <Icon name="check" size={18} />
           </span>
           <div>
-            <strong>Session logged</strong>
+            <strong>{t('Session logged')}</strong>
             <p>
-              {lastResult.correct} of {lastResult.total} correct — {Math.round(lastResult.accuracy * 100)}%. Your next
-              reviews have been scheduled.
+              {t('{correct} of {total} correct — {percent}%. Your next reviews have been scheduled.', {
+                correct: lastResult.correct,
+                total: lastResult.total,
+                percent: Math.round(lastResult.accuracy * 100),
+              })}
             </p>
           </div>
           <button className="button secondary small" onClick={() => setLastResult(null)}>
-            Dismiss
+            {t('Dismiss')}
           </button>
         </div>
       )}
@@ -105,10 +117,17 @@ export default function Practice() {
         <section className="panel practice-queue">
           <div className="panel-head">
             <div>
-              <span className="eyebrow">{isStarter ? 'Start here' : 'Today’s queue'}</span>
-              <h2>{isStarter ? 'Starter session' : `${totalQuestions} questions across ${specs.length} skills`}</h2>
+              <span className="eyebrow">{isStarter ? t('Start here') : t('Today’s queue')}</span>
+              <h2>
+                {isStarter
+                  ? t('Starter session')
+                  : t('{questions} questions across {skills} skills', {
+                      questions: totalQuestions,
+                      skills: specs.length,
+                    })}
+              </h2>
             </div>
-            <span className="topic-chip muted">{isStarter ? 'Foundation mix' : 'Adaptive'}</span>
+            <span className="topic-chip muted">{isStarter ? t('Foundation mix') : t('Adaptive')}</span>
           </div>
 
           {isStarter ? (
@@ -117,10 +136,11 @@ export default function Practice() {
                 <Icon name="spark" size={22} />
               </div>
               <div>
-                <h3>No history yet — here is a foundation mix</h3>
+                <h3>{t('No history yet — here is a foundation mix')}</h3>
                 <p>
-                  Once you complete a lesson, practice becomes personal: note-reading errors, intervals you miss, and
-                  chords you confuse all enter the queue automatically.
+                  {t(
+                    'Once you complete a lesson, practice becomes personal: note-reading errors, intervals you miss, and chords you confuse all enter the queue automatically.',
+                  )}
                 </p>
               </div>
             </div>
@@ -137,8 +157,12 @@ export default function Practice() {
                       <div className="queue-copy">
                         <strong>{exerciseSkillLabel(skill)}</strong>
                         <span>
-                          {spec.count} question{spec.count === 1 ? '' : 's'} ·{' '}
-                          {due ? 'due now' : progress ? `${Math.round(progress.strength * 100)}% strength` : 'new'}
+                          {t(spec.count === 1 ? '{n} question' : '{n} questions', { n: spec.count })} ·{' '}
+                          {due
+                            ? t('due now')
+                            : progress
+                              ? t('{n}% strength', { n: Math.round(progress.strength * 100) })
+                              : t('new')}
                         </span>
                       </div>
                       <div className="queue-strength">
@@ -148,7 +172,7 @@ export default function Practice() {
                             style={{ width: `${Math.round((progress?.strength ?? 0.2) * 100)}%` }}
                           />
                         </div>
-                        <span>{due ? 'Review' : 'Keep fresh'}</span>
+                        <span>{due ? t('Review') : t('Keep fresh')}</span>
                       </div>
                     </div>
                   </li>
@@ -159,10 +183,12 @@ export default function Practice() {
 
           <div className="practice-start">
             <div>
-              <strong>Ready when you are</strong>
+              <strong>{t('Ready when you are')}</strong>
               <p>
-                Piano and guitar are both available for note-finding, chord, and scale questions. Current instrument:{' '}
-                <b>{settings.instrument === 'both' ? 'both' : settings.instrument}</b>.
+                {t(
+                  'Piano and guitar are both available for note-finding, chord, and scale questions. Current instrument:',
+                )}{' '}
+                <b>{instrumentLabel}</b>.
               </p>
             </div>
             <button
@@ -173,77 +199,71 @@ export default function Practice() {
               }}
             >
               <Icon name="play" size={18} />
-              Begin {totalQuestions}-question session
+              {t('Begin {n}-question session', { n: totalQuestions })}
             </button>
           </div>
         </section>
 
         <aside className="practice-side">
           <section className="panel">
-            <span className="eyebrow">Today</span>
-            <h2>Your rhythm</h2>
+            <span className="eyebrow">{t('Today')}</span>
+            <h2>{t('Your rhythm')}</h2>
             <div className="practice-stats">
               <div>
-                <span>Streak</span>
+                <span>{t('Streak')}</span>
                 <strong>
-                  <Icon name="flame" size={17} /> {state.streak} days
+                  <Icon name="flame" size={17} /> {t('{n} days', { n: state.streak })}
                 </strong>
               </div>
               <div>
-                <span>Answered today</span>
+                <span>{t('Answered today')}</span>
                 <strong>{today}</strong>
               </div>
               <div>
-                <span>Accuracy today</span>
+                <span>{t('Accuracy today')}</span>
                 <strong>{state.daily.count ? Math.round((state.daily.correct / state.daily.count) * 100) : 0}%</strong>
               </div>
               <div>
-                <span>Skills tracked</span>
+                <span>{t('Skills tracked')}</span>
                 <strong>{learned.length}</strong>
               </div>
             </div>
             <Link to="/trainer" className="text-link">
-              Want a specific drill? Open the trainer <Icon name="arrow" size={14} />
+              {t('Want a specific drill? Open the trainer')} <Icon name="arrow" size={14} />
             </Link>
           </section>
 
           <section className="panel">
-            <span className="eyebrow">Spaced recall</span>
-            <h2>How scheduling works</h2>
+            <span className="eyebrow">{t('Spaced recall')}</span>
+            <h2>{t('How scheduling works')}</h2>
             <ol className="review-timeline">
               <li>
-                <span>First</span>
-                <p>A skill you just learned returns within hours.</p>
+                <span>{t('First')}</span>
+                <p>{t('A skill you just learned returns within hours.')}</p>
               </li>
               <li>
-                <span>Then</span>
-                <p>Correct answers push it to 1, 2, 4, then 7 days.</p>
+                <span>{t('Then')}</span>
+                <p>{t('Correct answers push it to 1, 2, 4, then 7 days.')}</p>
               </li>
               <li>
-                <span>Later</span>
-                <p>Strong skills stretch to 2 weeks, a month, two months.</p>
+                <span>{t('Later')}</span>
+                <p>{t('Strong skills stretch to 2 weeks, a month, two months.')}</p>
               </li>
               <li>
-                <span>Miss</span>
-                <p>A wrong answer brings it back sooner and lowers its strength.</p>
+                <span>{t('Miss')}</span>
+                <p>{t('A wrong answer brings it back sooner and lowers its strength.')}</p>
               </li>
             </ol>
           </section>
 
           <section className="panel instrument-mini">
-            <span className="eyebrow">Instrument</span>
+            <span className="eyebrow">{t('Instrument')}</span>
             <div className="aside-instrument">
               <Icon name={settings.instrument === 'guitar' ? 'guitar' : 'piano'} size={18} />
-              <strong>
-                {settings.instrument === 'both'
-                  ? 'Piano & guitar'
-                  : settings.instrument === 'piano'
-                    ? 'Piano'
-                    : 'Guitar'}
-              </strong>
-              <Link to="/settings">Change</Link>
+              <strong>{instrumentLabel}</strong>
+              <Link to="/settings">{t('Change')}</Link>
             </div>
-            <p className="side-note">Answer on either surface. Pitch class is what counts.</p>
+            <p className="side-note">{t('Answer on either surface. Pitch class is what counts.')}</p>
           </section>
         </aside>
       </div>

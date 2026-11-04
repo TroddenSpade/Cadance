@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import Icon from '../components/Icons';
 import NoteText from '../components/NoteText';
 import ProgressRing from '../components/ProgressRing';
-import { ALL_LESSONS, COURSES, LEVELS } from '../data/curriculum';
+import { useCurriculum } from '../data/i18n';
 import { exerciseSkillLabel, STARTER_SPECS } from '../lib/exercises';
 import {
   coursePercent,
@@ -12,27 +12,33 @@ import {
   totalCompleted,
 } from '../lib/courseStats';
 import { useProgress, levelFromXp } from '../lib/progress';
-
-const QUICK_PRACTICE = [
-  { topic: 'staff-reading', label: 'Staff reading', description: 'Name notes in both clefs', icon: 'book' as const },
-  { topic: 'intervals', label: 'Interval ear', description: 'Hear the distance', icon: 'headphones' as const },
-  { topic: 'find-notes', label: 'Find notes', description: 'Piano & fretboard', icon: 'target' as const },
-  { topic: 'chords', label: 'Chord ear', description: 'Quality and colour', icon: 'music' as const },
-];
+import { useI18n } from '../lib/i18n';
 
 export default function Dashboard() {
+  const { t, formatDate } = useI18n();
   const { state, settings, dueSkills } = useProgress();
+  const { allLessons, courseMap, lessonMap, levels: curriculumLevels } = useCurriculum();
   const levelInfo = levelFromXp(state.xp);
-  const lesson = currentLesson(state);
-  const course = COURSES.find((item) => item.id === lesson.courseId);
+  const baseLesson = currentLesson(state);
+  const lesson = lessonMap[baseLesson.id] ?? baseLesson;
+  const course = courseMap[baseLesson.courseId];
   const completed = totalCompleted(state);
   const today = todayCount(state);
   const goalPercent = Math.min(100, (today / settings.dailyGoal) * 100);
-  const levels = lessonsCompletedByLevel(state);
+  const levels = lessonsCompletedByLevel(state).map((entry) => ({
+    ...entry,
+    level: curriculumLevels.find((item) => item.id === entry.level.id) ?? entry.level,
+  }));
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  const dateLabel = new Intl.DateTimeFormat('en', { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date());
-  const instrumentLabel = settings.instrument === 'both' ? 'Piano + guitar' : settings.instrument === 'piano' ? 'Piano' : 'Guitar';
+  const greeting = t(hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening');
+  const dateLabel = formatDate(new Date(), { weekday: 'long', month: 'long', day: 'numeric' });
+  const instrumentLabel = settings.instrument === 'both' ? t('Piano + guitar') : settings.instrument === 'piano' ? t('Piano') : t('Guitar');
+  const quickPractice = [
+    { topic: 'staff-reading', label: t('Staff reading'), description: t('Name notes in both clefs'), icon: 'book' as const },
+    { topic: 'intervals', label: t('Interval ear'), description: t('Hear the distance'), icon: 'headphones' as const },
+    { topic: 'find-notes', label: t('Find notes'), description: t('Piano & fretboard'), icon: 'target' as const },
+    { topic: 'chords', label: t('Chord ear'), description: t('Quality and colour'), icon: 'music' as const },
+  ];
   const focusSkills = dueSkills.slice(0, 4);
   const fallbackSkills = Object.values(state.skills)
     .filter((skill) => !dueSkills.some((due) => due.id === skill.id))
@@ -45,30 +51,29 @@ export default function Dashboard() {
         <div className="hero-copy">
           <span className="eyebrow">{dateLabel}</span>
           <h1>
-            {greeting}. Keep the <em>cadence</em>.
+            {t('{greeting}. Keep the', { greeting })} <em>{t('cadence')}</em>.
           </h1>
           <p className="hero-lead">
-            Read a little, hear a little, play a little. Cadence turns music theory into a daily habit — on piano,
-            guitar, or both.
+            {t('Read a little, hear a little, play a little. Cadence turns music theory into a daily habit — on piano, guitar, or both.')}
           </p>
           <div className="button-row">
             <Link className="button primary" to={`/lesson/${lesson.id}`}>
               <Icon name="play" size={16} />
-              {state.lessons[lesson.id]?.completedAt ? 'Review lesson' : completed > 0 ? 'Continue learning' : 'Start learning'}
+              {state.lessons[lesson.id]?.completedAt ? t('Review lesson') : completed > 0 ? t('Continue learning') : t('Start learning')}
             </Link>
             <Link className="button secondary" to="/practice">
               <Icon name="practice" size={16} />
-              Daily practice
+              {t('Daily practice')}
             </Link>
           </div>
           <div className="hero-meta">
             <span className="hero-meta-item">
               <Icon name="flame" size={16} />
-              {state.streak > 0 ? `${state.streak}-day streak` : 'Start your streak'}
+              {state.streak > 0 ? t('{n}-day streak', { n: state.streak }) : t('Start your streak')}
             </span>
             <span className="hero-meta-item">
               <Icon name="trophy" size={16} />
-              Level {levelInfo.level} · {levelInfo.title}
+              {t('Level {level} · {title}', { level: levelInfo.level, title: t(levelInfo.title) })}
             </span>
             <span className="hero-meta-item">
               <Icon name={settings.instrument === 'guitar' ? 'guitar' : 'piano'} size={16} />
@@ -80,34 +85,34 @@ export default function Dashboard() {
         <div className="hero-side">
           <div className="daily-card">
             <div className="daily-card-head">
-              <span className="eyebrow">Today</span>
+              <span className="eyebrow">{t('Today')}</span>
               <Link to="/practice" className="text-link">
-                Open practice <Icon name="arrow" size={14} />
+                {t('Open practice')} <Icon name="arrow" size={14} />
               </Link>
             </div>
             <div className="daily-main">
               <ProgressRing percent={goalPercent}>
                 <strong>{today}</strong>
-                <span>of {settings.dailyGoal} questions</span>
+                <span>{t('of {n} questions', { n: settings.dailyGoal })}</span>
               </ProgressRing>
               <div className="daily-copy">
-                <h3>{today === 0 ? 'A fresh start' : today >= settings.dailyGoal ? 'Daily goal met' : 'Keep going'}</h3>
+                <h3>{today === 0 ? t('A fresh start') : today >= settings.dailyGoal ? t('Daily goal met') : t('Keep going')}</h3>
                 <p>
                   {dueSkills.length > 0
-                    ? `${dueSkills.length} skill${dueSkills.length === 1 ? '' : 's'} due for review right now.`
-                    : 'No reviews due. A short session keeps everything fresh.'}
+                    ? t(dueSkills.length === 1 ? '{n} skill due for review right now.' : '{n} skills due for review right now.', { n: dueSkills.length })
+                    : t('No reviews due. A short session keeps everything fresh.')}
                 </p>
                 <Link className="button small primary" to="/practice">
-                  {dueSkills.length ? 'Review now' : 'Warm up'}
+                  {dueSkills.length ? t('Review now') : t('Warm up')}
                 </Link>
               </div>
             </div>
             <div className="daily-foot">
               <span>
-                <Icon name="flame" size={15} /> {state.streak} day streak
+                <Icon name="flame" size={15} /> {t('{n} day streak', { n: state.streak })}
               </span>
               <span>
-                <Icon name="spark" size={15} /> {state.xp} XP
+                <Icon name="spark" size={15} /> {t('{n} XP', { n: state.xp })}
               </span>
             </div>
           </div>
@@ -121,9 +126,9 @@ export default function Dashboard() {
           </span>
           <div>
             <strong>{state.streak}</strong>
-            <span>day streak</span>
+            <span>{t('day streak')}</span>
           </div>
-          <small>Best: {state.bestStreak}</small>
+          <small>{t('Best: {value}', { value: state.bestStreak })}</small>
         </div>
         <div className="stat-card">
           <span className="stat-icon cool">
@@ -131,9 +136,9 @@ export default function Dashboard() {
           </span>
           <div>
             <strong>{state.xp}</strong>
-            <span>total XP</span>
+            <span>{t('total XP')}</span>
           </div>
-          <small>Level {levelInfo.level}</small>
+          <small>{t('Level {level}', { level: levelInfo.level })}</small>
         </div>
         <div className="stat-card">
           <span className="stat-icon green">
@@ -141,9 +146,9 @@ export default function Dashboard() {
           </span>
           <div>
             <strong>{completed}</strong>
-            <span>lessons complete</span>
+            <span>{t('lessons complete')}</span>
           </div>
-          <small>{ALL_LESSONS.length} in the path</small>
+          <small>{t('{n} in the path', { n: allLessons.length })}</small>
         </div>
         <div className="stat-card">
           <span className="stat-icon lilac">
@@ -151,9 +156,9 @@ export default function Dashboard() {
           </span>
           <div>
             <strong>{dueSkills.length}</strong>
-            <span>reviews due</span>
+            <span>{t('reviews due')}</span>
           </div>
-          <small>{Object.keys(state.skills).length} skills tracked</small>
+          <small>{t('{n} skills tracked', { n: Object.keys(state.skills).length })}</small>
         </div>
       </section>
 
@@ -161,11 +166,11 @@ export default function Dashboard() {
         <section className="panel continue-panel">
           <div className="panel-head">
             <div>
-              <span className="eyebrow">Your path</span>
-              <h2>Continue where you left off</h2>
+              <span className="eyebrow">{t('Your path')}</span>
+              <h2>{t('Continue where you left off')}</h2>
             </div>
             <Link className="text-link" to="/courses">
-              All courses <Icon name="arrow" size={14} />
+              {t('All courses')} <Icon name="arrow" size={14} />
             </Link>
           </div>
           <div className="continue-card">
@@ -174,7 +179,7 @@ export default function Dashboard() {
             </div>
             <div className="continue-copy">
               <span className="course-level">
-                {LEVELS.find((level) => level.id === course?.level)?.title} · <NoteText text={course?.title ?? ''} />
+                {curriculumLevels.find((level) => level.id === course?.level)?.title} · <NoteText text={course?.title ?? ''} />
               </span>
               <h3>
                 <NoteText text={lesson.title} />
@@ -190,7 +195,7 @@ export default function Dashboard() {
               </div>
             </div>
             <Link className="button primary small" to={`/lesson/${lesson.id}`}>
-              {state.lessons[lesson.id]?.completedAt ? 'Review' : 'Open lesson'}
+              {state.lessons[lesson.id]?.completedAt ? t('Review') : t('Open lesson')}
               <Icon name="chevron" size={15} />
             </Link>
           </div>
@@ -212,10 +217,10 @@ export default function Dashboard() {
         <section className="panel review-panel">
           <div className="panel-head">
             <div>
-              <span className="eyebrow">Recall</span>
-              <h2>{dueSkills.length ? 'Due for review' : 'Review queue'}</h2>
+              <span className="eyebrow">{t('Recall')}</span>
+              <h2>{dueSkills.length ? t('Due for review') : t('Review queue')}</h2>
             </div>
-            <Link className="icon-link" to="/practice" aria-label="Open daily practice">
+            <Link className="icon-link" to="/practice" aria-label={t('Open daily practice')}>
               <Icon name="arrow" size={18} />
             </Link>
           </div>
@@ -224,10 +229,10 @@ export default function Dashboard() {
               <div className="empty-glyph">
                 <Icon name="spark" size={24} />
               </div>
-              <h3>Your queue is empty</h3>
-              <p>Complete a lesson and its skills will enter the spaced-review cycle. Try the starter session to begin.</p>
+              <h3>{t('Your queue is empty')}</h3>
+              <p>{t('Complete a lesson and its skills will enter the spaced-review cycle. Try the starter session to begin.')}</p>
               <Link className="button small secondary" to="/practice">
-                Start a starter session
+                {t('Start a starter session')}
               </Link>
             </div>
           ) : (
@@ -243,7 +248,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <span className={`review-status ${focusSkills.length ? 'due' : ''}`}>
-                      {focusSkills.length ? 'Due' : 'Scheduled'}
+                      {focusSkills.length ? t('Due') : t('Scheduled')}
                     </span>
                   </div>
                 </li>
@@ -252,10 +257,10 @@ export default function Dashboard() {
           )}
           <div className="review-foot">
             <span>
-              <Icon name="refresh" size={15} /> Spaced review adapts to your answers
+              <Icon name="refresh" size={15} /> {t('Spaced review adapts to your answers')}
             </span>
             <Link className="text-link" to="/practice">
-              Practice <Icon name="chevron" size={13} />
+              {t('Practice')} <Icon name="chevron" size={13} />
             </Link>
           </div>
         </section>
@@ -264,15 +269,15 @@ export default function Dashboard() {
       <section className="quick-section">
         <div className="panel-head">
           <div>
-            <span className="eyebrow">No lesson needed</span>
-            <h2>Jump into a quick drill</h2>
+            <span className="eyebrow">{t('No lesson needed')}</span>
+            <h2>{t('Jump into a quick drill')}</h2>
           </div>
           <Link className="text-link" to="/trainer">
-            Open trainer <Icon name="arrow" size={14} />
+            {t('Open trainer')} <Icon name="arrow" size={14} />
           </Link>
         </div>
         <div className="quick-grid">
-          {QUICK_PRACTICE.map((item) => (
+          {quickPractice.map((item) => (
             <Link key={item.topic} to={`/trainer?topic=${item.topic}`} className="quick-card">
               <span className="quick-icon">
                 <Icon name={item.icon} size={22} />
@@ -292,15 +297,15 @@ export default function Dashboard() {
           <Icon name="music" size={20} />
         </div>
         <div>
-          <strong>{Object.keys(state.skills).length === 0 ? 'New here? Start with the basics.' : 'Build a steady habit.'}</strong>
+          <strong>{Object.keys(state.skills).length === 0 ? t('New here? Start with the basics.') : t('Build a steady habit.')}</strong>
           <p>
             {Object.keys(state.skills).length === 0
-              ? 'The first course begins with the keyboard and the staff. Ten minutes a day is enough.'
-              : `${STARTER_SPECS.length} short starter drills are always available in the trainer if you want a warm-up.`}
+              ? t('The first course begins with the keyboard and the staff. Ten minutes a day is enough.')
+              : t('{n} short starter drills are always available in the trainer if you want a warm-up.', { n: STARTER_SPECS.length })}
           </p>
         </div>
         <Link className="button secondary small" to={Object.keys(state.skills).length === 0 ? '/courses/staff-pitch' : '/trainer'}>
-          {Object.keys(state.skills).length === 0 ? 'Explore Pitch & the Staff' : 'Warm up'}
+          {Object.keys(state.skills).length === 0 ? t('Explore Pitch & the Staff') : t('Warm up')}
           <Icon name="chevron" size={15} />
         </Link>
       </section>

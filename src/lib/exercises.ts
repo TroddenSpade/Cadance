@@ -30,6 +30,8 @@ import {
   type ScaleName,
   type SpelledPitch,
 } from './music';
+import { getLanguage, t } from './i18n';
+import faSkillLabels from '../locales/fa/content/skills.json';
 import type {
   Clef,
   ExerciseKind,
@@ -107,6 +109,7 @@ function articleFor(name: string): 'a' | 'an' {
 }
 
 function ordinal(n: number): string {
+  if (getLanguage() === 'fa') return String(n);
   const suffix = n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th';
   return `${n}${suffix}`;
 }
@@ -114,15 +117,15 @@ function ordinal(n: number): string {
 function staffPosition(clef: Clef, note: StaffNoteSpec): string {
   const middleStep = clef === 'treble' ? 34 : 22;
   const diff = diatonicStep(note.letter, note.octave) - middleStep;
-  if (diff === 0) return 'on the middle line';
+  if (diff === 0) return t('on the middle line');
   if (diff % 2 === 0) {
     const line = 3 + diff / 2;
-    if (line >= 1 && line <= 5) return `on the ${ordinal(line)} line`;
-    return line > 5 ? 'on a ledger line above the staff' : 'on a ledger line below the staff';
+    if (line >= 1 && line <= 5) return t('on the {ordinal} line', { ordinal: ordinal(line) });
+    return line > 5 ? t('on a ledger line above the staff') : t('on a ledger line below the staff');
   }
   const space = 3 + (diff - 1) / 2;
-  if (space >= 1 && space <= 4) return `in the ${ordinal(space)} space`;
-  return space > 4 ? 'in the space above the staff' : 'in the space below the staff';
+  if (space >= 1 && space <= 4) return t('in the {ordinal} space', { ordinal: ordinal(space) });
+  return space > 4 ? t('in the space above the staff') : t('in the space below the staff');
 }
 
 function mcChoices(answer: string, pool: string[], count = 4): string[] {
@@ -209,13 +212,14 @@ function buildProgressionChords(root: number, progression: (typeof PROGRESSIONS)
   );
 }
 
-function rhythmName(beats: number): string {
-  if (beats >= 4) return 'whole note';
-  if (beats >= 3) return 'dotted half note';
-  if (beats >= 2) return 'half note';
-  if (beats > 1) return 'dotted quarter note';
-  if (beats === 1) return 'quarter note';
-  return 'eighth note';
+function rhythmName(beats: number, rest = false): string {
+  let name = 'eighth note';
+  if (beats >= 4) name = 'whole note';
+  else if (beats >= 3) name = 'dotted half note';
+  else if (beats >= 2) name = 'half note';
+  else if (beats > 1) name = 'dotted quarter note';
+  else if (beats === 1) name = 'quarter note';
+  return t(rest ? name.replace('note', 'rest') : name);
 }
 
 function makeRhythm(total: number): { beats: number; dotted?: boolean }[] {
@@ -294,7 +298,7 @@ function rhythmVariants(items: RhythmItem[]): RhythmItem[][] {
 
 function rhythmDescription(items: RhythmItem[]): string {
   return items
-    .map((item) => (item.rest ? rhythmName(item.beats).replace('note', 'rest') : rhythmName(item.beats)))
+    .map((item) => rhythmName(item.beats, item.rest))
     .join(', ');
 }
 
@@ -319,14 +323,21 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: 'Name this note.',
-        instruction: 'Read the staff, then choose the letter name.',
+        prompt: t('Name this note.'),
+        instruction: t('Read the staff, then choose the letter name.'),
         staff: { clef, notes: [note] },
         audio: { midis: [noteMidi(note)], mode: 'sequence' },
         choices: shuffle([answer, ...wrong]),
         answer,
-        explanation: `This note is ${noteName}, written ${staffPosition(clef, note)} of the ${clef} staff.`,
-        hint: clef === 'treble' ? 'Treble clef lines: E G B D F.' : 'Bass clef lines: G B D F A.',
+        explanation: t('This note is {note}, written {position} of the {clef} staff.', {
+          note: noteName,
+          position: staffPosition(clef, note),
+          clef: t(`${clef} clef`),
+        }),
+        hint:
+          clef === 'treble'
+            ? t('Treble clef lines: E G B D F.')
+            : t('Bass clef lines: G B D F A.'),
         skills,
       };
     }
@@ -341,17 +352,24 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       }
       const preferFlat = Math.random() < 0.35;
       const name = midiToName(60 + pitch, preferFlat);
-      const label = name.replace('♯', ' sharp').replace('♭', ' flat');
+      const label = name.includes('♯')
+        ? t('{note} sharp', { note: name.replace('♯', '') })
+        : name.includes('♭')
+          ? t('{note} flat', { note: name.replace('♭', '') })
+          : name;
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: `Find ${name} on the instrument.`,
-        instruction: 'Any octave counts. Tap a key or fret to answer.',
+        prompt: t('Find {name} on the instrument.', { name }),
+        instruction: t('Any octave counts. Tap a key or fret to answer.'),
         targetMidi: 48 + pitch,
         targetLabel: name,
         answer: name,
-        explanation: `The target pitch class is ${label}. ${midiToName(60 + pitch, preferFlat)} appears in every octave — on a piano as the key labelled ${label}, and on a guitar at several frets across the strings.`,
-        hint: 'Use the keyboard pattern: C is always just left of the group of two black keys.',
+        explanation: t(
+          'The target pitch class is {label}. {name} appears in every octave — on a piano as the key labelled {label}, and on a guitar at several frets across the strings.',
+          { label, name },
+        ),
+        hint: t('Use the keyboard pattern: C is always just left of the group of two black keys.'),
         skills,
       };
     }
@@ -368,24 +386,31 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       const allowedNames = [...new Set(pool.map((value) => intervalBySemitones(value).name))];
       const filler = INTERVAL_POOL.filter((name) => !allowedNames.includes(name));
       const choicePool = allowedNames.length >= 4 ? allowedNames : [...allowedNames, ...filler].slice(0, 4);
-      const options = mcChoices(answer, choicePool);
+      const options = mcChoices(answer, choicePool).map((name) => t(name));
       const motion =
         dir === 'harmonic'
-          ? `${midiToFullName(root)} and ${midiToFullName(upper)} together`
+          ? t('{low} and {high} together', { low: midiToFullName(root), high: midiToFullName(upper) })
           : dir === 'descending'
-            ? `${midiToFullName(upper)} down to ${midiToFullName(root)}`
-            : `${midiToFullName(root)} up to ${midiToFullName(upper)}`;
+            ? t('{high} down to {low}', { high: midiToFullName(upper), low: midiToFullName(root) })
+            : t('{low} up to {high}', { low: midiToFullName(root), high: midiToFullName(upper) });
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: 'What interval do you hear?',
-        instruction: dir === 'harmonic' ? 'Listen to the two notes together.' : 'Listen to the two notes in order.',
+        prompt: t('What interval do you hear?'),
+        instruction:
+          dir === 'harmonic' ? t('Listen to the two notes together.') : t('Listen to the two notes in order.'),
         audio: { midis, mode: dir === 'harmonic' ? 'chord' : 'sequence' },
         autoPlay: true,
         choices: options,
-        answer,
-        explanation: `${motion} spans ${semitones} semitones — a ${answer.toLowerCase()}.`,
-        hint: 'Anchor the sound: a major 3rd sounds bright, a minor 3rd darker; a perfect 5th is open and stable.',
+        answer: t(answer),
+        explanation: t('{motion} spans {semitones} semitones — a {answer}.', {
+          motion,
+          semitones,
+          answer: t(answer),
+        }),
+        hint: t(
+          'Anchor the sound: a major 3rd sounds bright, a minor 3rd darker; a perfect 5th is open and stable.',
+        ),
         skills,
       };
     }
@@ -434,14 +459,21 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: 'What interval is written?',
-        instruction: 'Read both notes. The interval is measured upward from the first note.',
+        prompt: t('What interval is written?'),
+        instruction: t('Read both notes. The interval is measured upward from the first note.'),
         staff: { clef, notes: [firstNote, secondNote] },
         audio: { midis: [noteMidi(firstNote), noteMidi(secondNote)], mode: 'sequence' },
-        choices: mcChoices(answer, choicePool),
-        answer,
-        explanation: `${spelledFullName(firstNote.letter, firstNote.accidental, firstNote.octave)} up to ${spelledFullName(secondNote.letter, secondNote.accidental, secondNote.octave)} spans ${interval.semitones} semitones — a ${answer.toLowerCase()}.`,
-        hint: 'Count the letter names inclusively to get the number, then count semitones to get the quality. Major can become minor; perfect can become augmented or diminished.',
+        choices: mcChoices(answer, choicePool).map((name) => t(name)),
+        answer: t(answer),
+        explanation: t('{first} up to {second} spans {semitones} semitones — a {answer}.', {
+          first: spelledFullName(firstNote.letter, firstNote.accidental, firstNote.octave),
+          second: spelledFullName(secondNote.letter, secondNote.accidental, secondNote.octave),
+          semitones: interval.semitones,
+          answer: t(answer),
+        }),
+        hint: t(
+          'Count the letter names inclusively to get the number, then count semitones to get the quality. Major can become minor; perfect can become augmented or diminished.',
+        ),
         skills,
       };
     }
@@ -457,14 +489,18 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: 'What chord quality do you hear?',
-        instruction: 'Listen as a block chord.',
+        prompt: t('What chord quality do you hear?'),
+        instruction: t('Listen as a block chord.'),
         audio: { midis, mode: 'chord' },
         autoPlay: true,
-        choices: mcChoices(quality, qualities.length > 1 ? qualities : CHORD_QUALITY_POOL),
-        answer: quality,
-        explanation: `The chord is ${spelledPitchName(rootSpelling)} ${quality.toLowerCase()} (${names}).`,
-        hint: 'Major sounds bright, minor sounds dark, diminished is tense, augmented is suspended and wide.',
+        choices: mcChoices(quality, qualities.length > 1 ? qualities : CHORD_QUALITY_POOL).map((name) => t(name)),
+        answer: t(quality),
+        explanation: t('The chord is {root} {quality} ({notes}).', {
+          root: spelledPitchName(rootSpelling),
+          quality: t(quality),
+          notes: names,
+        }),
+        hint: t('Major sounds bright, minor sounds dark, diminished is tense, augmented is suspended and wide.'),
         skills,
       };
     }
@@ -500,26 +536,34 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
         .sort((a, b) => a.midi - b.midi);
 
       const labels = ['Root position', 'First inversion', 'Second inversion', 'Third inversion'];
-      const answer = labels[inversion];
+      const answer = t(labels[inversion]);
       const bass = voiced[0];
       const rootName = spelledPitchName(rootSpelling);
+      const tone = t(inversion === 0 ? 'root' : inversion === 1 ? 'third' : inversion === 2 ? 'fifth' : 'seventh');
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: `What inversion is this ${rootName} ${quality.toLowerCase()} chord?`,
-        instruction: 'The lowest note decides the inversion. Read the chord from the bottom up.',
+        prompt: t('What inversion is this {root} {quality} chord?', {
+          root: rootName,
+          quality: t(quality),
+        }),
+        instruction: t('The lowest note decides the inversion. Read the chord from the bottom up.'),
         staff: {
           clef: 'treble',
           notes: voiced.map(({ midi: _midi, ...note }) => note),
           chord: true,
         },
         audio: { midis: voiced.map((note) => note.midi), mode: 'chord' },
-        choices: shuffle(labels.slice(0, chord.intervals.length)),
+        choices: shuffle(labels.slice(0, chord.intervals.length).map((label) => t(label))),
         answer,
-        explanation: `The bass is ${spelledFullName(bass.letter, bass.accidental, bass.octave)}. ${answer} means the ${
-          inversion === 0 ? 'root' : inversion === 1 ? 'third' : inversion === 2 ? 'fifth' : 'seventh'
-        } is in the bass.`,
-        hint: 'Root position = root in the bass. First inversion = third. Second inversion = fifth. Seventh chords add third inversion = seventh.',
+        explanation: t('The bass is {bass}. {answer} means the {tone} is in the bass.', {
+          bass: spelledFullName(bass.letter, bass.accidental, bass.octave),
+          answer,
+          tone,
+        }),
+        hint: t(
+          'Root position = root in the bass. First inversion = third. Second inversion = fifth. Seventh chords add third inversion = seventh.',
+        ),
         skills,
       };
     }
@@ -540,14 +584,21 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: `Build ${article} ${rootName} ${quality.toLowerCase()} chord.`,
-        instruction: 'Select the chord tones in any order, then check.',
+        prompt: t(article === 'an' ? 'Build an {root} {quality} chord.' : 'Build a {root} {quality} chord.', {
+          root: rootName,
+          quality: t(quality),
+        }),
+        instruction: t('Select the chord tones in any order, then check.'),
         targetMidis: targets,
         ordered: false,
         targetLabel: `${rootName}${chord.symbol}`,
         answer: names,
-        explanation: `${qualityArticle[0].toUpperCase()}${qualityArticle.slice(1)} ${quality.toLowerCase()} chord on ${rootName} contains ${names}.`,
-        hint: 'A major triad is root–major 3rd–perfect 5th; a minor triad lowers the 3rd.',
+        explanation: t('The {quality} chord on {root} contains {notes}.', {
+          quality: t(quality),
+          root: rootName,
+          notes: names,
+        }),
+        hint: t('A major triad is root–major 3rd–perfect 5th; a minor triad lowers the 3rd.'),
         skills,
       };
     }
@@ -575,14 +626,18 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: `Build the ${rootName} ${scaleName.toLowerCase()} scale.`,
-        instruction: 'Select the seven notes in ascending order, then check.',
+        prompt: t('Build the {root} {scale} scale.', { root: rootName, scale: t(scaleName) }),
+        instruction: t('Select the seven notes in ascending order, then check.'),
         targetMidis: targets,
         ordered: true,
         targetLabel: `${rootName} ${scaleName}`,
         answer: names,
-        explanation: `The ${scaleName.toLowerCase()} scale on ${rootName} is ${names}.`,
-        hint: 'Major pattern: whole–whole–half–whole–whole–whole–half.',
+        explanation: t('The {scale} scale on {root} is {notes}.', {
+          scale: t(scaleName),
+          root: rootName,
+          notes: names,
+        }),
+        hint: t('Major pattern: whole–whole–half–whole–whole–whole–half.'),
         skills,
       };
     }
@@ -598,18 +653,21 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       const mode: 'major' | 'minor' =
         keyMode === 'mixed' ? (Math.random() < 0.5 ? 'major' : 'minor') : keyMode;
       const clef: Clef = config.clef && config.clef !== 'both' ? config.clef : Math.random() < 0.5 ? 'treble' : 'bass';
-      const answer =
-        mode === 'major' ? `${key.major} major` : `${key.minor.replace('m', '')} minor`;
+      const answer = t(mode === 'major' ? '{key} major' : '{key} minor', {
+        key: mode === 'major' ? key.major : key.minor.replace('m', ''),
+      });
       const pool = (candidates.length >= 4 ? candidates : KEY_SIGNATURES)
         .filter((candidate) => candidate !== key)
         .map((candidate) =>
-          mode === 'major' ? `${candidate.major} major` : `${candidate.minor.replace('m', '')} minor`,
+          t(mode === 'major' ? '{key} major' : '{key} minor', {
+            key: mode === 'major' ? candidate.major : candidate.minor.replace('m', ''),
+          }),
         );
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: `What ${mode} key does this key signature represent?`,
-        instruction: 'Read the clef and the number of sharps or flats.',
+        prompt: t('What {mode} key does this key signature represent?', { mode: t(mode) }),
+        instruction: t('Read the clef and the number of sharps or flats.'),
         staff: {
           clef,
           notes: [],
@@ -622,9 +680,24 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
         answer,
         explanation:
           key.count === 0
-            ? 'No sharps or flats means C major or A minor.'
-            : `${key.count} ${key.count === 1 ? key.type : key.type + 's'} means ${key.major} major or ${key.minor.replace('m', '')} minor.`,
-        hint: 'For sharps, the last sharp is a half step below the major tonic. For flats, the second-to-last flat is the tonic.',
+            ? t('No sharps or flats means C major or A minor.')
+            : t('{count} {accidentals} means {major} major or {minor} minor.', {
+                count: key.count,
+                accidentals: t(
+                  key.count === 1
+                    ? key.type === 'sharp'
+                      ? 'sharp'
+                      : 'flat'
+                    : key.type === 'sharp'
+                      ? 'sharps'
+                      : 'flats',
+                ),
+                major: key.major,
+                minor: key.minor.replace('m', ''),
+              }),
+        hint: t(
+          'For sharps, the last sharp is a half step below the major tonic. For flats, the second-to-last flat is the tonic.',
+        ),
         skills,
       };
     }
@@ -632,17 +705,24 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
     case 'rhythm-count': {
       const total = randomItem(config.totalBeats ?? [2, 3, 4]);
       const items = makeRhythm(total);
-      const described = items.map((item) => `${rhythmName(item.beats)} (${item.beats} ${item.beats === 1 ? 'beat' : 'beats'})`).join(' + ');
+      const described = items
+        .map((item) =>
+          t(item.beats === 1 ? '{name} ({beats} beat)' : '{name} ({beats} beats)', {
+            name: rhythmName(item.beats),
+            beats: item.beats,
+          }),
+        )
+        .join(' + ');
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: 'How many beats are in this bar?',
-        instruction: 'Add up the note values from left to right.',
+        prompt: t('How many beats are in this bar?'),
+        instruction: t('Add up the note values from left to right.'),
         rhythm: { items },
-        choices: shuffle(['2 beats', '3 beats', '4 beats', '6 beats']),
-        answer: `${total} beats`,
-        explanation: `${described} = ${total} beats.`,
-        hint: 'Whole = 4 beats, half = 2, quarter = 1, eighth = ½. A dot adds half of the note value.',
+        choices: shuffle([2, 3, 4, 6].map((n) => t('{n} beats', { n }))),
+        answer: t('{n} beats', { n: total }),
+        explanation: t('{described} = {total} beats.', { described, total }),
+        hint: t('Whole = 4 beats, half = 2, quarter = 1, eighth = ½. A dot adds half of the note value.'),
         skills,
       };
     }
@@ -671,15 +751,15 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: 'Which rhythm do you hear?',
-        instruction: 'Two bars of 4/4. Listen for long notes, short notes, and rests.',
+        prompt: t('Which rhythm do you hear?'),
+        instruction: t('Two bars of 4/4. Listen for long notes, short notes, and rests.'),
         audio: { rhythm: pattern, mode: 'sequence' },
         autoPlay: true,
         choices: choiceRhythms.map((_, index) => `rhythm-${index}`),
         choiceRhythms,
         answer: `rhythm-${correctIndex}`,
-        explanation: `The rhythm is ${rhythmDescription(pattern)}.`,
-        hint: 'Tap the pulse first, then decide which beats are silent or split into two.',
+        explanation: t('The rhythm is {description}.', { description: rhythmDescription(pattern) }),
+        hint: t('Tap the pulse first, then decide which beats are silent or split into two.'),
         skills,
       };
     }
@@ -711,14 +791,22 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: `In ${rootName} ${scaleName.toLowerCase()}, which scale degree is this note?`,
-        instruction: 'The tonic is played first, then the mystery note.',
+        prompt: t('In {root} {scale}, which scale degree is this note?', {
+          root: rootName,
+          scale: t(scaleName),
+        }),
+        instruction: t('The tonic is played first, then the mystery note.'),
         audio: { midis: [root, target], mode: 'sequence', tempo: 0.7 },
         autoPlay: true,
         choices: options,
         answer,
-        explanation: `${spelledPitchName(degreeSpelling)} is the ${degreeLabel} of ${rootName} ${scaleName.toLowerCase()}.`,
-        hint: 'Hear the tonic as home, then measure how far the note pulls away from it.',
+        explanation: t('{note} is the {degree} of {root} {scale}.', {
+          note: spelledPitchName(degreeSpelling),
+          degree: degreeLabel,
+          root: rootName,
+          scale: t(scaleName),
+        }),
+        hint: t('Hear the tonic as home, then measure how far the note pulls away from it.'),
         skills,
       };
     }
@@ -766,14 +854,18 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: 'Which scale-degree pattern do you hear?',
-        instruction: 'The melody stays in one major key and begins on the tonic.',
+        prompt: t('Which scale-degree pattern do you hear?'),
+        instruction: t('The melody stays in one major key and begins on the tonic.'),
         audio: { midis, mode: 'sequence', tempo: 0.55 },
         autoPlay: true,
         choices: shuffle([answer, ...wrongs]),
         answer,
-        explanation: `In ${rootName} major the notes are ${noteNames}, degrees ${answer}.`,
-        hint: 'Hear the first note as 1, then track whether the line steps up or down.',
+        explanation: t('In {root} major the notes are {notes}, degrees {degrees}.', {
+          root: rootName,
+          notes: noteNames,
+          degrees: answer,
+        }),
+        hint: t('Hear the first note as 1, then track whether the line steps up or down.'),
         skills,
       };
     }
@@ -793,17 +885,21 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       return {
         id: qid(spec.kind),
         kind: spec.kind,
-        prompt: 'Which progression do you hear?',
-        instruction: 'Listen to the four (or three) chords in sequence.',
+        prompt: t('Which progression do you hear?'),
+        instruction: t('Listen to the four (or three) chords in sequence.'),
         audio: { chords, mode: 'chord', tempo: 0.9 },
         autoPlay: true,
         choices: mcChoices(
           progression.label,
           (allowed.length >= 4 ? allowed : PROGRESSIONS).map((item) => item.label),
-        ),
-        answer: progression.label,
-        explanation: `In ${rootName} major the chords are ${chordNames} (${progression.label}).`,
-        hint: 'Focus on the bass motion and whether the phrase feels resolved, suspended, or looped.',
+        ).map((label) => t(label)),
+        answer: t(progression.label),
+        explanation: t('In {root} major the chords are {chords} ({progression}).', {
+          root: rootName,
+          chords: chordNames,
+          progression: t(progression.label),
+        }),
+        hint: t('Focus on the bass motion and whether the phrase feels resolved, suspended, or looped.'),
         skills,
       };
     }
@@ -842,6 +938,10 @@ export const EXERCISE_LABELS: Record<ExerciseKind, string> = {
 };
 
 export function exerciseSkillLabel(skill: string): string {
+  if (getLanguage() === 'fa') {
+    const translated = faSkillLabels[skill as keyof typeof faSkillLabels];
+    if (translated) return translated;
+  }
   const map: Record<string, string> = {
     'note-reading-treble': 'Treble clef reading',
     'note-reading-bass': 'Bass clef reading',
@@ -870,7 +970,7 @@ export function exerciseSkillLabel(skill: string): string {
     'progression-ear-cadences': 'Cadences by ear',
     'progression-ear-pop': 'Common progressions by ear',
   };
-  return map[skill] ?? skill.replace(/-/g, ' ');
+  return t(map[skill] ?? skill.replace(/-/g, ' '));
 }
 
 export const TOPIC_SPECS = {

@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useI18n } from '../lib/i18n';
 import { isStrongBeat, meterLabel, METERS, useMetronome } from '../lib/metronome';
 import Icon from './Icons';
 
 /** Inline metronome used inside lessons. It shares the global clock and settings. */
 export default function Metronome() {
+  const { t } = useI18n();
   const { settings, running, beat, toggle, nudgeBpm, setBpm, setBeatsPerBar } = useMetronome();
 
   return (
@@ -11,7 +13,7 @@ export default function Metronome() {
       <div className="metronome-top">
         <div className="metronome-label">
           <Icon name="metronome" size={20} />
-          <span>Metronome</span>
+          <span>{t('Metronome')}</span>
         </div>
         <div className="metronome-beats" aria-hidden="true">
           {Array.from({ length: settings.beatsPerBar }, (_, value) => (
@@ -24,7 +26,7 @@ export default function Metronome() {
           ))}
         </div>
       </div>
-      <div className="metronome-meters" aria-label="Beats per bar">
+      <div className="metronome-meters" aria-label={t('Beats per bar')}>
         {METERS.map((value) => (
           <button
             key={value}
@@ -37,19 +39,19 @@ export default function Metronome() {
         ))}
       </div>
       <div className="metronome-controls">
-        <button className="icon-button" onClick={() => nudgeBpm(-4)} aria-label="Slower">
+        <button className="icon-button" onClick={() => nudgeBpm(-4)} aria-label={t('Slower')}>
           −
         </button>
         <div className="bpm-display">
           <strong>{settings.bpm}</strong>
-          <span>BPM</span>
+          <span>{t('BPM')}</span>
         </div>
-        <button className="icon-button" onClick={() => nudgeBpm(4)} aria-label="Faster">
+        <button className="icon-button" onClick={() => nudgeBpm(4)} aria-label={t('Faster')}>
           +
         </button>
         <button className={`button small ${running ? 'secondary' : 'primary'}`} onClick={toggle}>
           <Icon name={running ? 'pause' : 'play'} size={16} />
-          {running ? 'Stop' : 'Start'}
+          {running ? t('Stop') : t('Start')}
         </button>
       </div>
       <input
@@ -59,10 +61,10 @@ export default function Metronome() {
         max={260}
         value={settings.bpm}
         onChange={(event) => setBpm(Number(event.target.value))}
-        aria-label="Tempo in beats per minute"
+        aria-label={t('Tempo in beats per minute')}
       />
       <Link className="metronome-more" to="/metronome">
-        More settings
+        {t('More settings')}
         <Icon name="arrow" size={13} />
       </Link>
     </div>

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icons';
 import MetronomeFigure from '../components/MetronomeFigure';
+import { useI18n } from '../lib/i18n';
 import {
   MAX_BPM,
   MIN_BPM,
@@ -30,6 +31,7 @@ function tempoTerm(bpm: number): string {
 }
 
 export default function MetronomePage() {
+  const { t } = useI18n();
   const {
     settings,
     running,
@@ -68,25 +70,26 @@ export default function MetronomePage() {
 
   return (
     <div className="page metronome-page">
-      <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <Link to="/">Today</Link>
+      <nav className="breadcrumbs" aria-label={t('Breadcrumb')}>
+        <Link to="/">{t('Today')}</Link>
         <Icon name="chevron" size={13} />
-        <Link to="/tools">Tools</Link>
+        <Link to="/tools">{t('Tools')}</Link>
         <Icon name="chevron" size={13} />
-        <span>Metronome</span>
+        <span>{t('Metronome')}</span>
       </nav>
 
       <header className="page-header">
         <div>
-          <span className="eyebrow">Practice tool</span>
-          <h1>Metronome</h1>
+          <span className="eyebrow">{t('Practice tool')}</span>
+          <h1>{t('Metronome')}</h1>
           <p>
-            A steady clock for lessons, scales, and repertoire. It keeps running while you move around the app, so you
-            can start it here and shrink it into the floating dock.
+            {t(
+              'A steady clock for lessons, scales, and repertoire. It keeps running while you move around the app, so you can start it here and shrink it into the floating dock.',
+            )}
           </p>
         </div>
         <div className="header-stat">
-          <span>Tempo marking</span>
+          <span>{t('Tempo marking')}</span>
           <strong>{tempoTerm(settings.bpm)}</strong>
         </div>
       </header>
@@ -96,7 +99,7 @@ export default function MetronomePage() {
           <MetronomeFigure bpm={settings.bpm} running={running} accented={running && beat === 0} />
           <div className="metronome-stage-tempo">
             <strong>{settings.bpm}</strong>
-            <span>BPM</span>
+            <span>{t('BPM')}</span>
           </div>
           <div className="metronome-stage-beats" aria-live="off">
             {Array.from({ length: settings.beatsPerBar }, (_, value) => (
@@ -113,14 +116,14 @@ export default function MetronomePage() {
         </div>
 
         <div className="metronome-stage-controls">
-          <button className="icon-button big" onClick={() => nudgeBpm(-1)} aria-label="Slower by one">
+          <button className="icon-button big" onClick={() => nudgeBpm(-1)} aria-label={t('Slower by one')}>
             −
           </button>
           <button className={`metronome-play ${running ? 'stop' : ''}`} onClick={toggle}>
             <Icon name={running ? 'pause' : 'play'} size={24} />
-            {running ? 'Stop' : 'Start'}
+            {running ? t('Stop') : t('Start')}
           </button>
-          <button className="icon-button big" onClick={() => nudgeBpm(1)} aria-label="Faster by one">
+          <button className="icon-button big" onClick={() => nudgeBpm(1)} aria-label={t('Faster by one')}>
             +
           </button>
         </div>
@@ -133,7 +136,7 @@ export default function MetronomePage() {
             max={MAX_BPM}
             value={settings.bpm}
             onChange={(event) => setBpm(Number(event.target.value))}
-            aria-label="Tempo in beats per minute"
+            aria-label={t('Tempo in beats per minute')}
           />
           <div className="metronome-tempo-inputs">
             <button className="button ghost small" onClick={() => setBpm(60)}>
@@ -151,16 +154,17 @@ export default function MetronomePage() {
           </div>
         </div>
         <p className="metronome-hint">
-          The brass weight follows the tempo up and down the scale. Tap <kbd>T</kbd> or use Tap tempo to set the pulse by
-          feel. <kbd>Space</kbd> starts and stops; <kbd>↑</kbd> <kbd>↓</kbd> nudge the tempo.
+          {t('The brass weight follows the tempo up and down the scale. Tap')} <kbd>T</kbd>{' '}
+          {t('or use Tap tempo to set the pulse by feel.')} <kbd>Space</kbd> {t('starts and stops;')} <kbd>↑</kbd>{' '}
+          <kbd>↓</kbd> {t('nudge the tempo.')}
         </p>
       </section>
 
       <div className="metronome-settings-grid">
         <section className="panel">
           <div className="panel-head">
-            <h2>Meter</h2>
-            <span className="panel-note">{meterLabel(settings.beatsPerBar)}</span>
+            <h2>{t('Meter')}</h2>
+            <span className="panel-note">{t(meterLabel(settings.beatsPerBar))}</span>
           </div>
           <div className="metronome-option-grid">
             {METERS.map((value) => (
@@ -170,21 +174,22 @@ export default function MetronomePage() {
                 onClick={() => setBeatsPerBar(value)}
                 aria-pressed={settings.beatsPerBar === value}
               >
-                <strong>{meterLabel(value)}</strong>
-                <span>{value === 6 ? 'compound' : value === 5 || value === 7 ? 'odd' : 'simple'}</span>
+                <strong>{t(meterLabel(value))}</strong>
+                <span>{t(value === 6 ? 'compound' : value === 5 || value === 7 ? 'odd' : 'simple')}</span>
               </button>
             ))}
           </div>
           <p className="metronome-note">
-            In 6/8 the pulse is the eighth note and beats 1 and 4 are accented. Odd meters stay grouped in the same
-            regular pulse.
+            {t(
+              'In 6/8 the pulse is the eighth note and beats 1 and 4 are accented. Odd meters stay grouped in the same regular pulse.',
+            )}
           </p>
         </section>
 
         <section className="panel">
           <div className="panel-head">
-            <h2>Subdivision</h2>
-            <span className="panel-note">Clicks between beats</span>
+            <h2>{t('Subdivision')}</h2>
+            <span className="panel-note">{t('Clicks between beats')}</span>
           </div>
           <div className="metronome-segmented">
             {SUBDIVISIONS.map((entry) => (
@@ -195,14 +200,14 @@ export default function MetronomePage() {
                 aria-pressed={settings.subdivision === entry.id}
               >
                 <strong>{entry.short}</strong>
-                <span>{entry.label}</span>
+                <span>{t(entry.label)}</span>
               </button>
             ))}
           </div>
           <label className="metronome-switch">
             <span>
-              <strong>Accent the first beat</strong>
-              <small>A higher click marks the downbeat of every bar.</small>
+              <strong>{t('Accent the first beat')}</strong>
+              <small>{t('A higher click marks the downbeat of every bar.')}</small>
             </span>
             <input
               type="checkbox"
@@ -214,20 +219,22 @@ export default function MetronomePage() {
 
         <section className="panel">
           <div className="panel-head">
-            <h2>Feel</h2>
-            <span className="panel-note">Tap tempo</span>
+            <h2>{t('Feel')}</h2>
+            <span className="panel-note">{t('Tap tempo')}</span>
           </div>
           <button className="metronome-tap" onClick={tap}>
             <Icon name="target" size={22} />
-            Tap tempo
+            {t('Tap tempo')}
           </button>
-          <p className="metronome-note">Tap four or more times in a row. The average of your taps sets the tempo.</p>
+          <p className="metronome-note">
+            {t('Tap four or more times in a row. The average of your taps sets the tempo.')}
+          </p>
         </section>
 
         <section className="panel">
           <div className="panel-head">
-            <h2>Volume</h2>
-            <span className="panel-note">{Math.round(settings.volume * 100)}%</span>
+            <h2>{t('Volume')}</h2>
+            <span className="panel-note">{t('{n}%', { n: Math.round(settings.volume * 100) })}</span>
           </div>
           <input
             className="bpm-slider"
@@ -236,22 +243,23 @@ export default function MetronomePage() {
             max={100}
             value={Math.round(settings.volume * 100)}
             onChange={(event) => setVolume(Number(event.target.value) / 100)}
-            aria-label="Metronome volume"
+            aria-label={t('Metronome volume')}
           />
           <p className="metronome-note">
-            The metronome follows the app-wide sound switch in Settings. This slider balances it against lessons and
-            examples.
+            {t(
+              'The metronome follows the app-wide sound switch in Settings. This slider balances it against lessons and examples.',
+            )}
           </p>
         </section>
       </div>
 
       <div className="tool-crosslink">
         <div>
-          <strong>Need a reference pitch?</strong>
-          <p>Open the tuner to check intonation before you practise.</p>
+          <strong>{t('Need a reference pitch?')}</strong>
+          <p>{t('Open the tuner to check intonation before you practise.')}</p>
         </div>
         <Link className="button secondary small" to="/tuner">
-          Open the tuner
+          {t('Open the tuner')}
           <Icon name="arrow" size={15} />
         </Link>
       </div>

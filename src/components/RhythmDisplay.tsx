@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n';
 import type { RhythmItem } from '../lib/music';
 
 function NoteGlyph({ x, y, item }: { x: number; y: number; item: RhythmItem }) {
@@ -57,6 +58,7 @@ export default function RhythmDisplay({
   compact?: boolean;
   barEvery?: number;
 }) {
+  const { t } = useI18n();
   const total = items.reduce((sum, item) => sum + Math.abs(item.beats), 0);
   const width = compact
     ? Math.max(240, total * 40 + 56)
@@ -86,7 +88,7 @@ export default function RhythmDisplay({
       className={`rhythm-display ${className}`}
       viewBox={`0 0 ${width} ${height}`}
       role="img"
-      aria-label="Rhythm notation"
+      aria-label={t('Rhythm notation')}
     >
       <line x1={startX - 20} x2={width - startX + 20} y1={y} y2={y} className="rhythm-line" />
       {barLines.map((x) => (

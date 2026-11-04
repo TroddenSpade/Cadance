@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useI18n } from '../lib/i18n';
 import { isStrongBeat, meterLabel, useMetronome } from '../lib/metronome';
 import Icon from './Icons';
 
@@ -11,6 +12,7 @@ const DOCK_KEY = 'cadence.metronome.dock.collapsed';
  * settings page.
  */
 export default function MetronomeDock() {
+  const { t } = useI18n();
   const { pathname } = useLocation();
   const { settings, running, beat, toggle, nudgeBpm } = useMetronome();
   const [collapsed, setCollapsed] = useState(() => {
@@ -38,8 +40,8 @@ export default function MetronomeDock() {
         <button
           className="metronome-dock-fab"
           onClick={() => setCollapsed(false)}
-          aria-label="Open the metronome"
-          title="Open the metronome"
+          aria-label={t('Open the metronome')}
+          title={t('Open the metronome')}
         >
           <Icon name="metronome" size={22} />
           <span className="metronome-dock-fab-bpm">{settings.bpm}</span>
@@ -50,22 +52,22 @@ export default function MetronomeDock() {
   }
 
   return (
-    <aside className={`metronome-dock ${running ? 'running' : ''}`} aria-label="Metronome">
+    <aside className={`metronome-dock ${running ? 'running' : ''}`} aria-label={t('Metronome')}>
       <div className="metronome-dock-head">
         <span className="metronome-dock-title">
           <Icon name="metronome" size={16} />
-          Metronome
+          {t('Metronome')}
         </span>
         <div className="metronome-dock-head-actions">
           <button
             className="metronome-dock-icon"
             onClick={() => setCollapsed(true)}
-            aria-label="Minimize the metronome"
-            title="Minimize"
+            aria-label={t('Minimize the metronome')}
+            title={t('Minimize')}
           >
             <Icon name="chevron" size={15} />
           </button>
-          <Link className="metronome-dock-icon" to="/metronome" aria-label="Open metronome settings" title="Settings">
+          <Link className="metronome-dock-icon" to="/metronome" aria-label={t('Open metronome settings')} title={t('Settings')}>
             <Icon name="settings" size={15} />
           </Link>
         </div>
@@ -74,9 +76,10 @@ export default function MetronomeDock() {
       <div className="metronome-dock-main">
         <div className="metronome-dock-tempo">
           <strong>{settings.bpm}</strong>
-          <span>BPM</span>
+          <span>{t('BPM')}</span>
           <small>
-            {meterLabel(settings.beatsPerBar)} · {settings.subdivision === 'none' ? 'quarter' : settings.subdivision}
+            {meterLabel(settings.beatsPerBar)} ·{' '}
+            {t(settings.subdivision === 'none' ? 'quarter' : settings.subdivision)}
           </small>
         </div>
         <div className="metronome-beats" aria-hidden="true">
@@ -92,13 +95,13 @@ export default function MetronomeDock() {
       </div>
 
       <div className="metronome-dock-controls">
-        <button className="metronome-dock-icon" onClick={() => nudgeBpm(-4)} aria-label="Slower">
+        <button className="metronome-dock-icon" onClick={() => nudgeBpm(-4)} aria-label={t('Slower')}>
           −
         </button>
-        <button className={`metronome-dock-play ${running ? 'stop' : ''}`} onClick={toggle} aria-label={running ? 'Stop' : 'Start'}>
+        <button className={`metronome-dock-play ${running ? 'stop' : ''}`} onClick={toggle} aria-label={running ? t('Stop') : t('Start')}>
           <Icon name={running ? 'pause' : 'play'} size={17} />
         </button>
-        <button className="metronome-dock-icon" onClick={() => nudgeBpm(4)} aria-label="Faster">
+        <button className="metronome-dock-icon" onClick={() => nudgeBpm(4)} aria-label={t('Faster')}>
           +
         </button>
       </div>

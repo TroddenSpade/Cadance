@@ -17,6 +17,7 @@ The interface is installable as a PWA and is structured so the same build can be
 - **Tuner** with live microphone pitch detection. Presets cover guitar, bass, ukulele, violin, viola, cello, double bass, mandolin, banjo, and chromatic piano, alongside alternate tunings such as Drop D, DADGAD, open G/D/E, and custom string sets. It shows cents, a needle, a string-by-string target, configurable A4 reference pitch, and playable reference tones.
 - **Offline support** through a service worker. Progress, settings, and review history live in `localStorage`, with optional account sync across devices. When a new build is deployed, a banner at the top offers a one-click refresh that clears the old cache and reloads the latest version.
 - **Responsive layout** with a desktop sidebar and a mobile bottom navigation bar.
+- **English and Persian (فارسی)**, with a full right-to-left layout for Persian that covers the interface, curriculum, exercises, and tool copy.
 
 ## Run it
 
@@ -161,9 +162,12 @@ src/
   components/             staff, piano, fretboard, rhythm, session engine, metronome dock and figure, prompts
   data/curriculum.ts      core courses, levels, skill blueprints
   data/expansion/         advanced courses and their instrument examples
+  data/i18n.ts            localized curriculum and instrument-demo lookups
+  locales/fa/             Persian UI dictionaries and translated curriculum content
   lib/
     audio.ts              Web Audio piano, guitar, metronome, and reference tones
     exercises.ts          question generators, grading, topic presets
+    i18n.tsx              language state, t(), direction, dates, document metadata
     metronome.tsx         shared metronome clock, settings, and persistence
     music.ts              pitch, intervals, chords, scales, key signatures
     progress.tsx          React state, auth, sync, XP, spaced repetition
@@ -202,6 +206,19 @@ The scheduler is intentionally local-first: all state is in `localStorage` under
 - **Autoplay:** play listening questions automatically.
 - **Sound:** globally mute or enable audio.
 - **Daily goal:** target number of answered questions per day.
+- **Language:** English or فارسی. The choice applies immediately and is remembered on the device.
+
+## Languages and right-to-left layout
+
+The interface ships in English (default) and Persian. **Settings → Language & direction** switches between them; the selection is stored under `cadence.language` in `localStorage`, and an inline script in `index.html` applies the saved `lang` and `dir` before the first paint so there is no flash of the wrong direction.
+
+- UI copy lives in `src/locales/fa/`, keyed by the exact English string, so a missing Persian entry falls back to English instead of showing a blank.
+- Curriculum content — levels, courses, lessons, section bodies, instrument demo captions, exercise metadata, and skill names — is translated in `src/locales/fa/content/` and exposed through `useCurriculum()` in `src/data/i18n.ts`.
+- Generated exercise prompts, explanations, hints, and choices are translated at question-build time, so they follow the active language even mid-session.
+- Vazirmatn is bundled in `public/fonts/` and applied only in Persian, keeping the Latin design intact.
+- Musical content stays unchanged: note names and octaves, chord symbols, Roman numerals, figured bass, meters, and audio terminology remain in Latin notation regardless of language. Note names may still appear alongside their solfège form when the naming setting asks for it.
+- The sidebar moves to the right, content margins mirror, the metronome dock moves to the left, and staff/keyboard/fretboard surfaces keep a left-to-right orientation so the notation is not reversed.
+- `src/locales/fa/coverage.test.ts`, `uiCoverage.test.ts`, and `dictionary.test.ts` fail the test suite if a curriculum string or a literal `t()` key is missing a Persian translation, or if two modules translate the same key differently.
 
 ## Scripts
 

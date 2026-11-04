@@ -5,6 +5,7 @@ import type { IconName } from '../components/Icons';
 import { ALL_LESSONS, COURSES } from '../data/curriculum';
 import { levelFromXp, syncStatusLabel, todayKey, useProgress, type InstrumentMode } from '../lib/progress';
 import type { NoteNaming } from '../lib/music';
+import { LANGUAGES, useI18n } from '../lib/i18n';
 import {
   installSnoozed,
   isChromium,
@@ -57,12 +58,8 @@ const NAMING_OPTIONS: Array<{ id: NoteNaming; title: string; example: string; de
   },
 ];
 
-function formatSyncedAt(value: number | null): string {
-  if (!value) return 'not yet';
-  return new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
-}
-
 function InstallRow() {
+  const { t } = useI18n();
   const { available, install } = useInstallPrompt();
   const [installed] = useState(() => isStandalone());
   const [ios] = useState(() => isIos());
@@ -80,21 +77,21 @@ function InstallRow() {
   return (
     <div className="backup-row install-row">
       <div>
-        <strong>Install app</strong>
+        <strong>{t('Install app')}</strong>
         <p>
           {installed
-            ? 'Cadence is installed and runs in its own window.'
-            : 'Add Cadence to your home screen or desktop for offline practice and a full-screen experience.'}
+            ? t('Cadence is installed and runs in its own window.')
+            : t('Add Cadence to your home screen or desktop for offline practice and a full-screen experience.')}
         </p>
       </div>
       <div className="button-row">
         {installed ? (
           <span className="install-state">
-            <Icon name="check" size={14} /> Installed
+            <Icon name="check" size={14} /> {t('Installed')}
           </span>
         ) : available ? (
           <button className="button primary small" onClick={() => void run()} disabled={busy}>
-            {busy ? 'Opening…' : 'Install app'}
+            {busy ? t('Opening…') : t('Install app')}
           </button>
         ) : snoozed ? (
           <button
@@ -104,14 +101,14 @@ function InstallRow() {
               setSnoozed(false);
             }}
           >
-            Show reminder
+            {t('Show reminder')}
           </button>
         ) : ios ? (
-          <span className="install-hint">Share → Add to Home Screen</span>
+          <span className="install-hint">{t('Share → Add to Home Screen')}</span>
         ) : chromium ? (
-          <span className="install-hint">Address-bar install icon, or ⋮ → Install Cadence</span>
+          <span className="install-hint">{t('Address-bar install icon, or ⋮ → Install Cadence')}</span>
         ) : (
-          <span className="install-hint">Try Chrome, Edge, or Safari on iOS</span>
+          <span className="install-hint">{t('Try Chrome, Edge, or Safari on iOS')}</span>
         )}
       </div>
     </div>
@@ -120,6 +117,7 @@ function InstallRow() {
 
 
 function AccountPanel() {
+  const { t, formatDate } = useI18n();
   const { configured, status, email, lastSyncedAt, syncError, signIn, signOut, syncNow } = useProgress();
   const [address, setAddress] = useState('');
   const [busy, setBusy] = useState(false);
@@ -134,8 +132,8 @@ function AccountPanel() {
     setBusy(false);
     setNotice(
       result.ok
-        ? `Check ${address.trim()} for a sign-in link. It may take a minute.`
-        : (result.error ?? 'Could not send the link.'),
+        ? t('Check {email} for a sign-in link. It may take a minute.', { email: address.trim() })
+        : (result.error ?? t('Could not send the link.')),
     );
   };
 
@@ -143,20 +141,22 @@ function AccountPanel() {
     <section className="panel settings-panel account-panel">
       <div className="panel-head">
         <div>
-          <span className="eyebrow">Account</span>
-          <h2>Sync across phone and computer</h2>
+          <span className="eyebrow">{t('Account')}</span>
+          <h2>{t('Sync across phone and computer')}</h2>
         </div>
         <span className={`sync-pill ${status}`}>
           <span className="sync-dot" />
-          {syncStatusLabel[status]}
+          {t(syncStatusLabel[status])}
         </span>
       </div>
 
       {!configured ? (
         <p className="settings-note">
-          Cross-device sync is not configured in this build, so progress stays on this device. Set
-          <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> when building to enable accounts —
-          the README has the setup steps. You can still move progress between devices with a backup file.
+          {t('Cross-device sync is not configured in this build, so progress stays on this device. Set')}{' '}
+          <code>VITE_SUPABASE_URL</code> {t('and')} <code>VITE_SUPABASE_ANON_KEY</code>{' '}
+          {t(
+            'when building to enable accounts — the README has the setup steps. You can still move progress between devices with a backup file.',
+          )}
         </p>
       ) : email ? (
         <div className="sync-account">
@@ -170,8 +170,12 @@ function AccountPanel() {
                 {syncError
                   ? syncError
                   : status === 'synced'
-                    ? `Last synced ${formatSyncedAt(lastSyncedAt)}`
-                    : syncStatusLabel[status]}
+                    ? t('Last synced {date}', {
+                        date: lastSyncedAt
+                          ? formatDate(new Date(lastSyncedAt), { dateStyle: 'medium', timeStyle: 'short' })
+                          : t('not yet'),
+                      })
+                    : t(syncStatusLabel[status])}
               </small>
             </div>
           </div>
@@ -181,26 +185,28 @@ function AccountPanel() {
               onClick={() => void syncNow()}
               disabled={status === 'syncing'}
             >
-              <Icon name="refresh" size={14} /> Sync now
+              <Icon name="refresh" size={14} /> {t('Sync now')}
             </button>
             <button className="button ghost small" onClick={() => void signOut()}>
-              Sign out
+              {t('Sign out')}
             </button>
           </div>
           <p className="settings-note">
-            Practice works offline. Changes merge with your account when you reconnect, and resetting progress on one
-            device clears it everywhere.
+            {t(
+              'Practice works offline. Changes merge with your account when you reconnect, and resetting progress on one device clears it everywhere.',
+            )}
           </p>
         </div>
       ) : (
         <form className="sync-form" onSubmit={submit}>
           <p className="settings-note">
-            Sign in with an email link — no password to remember. Your lessons, reviews, XP, and streaks then follow
-            you between devices. Progress stays on this device and keeps working offline.
+            {t(
+              'Sign in with an email link — no password to remember. Your lessons, reviews, XP, and streaks then follow you between devices. Progress stays on this device and keeps working offline.',
+            )}
           </p>
           <div className="sync-input-row">
             <label className="sr-only" htmlFor="sync-email">
-              Email address
+              {t('Email address')}
             </label>
             <input
               id="sync-email"
@@ -208,12 +214,12 @@ function AccountPanel() {
               type="email"
               required
               autoComplete="email"
-              placeholder="you@example.com"
+              placeholder={t('you@example.com')}
               value={address}
               onChange={(event) => setAddress(event.target.value)}
             />
             <button className="button primary small" type="submit" disabled={busy}>
-              {busy ? 'Sending…' : 'Email me a link'}
+              {busy ? t('Sending…') : t('Email me a link')}
             </button>
           </div>
           {notice && <p className="sync-notice">{notice}</p>}
@@ -225,6 +231,7 @@ function AccountPanel() {
 
 export default function Settings() {
   const { state, updateSettings, resetProgress, resetAll, exportProgress, importProgress } = useProgress();
+  const { t, language, setLanguage } = useI18n();
   const [confirmReset, setConfirmReset] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const levelInfo = levelFromXp(state.xp);
@@ -245,11 +252,13 @@ export default function Settings() {
     if (!file) return;
     const text = await file.text();
     const confirmed = window.confirm(
-      'Replace the progress on this device with this backup? If you are signed in, the synced copy is replaced too.',
+      t(
+        'Replace the progress on this device with this backup? If you are signed in, the synced copy is replaced too.',
+      ),
     );
     if (!confirmed) return;
     const result = importProgress(text);
-    window.alert(result.ok ? 'Backup restored.' : (result.error ?? 'Could not restore that backup.'));
+    window.alert(result.ok ? t('Backup restored.') : (result.error ?? t('Could not restore that backup.')));
   };
 
   const testTone = (timbre: 'piano' | 'guitar') => {
@@ -262,22 +271,23 @@ export default function Settings() {
     <div className="page settings-page">
       <header className="page-header">
         <div>
-          <span className="eyebrow">Preferences</span>
-          <h1>Settings</h1>
+          <span className="eyebrow">{t('Preferences')}</span>
+          <h1>{t('Settings')}</h1>
           <p>
-            Shape how Cadence looks and sounds. Instrument choices apply everywhere — lessons, daily practice, and
-            trainer drills.
+            {t(
+              'Shape how Cadence looks and sounds. Instrument choices apply everywhere — lessons, daily practice, and trainer drills.',
+            )}
           </p>
         </div>
         <div className="header-stat settings-level">
-          <span>Your level</span>
+          <span>{t('Your level')}</span>
           <strong>
-            {levelInfo.level} · {levelInfo.title}
+            {levelInfo.level} · {t(levelInfo.title)}
           </strong>
           <div className="progress-track">
             <div className="progress-fill" style={{ width: `${Math.round(levelInfo.progress * 100)}%` }} />
           </div>
-          <small>{state.xp} XP total</small>
+          <small>{t('{n} XP total', { n: state.xp })}</small>
         </div>
       </header>
 
@@ -287,8 +297,48 @@ export default function Settings() {
         <section className="panel settings-panel">
           <div className="panel-head">
             <div>
-              <span className="eyebrow">Instrument</span>
-              <h2>What should you see in practice?</h2>
+              <span className="eyebrow">{t('Language')}</span>
+              <h2>{t('Language & direction')}</h2>
+            </div>
+          </div>
+          <p className="settings-note">
+            {t(
+              'Pick the language for menus, lessons, and instructions. The change applies immediately and is remembered on this device.',
+            )}
+          </p>
+          <div className="timbre-row">
+            {LANGUAGES.map((option) => {
+              const active = language === option.id;
+              return (
+                <button
+                  key={option.id}
+                  className={`instrument-choice ${active ? 'selected' : ''}`}
+                  onClick={() => setLanguage(option.id)}
+                  aria-pressed={active}
+                >
+                  <strong>{option.id === 'en' ? t('English') : t('فارسی (Persian)')}</strong>
+                  <small>{option.id === 'en' ? t('Left-to-right layout') : t('Right-to-left layout')}</small>
+                  {active && (
+                    <span className="choice-check">
+                      <Icon name="check" size={13} />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <p className="settings-note">
+            {t(
+              'Persian uses a right-to-left layout, so the whole interface mirrors and text flows from right to left.',
+            )}
+          </p>
+        </section>
+
+        <section className="panel settings-panel">
+          <div className="panel-head">
+            <div>
+              <span className="eyebrow">{t('Instrument')}</span>
+              <h2>{t('What should you see in practice?')}</h2>
             </div>
           </div>
           <div className="instrument-choice-grid">
@@ -301,8 +351,8 @@ export default function Settings() {
                 <span className="instrument-choice-icon">
                   <Icon name={instrument.icon} size={24} />
                 </span>
-                <strong>{instrument.title}</strong>
-                <small>{instrument.description}</small>
+                <strong>{t(instrument.title)}</strong>
+                <small>{t(instrument.description)}</small>
                 {state.settings.instrument === instrument.id && (
                   <span className="choice-check">
                     <Icon name="check" size={13} />
@@ -312,16 +362,17 @@ export default function Settings() {
             ))}
           </div>
           <p className="settings-note">
-            Labels are hidden while you answer instrument questions, then revealed with the feedback. This keeps
-            note-finding a real test.
+            {t(
+              'Labels are hidden while you answer instrument questions, then revealed with the feedback. This keeps note-finding a real test.',
+            )}
           </p>
         </section>
 
         <section className="panel settings-panel">
           <div className="panel-head">
             <div>
-              <span className="eyebrow">Note names</span>
-              <h2>ABC or Do Re Mi?</h2>
+              <span className="eyebrow">{t('Note names')}</span>
+              <h2>{t('ABC or Do Re Mi?')}</h2>
             </div>
           </div>
           <div className="naming-choice">
@@ -331,9 +382,9 @@ export default function Settings() {
                 className={`naming-option ${state.settings.noteNaming === option.id ? 'selected' : ''}`}
                 onClick={() => updateSettings({ noteNaming: option.id })}
               >
-                <span className="naming-title">{option.title}</span>
+                <span className="naming-title">{t(option.title)}</span>
                 <span className="naming-example">{option.example}</span>
-                <small>{option.description}</small>
+                <small>{t(option.description)}</small>
                 {state.settings.noteNaming === option.id && (
                   <span className="choice-check">
                     <Icon name="check" size={13} />
@@ -343,16 +394,16 @@ export default function Settings() {
             ))}
           </div>
           <p className="settings-note">
-            Applies to lessons, exercises, staff examples, and the piano and guitar labels. <strong>Both</strong> is the
-            default; solfège uses fixed do, so C is always Do.
+            {t('Applies to lessons, exercises, staff examples, and the piano and guitar labels.')}{' '}
+            <strong>{t('Both')}</strong> {t('is the default; solfège uses fixed do, so C is always Do.')}
           </p>
         </section>
 
         <section className="panel settings-panel">
           <div className="panel-head">
             <div>
-              <span className="eyebrow">Sound</span>
-              <h2>Timbre & audio</h2>
+              <span className="eyebrow">{t('Sound')}</span>
+              <h2>{t('Timbre & audio')}</h2>
             </div>
           </div>
           <div className="timbre-row">
@@ -361,13 +412,13 @@ export default function Settings() {
                 <button className="timbre-select" onClick={() => updateSettings({ timbre })}>
                   <Icon name={timbre === 'piano' ? 'piano' : 'guitar'} size={20} />
                   <span>
-                    <strong>{timbre === 'piano' ? 'Piano tone' : 'Guitar tone'}</strong>
-                    <small>{timbre === 'piano' ? 'Warm, sustained' : 'Plucked string'}</small>
+                    <strong>{timbre === 'piano' ? t('Piano tone') : t('Guitar tone')}</strong>
+                    <small>{timbre === 'piano' ? t('Warm, sustained') : t('Plucked string')}</small>
                   </span>
                   {state.settings.timbre === timbre && <Icon name="check" size={15} />}
                 </button>
                 <button className="button ghost small" onClick={() => testTone(timbre)}>
-                  <Icon name="play" size={14} /> Test
+                  <Icon name="play" size={14} /> {t('Test')}
                 </button>
               </div>
             ))}
@@ -375,8 +426,8 @@ export default function Settings() {
           <div className="setting-rows">
             <label className="setting-row">
               <span>
-                <strong>Auto-play listening questions</strong>
-                <small>Hear intervals, chords, and progressions automatically.</small>
+                <strong>{t('Auto-play listening questions')}</strong>
+                <small>{t('Hear intervals, chords, and progressions automatically.')}</small>
               </span>
               <input
                 type="checkbox"
@@ -387,8 +438,8 @@ export default function Settings() {
             </label>
             <label className="setting-row">
               <span>
-                <strong>Note labels on instruments</strong>
-                <small>Show note names outside of quizzes.</small>
+                <strong>{t('Note labels on instruments')}</strong>
+                <small>{t('Show note names outside of quizzes.')}</small>
               </span>
               <input
                 type="checkbox"
@@ -399,8 +450,8 @@ export default function Settings() {
             </label>
             <label className="setting-row">
               <span>
-                <strong>Sound enabled</strong>
-                <small>Mute all audio while keeping the visual drills.</small>
+                <strong>{t('Sound enabled')}</strong>
+                <small>{t('Mute all audio while keeping the visual drills.')}</small>
               </span>
               <input
                 type="checkbox"
@@ -415,11 +466,15 @@ export default function Settings() {
         <section className="panel settings-panel">
           <div className="panel-head">
             <div>
-              <span className="eyebrow">Habit</span>
-              <h2>Daily goal</h2>
+              <span className="eyebrow">{t('Habit')}</span>
+              <h2>{t('Daily goal')}</h2>
             </div>
           </div>
-          <p className="settings-note">Questions answered per day. A smaller goal kept daily beats a large goal abandoned.</p>
+          <p className="settings-note">
+            {t(
+              'Questions answered per day. A smaller goal kept daily beats a large goal abandoned.',
+            )}
+          </p>
           <div className="goal-options">
             {[10, 20, 30, 40].map((goal) => (
               <button
@@ -428,24 +483,24 @@ export default function Settings() {
                 onClick={() => updateSettings({ dailyGoal: goal })}
               >
                 <strong>{goal}</strong>
-                <span>questions</span>
+                <span>{t('questions')}</span>
               </button>
             ))}
           </div>
           <div className="setting-rows">
             <div className="setting-row static">
               <span>
-                <strong>Current streak</strong>
-                <small>Best streak: {state.bestStreak} days</small>
+                <strong>{t('Current streak')}</strong>
+                <small>{t('Best streak: {n} days', { n: state.bestStreak })}</small>
               </span>
               <span className="setting-value">
-                <Icon name="flame" size={17} /> {state.streak} days
+                <Icon name="flame" size={17} /> {t('{n} days', { n: state.streak })}
               </span>
             </div>
             <div className="setting-row static">
               <span>
-                <strong>Skills tracked</strong>
-                <small>Each one has its own review schedule.</small>
+                <strong>{t('Skills tracked')}</strong>
+                <small>{t('Each one has its own review schedule.')}</small>
               </span>
               <span className="setting-value">{Object.keys(state.skills).length}</span>
             </div>
@@ -455,57 +510,61 @@ export default function Settings() {
         <section className="panel settings-panel">
           <div className="panel-head">
             <div>
-              <span className="eyebrow">About</span>
-              <h2>Cadence</h2>
+              <span className="eyebrow">{t('About')}</span>
+              <h2>{t('Cadence')}</h2>
             </div>
             <span className="topic-chip muted">v0.1</span>
           </div>
           <p className="settings-note">
-            A web-first music theory trainer built with React. It works offline once loaded, can be installed to your
-            home screen, and is ready to wrap as an Android app with Capacitor.
+            {t(
+              'A web-first music theory trainer built with React. It works offline once loaded, can be installed to your home screen, and is ready to wrap as an Android app with Capacitor.',
+            )}
           </p>
           <div className="about-list">
             <div>
               <Icon name="piano" size={18} />
               <span>
-                {COURSES.length} courses · {ALL_LESSONS.length} lessons · piano & guitar
+                {t('{courses} courses · {lessons} lessons · piano & guitar', {
+                  courses: COURSES.length,
+                  lessons: ALL_LESSONS.length,
+                })}
               </span>
             </div>
             <div>
               <Icon name="headphones" size={18} />
-              <span>Reading, listening, and instrument drills</span>
+              <span>{t('Reading, listening, and instrument drills')}</span>
             </div>
             <div>
               <Icon name="refresh" size={18} />
-              <span>Spaced review that adapts to every answer</span>
+              <span>{t('Spaced review that adapts to every answer')}</span>
             </div>
             <div>
               <Icon name="music" size={18} />
-              <span>Local-first progress, with optional cross-device sync</span>
+              <span>{t('Local-first progress, with optional cross-device sync')}</span>
             </div>
           </div>
           <InstallRow />
-          <p className="settings-fineprint">Android packaging instructions are in the project README.</p>
+          <p className="settings-fineprint">{t('Android packaging instructions are in the project README.')}</p>
         </section>
 
         <section className="panel settings-panel danger-panel">
           <div className="panel-head">
             <div>
-              <span className="eyebrow">Data</span>
-              <h2>Backup & reset</h2>
+              <span className="eyebrow">{t('Data')}</span>
+              <h2>{t('Backup & reset')}</h2>
             </div>
           </div>
           <div className="backup-row">
             <div>
-              <strong>Backup file</strong>
-              <p>Save a JSON snapshot, or restore one here or on another device.</p>
+              <strong>{t('Backup file')}</strong>
+              <p>{t('Save a JSON snapshot, or restore one here or on another device.')}</p>
             </div>
             <div className="button-row">
               <button className="button secondary small" onClick={exportBackup}>
-                Export backup
+                {t('Export backup')}
               </button>
               <button className="button ghost small" onClick={() => fileRef.current?.click()}>
-                Import
+                {t('Import')}
               </button>
               <input
                 ref={fileRef}
@@ -518,20 +577,20 @@ export default function Settings() {
           </div>
           <div className="danger-actions">
             <div>
-              <strong>Reset progress only</strong>
-              <p>Clears lessons, skills, XP, and streaks. Keeps your instrument and audio settings.</p>
+              <strong>{t('Reset progress only')}</strong>
+              <p>{t('Clears lessons, skills, XP, and streaks. Keeps your instrument and audio settings.')}</p>
               <button
                 className="button secondary small"
                 onClick={() => {
-                  if (window.confirm('Reset all learning progress? This cannot be undone.')) resetProgress();
+                  if (window.confirm(t('Reset all learning progress? This cannot be undone.'))) resetProgress();
                 }}
               >
-                Reset progress
+                {t('Reset progress')}
               </button>
             </div>
             <div>
-              <strong>Reset everything</strong>
-              <p>Also restores the default instrument, timbre, and daily goal.</p>
+              <strong>{t('Reset everything')}</strong>
+              <p>{t('Also restores the default instrument, timbre, and daily goal.')}</p>
               <button
                 className="button danger small"
                 onClick={() => {
@@ -544,7 +603,7 @@ export default function Settings() {
                   }
                 }}
               >
-                {confirmReset ? 'Tap again to confirm' : 'Reset all settings & progress'}
+                {confirmReset ? t('Tap again to confirm') : t('Reset all settings & progress')}
               </button>
             </div>
           </div>

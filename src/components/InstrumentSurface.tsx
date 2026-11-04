@@ -1,4 +1,5 @@
 import { synth } from '../lib/audio';
+import { useI18n } from '../lib/i18n';
 import { useProgress } from '../lib/progress';
 import type { GuitarSpot } from '../lib/types';
 import Fretboard from './Fretboard';
@@ -33,6 +34,7 @@ export default function InstrumentSurface({
   rootPitchClasses,
 }: InstrumentSurfaceProps) {
   const { settings } = useProgress();
+  const { t } = useI18n();
   const showLabels = showLabelsOverride ?? settings.showLabels;
   const mode = settings.instrument;
 
@@ -49,7 +51,7 @@ export default function InstrumentSurface({
           {label && mode === 'both' && (
             <div className="instrument-heading">
               <Icon name="piano" size={18} />
-              <span>Piano</span>
+              <span>{t('Piano')}</span>
             </div>
           )}
           <Piano
@@ -71,7 +73,7 @@ export default function InstrumentSurface({
           {label && mode === 'both' && (
             <div className="instrument-heading">
               <Icon name="guitar" size={18} />
-              <span>Guitar · standard tuning</span>
+              <span>{t('Guitar · standard tuning')}</span>
             </div>
           )}
           <Fretboard
@@ -88,11 +90,11 @@ export default function InstrumentSurface({
       )}
       {mode === 'guitar' && label && (
         <p className="instrument-caption">
-          High E is the top line. Each fret is one semitone. Open strings are clickable to the left of the nut.
+          {t('High E is the top line. Each fret is one semitone. Open strings are clickable to the left of the nut.')}
         </p>
       )}
       {mode === 'piano' && label && (
-        <p className="instrument-caption">Two octaves, C3–C5. Click any key to answer.</p>
+        <p className="instrument-caption">{t('Two octaves, C3–C5. Click any key to answer.')}</p>
       )}
     </div>
   );

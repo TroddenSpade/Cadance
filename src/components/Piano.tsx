@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n';
 import {
   isBlackKey,
   midiToName,
@@ -49,6 +50,7 @@ export default function Piano({
   markedKeys,
   rootPitchClasses = [],
 }: PianoProps) {
+  const { t } = useI18n();
   const whites: number[] = [];
   const blacks: number[] = [];
   for (let midi = startMidi; midi <= endMidi; midi++) {
@@ -74,7 +76,7 @@ export default function Piano({
         viewBox={`0 0 ${width} ${height}`}
         className="piano"
         role="group"
-        aria-label="Piano keyboard"
+        aria-label={t('Piano keyboard')}
       >
         {whites.map((midi, index) => {
           const mark = markFor(midi);
@@ -87,7 +89,9 @@ export default function Piano({
               onClick={() => !disabled && onNote?.(midi)}
               role="button"
               tabIndex={disabled ? -1 : 0}
-              aria-label={`Piano key ${lines.join(' ')}${midi === 60 ? ' middle C' : ''}`}
+              aria-label={t(midi === 60 ? 'Piano key {note} middle C' : 'Piano key {note}', {
+                note: lines.join(' '),
+              })}
               onKeyDown={(event) => {
                 if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
                   event.preventDefault();
@@ -139,7 +143,7 @@ export default function Piano({
               onClick={() => !disabled && onNote?.(midi)}
               role="button"
               tabIndex={disabled ? -1 : 0}
-              aria-label={`Piano key ${lines.join(' ')}`}
+              aria-label={t('Piano key {note}', { note: lines.join(' ') })}
               onKeyDown={(event) => {
                 if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
                   event.preventDefault();

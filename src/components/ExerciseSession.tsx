@@ -6,6 +6,7 @@ import {
   correctInstrumentAnswer,
   generateSession,
 } from '../lib/exercises';
+import { useI18n } from '../lib/i18n';
 import { annotateNoteNames, pitchClass } from '../lib/music';
 import { useProgress } from '../lib/progress';
 import type { ExerciseSpec, Question, SessionResult } from '../lib/types';
@@ -51,6 +52,7 @@ export default function ExerciseSession({
   onDone,
   onExit,
 }: ExerciseSessionProps) {
+  const { t } = useI18n();
   const { settings, recordAnswer } = useProgress();
   const [questions, setQuestions] = useState<Question[]>(() => generateSession(specs));
   const [index, setIndex] = useState(0);
@@ -211,11 +213,11 @@ export default function ExerciseSession({
   if (!question) {
     return (
       <div className="empty-state">
-        <h3>No exercises available</h3>
-        <p>This session has no questions. Try another topic.</p>
+        <h3>{t('No exercises available')}</h3>
+        <p>{t('This session has no questions. Try another topic.')}</p>
         {onExit && (
           <button className="button secondary" onClick={onExit}>
-            Go back
+            {t('Go back')}
           </button>
         )}
       </div>
@@ -228,42 +230,42 @@ export default function ExerciseSession({
     const heading =
       context === 'lesson'
         ? passed
-          ? 'Lesson complete'
-          : 'Almost there'
-        : 'Session complete';
+          ? t('Lesson complete')
+          : t('Almost there')
+        : t('Session complete');
     return (
       <div className="session-summary">
         <div className={`summary-ring ${passed ? 'passed' : ''}`} style={{ background: `conic-gradient(var(--accent) ${percent * 3.6}deg, var(--line) 0deg)` }}>
           <div className="summary-ring-inner">
             <strong>{percent}%</strong>
-            <span>accuracy</span>
+            <span>{t('accuracy')}</span>
           </div>
         </div>
         <div className="summary-copy">
-          <span className="eyebrow">{context === 'lesson' ? 'Exercises' : 'Practice'}</span>
+          <span className="eyebrow">{context === 'lesson' ? t('Exercises') : t('Practice')}</span>
           <h2>{heading}</h2>
           <p>
-            {result.correct} of {result.total} correct
+            {t('{n} of {total} correct', { n: result.correct, total: result.total })}
             {context === 'lesson' && !passed
-              ? ` — reach ${Math.round(passThreshold * 100)}% to complete this lesson.`
+              ? t(' — reach {percent}% to complete this lesson.', { percent: Math.round(passThreshold * 100) })
               : context === 'lesson'
-                ? ' — this lesson is now marked complete and its skills are scheduled for review.'
-                : ' — answers are scheduled for review across the coming days.'}
+                ? t(' — this lesson is now marked complete and its skills are scheduled for review.')
+                : t(' — answers are scheduled for review across the coming days.')}
           </p>
           <div className="summary-stats">
             <div>
-              <span>XP this session</span>
+              <span>{t('XP this session')}</span>
               <strong>+{result.xp}</strong>
             </div>
             <div>
-              <span>Topics</span>
+              <span>{t('Topics')}</span>
               <strong>{Object.keys(result.byKind).length}</strong>
             </div>
           </div>
           <div className="summary-topics">
             {Object.entries(result.byKind).map(([kind, value]) => (
               <span key={kind} className="topic-chip">
-                {EXERCISE_LABELS[kind as keyof typeof EXERCISE_LABELS] ?? kind}
+                {t(EXERCISE_LABELS[kind as keyof typeof EXERCISE_LABELS] ?? kind)}
                 <b>
                   {value.correct}/{value.total}
                 </b>
@@ -274,11 +276,11 @@ export default function ExerciseSession({
             {(!passed || context !== 'lesson') && (
               <button className="button primary" onClick={restart}>
                 <Icon name="refresh" size={17} />
-                Try again
+                {t('Try again')}
               </button>
             )}
             <button className="button secondary" onClick={onDone ?? onExit}>
-              Done
+              {t('Done')}
             </button>
           </div>
         </div>
@@ -295,16 +297,16 @@ export default function ExerciseSession({
         <div>
           <span className="eyebrow">
             {title ??
-              (context === 'lesson' ? 'Lesson exercises' : context === 'practice' ? 'Daily practice' : 'Trainer')}
+              (context === 'lesson' ? t('Lesson exercises') : context === 'practice' ? t('Daily practice') : t('Trainer'))}
           </span>
           <div className="session-count">
-            Question {index + 1} <span>/ {questions.length}</span>
+            {t('Question {n}', { n: index + 1 })} <span>{t('/ {total}', { total: questions.length })}</span>
           </div>
         </div>
         <div className="session-head-right">
-          <span className="topic-chip muted">{EXERCISE_LABELS[question.kind]}</span>
+          <span className="topic-chip muted">{t(EXERCISE_LABELS[question.kind])}</span>
           {onExit && (
-            <button className="icon-button" onClick={onExit} aria-label="Exit exercises">
+            <button className="icon-button" onClick={onExit} aria-label={t('Exit exercises')}>
               <Icon name="close" size={18} />
             </button>
           )}
@@ -336,15 +338,15 @@ export default function ExerciseSession({
                 <Icon name="headphones" size={19} />
               </span>
               <span>
-                <strong>Listen</strong>
+                <strong>{t('Listen')}</strong>
                 <small>
                   {question.audio.rhythm
-                    ? 'Rhythm'
+                    ? t('Rhythm')
                     : question.audio.chords
-                      ? 'Chord sequence'
+                      ? t('Chord sequence')
                       : question.audio.mode === 'chord'
-                        ? 'Together'
-                        : 'Melodic'}
+                        ? t('Together')
+                        : t('Melodic')}
                 </small>
               </span>
             </button>
@@ -387,21 +389,21 @@ export default function ExerciseSession({
                 <div className="selection-tray">
                   <div className="selection-info">
                     <span className="selection-label">
-                      {question.kind === 'scale-build' ? 'Your scale' : 'Your chord'}
+                      {question.kind === 'scale-build' ? t('Your scale') : t('Your chord')}
                     </span>
                     <span className="selection-count">
-                      {selection.length} / {targetLength}
+                      {t('{n} / {total}', { n: selection.length, total: targetLength })}
                     </span>
                   </div>
                   <div className="selection-chips">
-                    {selection.length === 0 && <span className="selection-empty">Tap notes on the instrument below.</span>}
+                    {selection.length === 0 && <span className="selection-empty">{t('Tap notes on the instrument below.')}</span>}
                     {selection.map((midi, selectedIndex) => (
                       <button
                         key={`${midi}-${selectedIndex}`}
                         className="selection-chip"
                         onClick={() => setSelection((prev) => prev.filter((_, i) => i !== selectedIndex))}
                         disabled={phase !== 'quiz'}
-                        aria-label={`Remove selected note ${selectedIndex + 1}`}
+                        aria-label={t('Remove selected note {n}', { n: selectedIndex + 1 })}
                       >
                         {selectedIndex + 1}
                       </button>
@@ -413,14 +415,14 @@ export default function ExerciseSession({
                       onClick={() => setSelection([])}
                       disabled={phase !== 'quiz' || selection.length === 0}
                     >
-                      Clear
+                      {t('Clear')}
                     </button>
                     <button
                       className="button primary small"
                       onClick={checkSequence}
                       disabled={phase !== 'quiz' || selection.length !== targetLength}
                     >
-                      Check answer
+                      {t('Check answer')}
                     </button>
                   </div>
                 </div>
@@ -442,21 +444,32 @@ export default function ExerciseSession({
               <span className="feedback-icon">
                 <Icon name={answers[answers.length - 1] ? 'check' : 'close'} size={18} />
               </span>
-              <strong>{answers[answers.length - 1] ? 'Correct' : 'Not quite'}</strong>
+              <strong>{answers[answers.length - 1] ? t('Correct') : t('Not quite')}</strong>
               {!answers[answers.length - 1] && !question.choiceRhythms && (
-                <span className="feedback-answer">Answer: {noteText(question.answer)}</span>
+                <span className="feedback-answer">
+                  {t('Answer: {answer}', { answer: noteText(question.answer) })}
+                </span>
               )}
             </div>
             <p>{noteText(question.explanation)}</p>
             {isInstrumentQuestion && phase === 'feedback' && instrumentAnswer.length > 0 && (
               <p className="feedback-answer-line">
-                Target {question.kind === 'find-note' ? 'note' : question.kind === 'chord-build' ? 'chord tones' : 'scale'}:{' '}
+                {t('Target {label}:', {
+                  label:
+                    question.kind === 'find-note'
+                      ? t('note')
+                      : question.kind === 'chord-build'
+                        ? t('chord tones')
+                        : t('scale'),
+                })}{' '}
                 <strong>{noteText(question.targetLabel ?? instrumentAnswer.map((midi) => midi % 12).join('–'))}</strong>
               </p>
             )}
-            {question.hint && !answers[answers.length - 1] && <p className="feedback-hint">Tip: {noteText(question.hint)}</p>}
+            {question.hint && !answers[answers.length - 1] && (
+              <p className="feedback-hint">{t('Tip: {tip}', { tip: noteText(question.hint) })}</p>
+            )}
             <button className="button primary" onClick={next}>
-              {index + 1 >= questions.length ? 'See results' : 'Continue'}
+              {index + 1 >= questions.length ? t('See results') : t('Continue')}
               <Icon name="arrow" size={17} />
             </button>
           </div>

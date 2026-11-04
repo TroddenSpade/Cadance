@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n';
 import { midiToName, noteLabelLines, noteName, pitchClass, type Letter, type NoteNaming } from '../lib/music';
 import type { GuitarSpot } from '../lib/types';
 import type { MarkState } from './Piano';
@@ -42,6 +43,7 @@ export default function Fretboard({
   spots,
   rootPitchClasses = [],
 }: FretboardProps) {
+  const { t } = useI18n();
   const width = 920;
   const height = TOP + STRING_GAP * 5 + 58;
   const fretWidth = (RIGHT - LEFT) / FRETS;
@@ -53,7 +55,7 @@ export default function Fretboard({
         viewBox={`0 0 ${width} ${height}`}
         className="fretboard"
         role="group"
-        aria-label="Guitar fretboard, standard tuning, frets 0 to 12"
+        aria-label={t('Guitar fretboard, standard tuning, frets 0 to 12')}
       >
         <rect x={LEFT} y={TOP - 16} width={RIGHT - LEFT} height={STRING_GAP * 5 + 32} rx={4} className="fretboard-wood" />
 
@@ -132,7 +134,11 @@ export default function Fretboard({
                 onClick={() => !disabled && onNote?.(midi, stringIndex, fret)}
                 role="button"
                 tabIndex={disabled ? -1 : 0}
-                aria-label={`${string.name} string, fret ${fret}, ${displayName}`}
+                aria-label={t('{string} string, fret {fret}, {note}', {
+                  string: t(string.name),
+                  fret,
+                  note: displayName,
+                })}
                 onKeyDown={(event) => {
                   if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
                     event.preventDefault();

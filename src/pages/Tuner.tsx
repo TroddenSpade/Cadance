@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Icon from '../components/Icons';
 import { synth } from '../lib/audio';
 import { useMetronome } from '../lib/metronome';
+import { useI18n } from '../lib/i18n';
 import { midiToFullName } from '../lib/music';
 import {
   DEFAULT_CUSTOM_STRINGS,
@@ -92,11 +93,12 @@ const MODES: Array<{ id: TunerMode; label: string; hint: string }> = [
 
 const STATUS_TEXT: Record<TuningStatus, string> = {
   'in-tune': 'In tune',
-  close: 'Almost there',
+  close: 'Nearly in tune',
   off: 'Out of tune',
 };
 
 export default function Tuner() {
+  const { t } = useI18n();
   const { running: metronomeRunning, stop: stopMetronome } = useMetronome();
   const [initial] = useState(loadPrefs);
   const [instrumentId, setInstrumentId] = useState(initial.instrumentId);
@@ -193,7 +195,7 @@ export default function Tuner() {
     startingRef.current = true;
     if (!navigator.mediaDevices?.getUserMedia) {
       startingRef.current = false;
-      setError('This browser does not expose microphone input. Try Chrome, Safari, or Edge over HTTPS.');
+      setError(t('This browser does not expose microphone input. Try Chrome, Safari, or Edge over HTTPS.'));
       return;
     }
     setError(null);
@@ -272,15 +274,17 @@ export default function Tuner() {
       startingRef.current = false;
       const name = caught instanceof DOMException ? caught.name : '';
       if (name === 'NotAllowedError' || name === 'SecurityError') {
-        setError('Microphone access was blocked. Allow it in the browser address bar, then try again.');
+        setError(
+          t('Microphone access was blocked. Allow it in the browser address bar, then try again.'),
+        );
       } else if (name === 'NotFoundError') {
-        setError('No microphone was found. Connect one and try again.');
+        setError(t('No microphone was found. Connect one and try again.'));
       } else {
-        setError('The microphone could not be started. Close other audio apps and try again.');
+        setError(t('The microphone could not be started. Close other audio apps and try again.'));
       }
       stopListening();
     }
-  }, [listening, stopListening, metronomeRunning, stopMetronome]);
+  }, [listening, stopListening, metronomeRunning, stopMetronome, t]);
 
   useEffect(() => () => stopListening(), [stopListening]);
 
@@ -291,6 +295,17 @@ export default function Tuner() {
     [],
   );
 
+  const stringPosition = (index: number, total: number) => {
+    const suffix = stringLabel(index, total).slice(-2);
+    const value = total - index;
+    return {
+      short: t(`{n}${suffix}`, { n: value }),
+      long: t(`{n}${suffix} string`, { n: value }),
+    };
+  };
+
+  const activeModeHint = MODES.find((entry) => entry.id === effectiveMode)?.hint;
+
   const status: TuningStatus | null = reading ? tuningStatus(reading.cents) : null;
   const clampedCents = reading ? Math.max(-50, Math.min(50, reading.cents)) : 0;
   const needlePercent = 50 + (clampedCents / 50) * 46;
@@ -300,11 +315,11 @@ export default function Tuner() {
   const displayMidi = tonePlaying && toneMidi !== null ? toneMidi : targetMidi;
   const targetNote = midiToFullName(displayMidi);
   const targetLabel = tonePlaying
-    ? 'Reference tone'
+    ? t('Reference tone')
     : activeStringIndex !== null && tuning.strings[activeStringIndex]
-      ? `${stringLabel(activeStringIndex, tuning.strings.length)} string`
+      ? stringPosition(activeStringIndex, tuning.strings.length).long
       : chromaticOnly
-        ? 'Chromatic'
+        ? t('Chromatic')
         : null;
 
   const selectInstrument = (id: string) => {
@@ -350,26 +365,27 @@ export default function Tuner() {
 
   return (
     <div className="page tuner-page">
-      <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <Link to="/">Today</Link>
+      <nav className="breadcrumbs" aria-label={t('Breadcrumb')}>
+        <Link to="/">{t('Today')}</Link>
         <Icon name="chevron" size={13} />
-        <Link to="/tools">Tools</Link>
+        <Link to="/tools">{t('Tools')}</Link>
         <Icon name="chevron" size={13} />
-        <span>Tuner</span>
+        <span>{t('Tuner')}</span>
       </nav>
 
       <header className="page-header">
         <div>
-          <span className="eyebrow">Practice tool</span>
-          <h1>Tuner</h1>
+          <span className="eyebrow">{t('Practice tool')}</span>
+          <h1>{t('Tuner')}</h1>
           <p>
-            A microphone tuner for guitar, bass, orchestral strings, and piano. Pick an instrument and tuning, watch the
-            needle, or play a reference tone and tune by ear.
+            {t(
+              'A microphone tuner for guitar, bass, orchestral strings, and piano. Pick an instrument and tuning, watch the needle, or play a reference tone and tune by ear.',
+            )}
           </p>
         </div>
         <div className="header-stat">
-          <span>{instrument.name}</span>
-          <strong>{tuning.name}</strong>
+          <span>{t(instrument.name)}</span>
+          <strong>{t(tuning.name)}</strong>
         </div>
       </header>
 
@@ -377,15 +393,21 @@ export default function Tuner() {
         <div className="tuner-readout">
           <div className="tuner-note-block">
             <span className={`tuner-status-pill ${status ?? 'idle'}`}>
-              {tonePlaying ? 'Reference tone' : !listening ? 'Microphone off' : reading ? STATUS_TEXT[status!] : 'Listening…'}
+              {tonePlaying
+                ? t('Reference tone')
+                : !listening
+                  ? t('Microphone off')
+                  : reading
+                    ? t(STATUS_TEXT[status!])
+                    : t('Listening…')}
             </span>
             <strong className={`tuner-note ${status ?? 'idle'}`}>{reading || tonePlaying || listening ? targetNote : '—'}</strong>
             <span className="tuner-note-sub">
               {tonePlaying
-                ? 'Playing the target pitch'
+                ? t('Playing the target pitch')
                 : targetLabel
-                  ? `${targetLabel} · target ${targetNote}`
-                  : 'Play a note to begin'}
+                  ? t('{label} · target {note}', { label: targetLabel, note: targetNote })
+                  : t('Play a note to begin')}
             </span>
           </div>
 
@@ -394,15 +416,19 @@ export default function Tuner() {
               {reading ? formatCents(reading.cents) : '0'}
               <small>¢</small>
             </strong>
-            <span>{reading ? `${reading.frequency.toFixed(1)} Hz` : '— Hz'}</span>
+            <span>
+              {reading
+                ? t('{hz} Hz', { hz: reading.frequency.toFixed(1) })
+                : t('— Hz')}
+            </span>
             <span>
               {reading
                 ? reading.cents > 5
-                  ? 'Tune down'
+                  ? t('Tune down')
                   : reading.cents < -5
-                    ? 'Tune up'
-                    : 'On pitch'
-                : `A4 = ${reference.toFixed(1)} Hz`}
+                    ? t('Tune up')
+                    : t('On pitch')
+                : t('A4 = {hz} Hz', { hz: reference.toFixed(1) })}
             </span>
           </div>
         </div>
@@ -441,22 +467,23 @@ export default function Tuner() {
             onClick={listening ? stopListening : startListening}
           >
             <Icon name={listening ? 'pause' : 'headphones'} size={18} />
-            {listening ? 'Stop listening' : 'Start listening'}
+            {listening ? t('Stop listening') : t('Start listening')}
           </button>
           <button className="button ghost tuner-target" onClick={() => playTarget()}>
             <Icon name="sound" size={17} />
-            Play {targetNote}
+            {t('Play {note}', { note: targetNote })}
           </button>
           <button className="button ghost tuner-target" onClick={() => playTarget(69)}>
-            A4 {reference.toFixed(1)}
+            {t('A4 {hz}', { hz: reference.toFixed(1) })}
           </button>
         </div>
 
         {error && <p className="tuner-error">{error}</p>}
         {!error && (
           <p className="tuner-note-line">
-            Pitch is detected from the microphone on this device. Nothing is recorded or uploaded; audio is analysed in
-            the browser and discarded immediately.
+            {t(
+              'Pitch is detected from the microphone on this device. Nothing is recorded or uploaded; audio is analysed in the browser and discarded immediately.',
+            )}
           </p>
         )}
       </section>
@@ -464,8 +491,8 @@ export default function Tuner() {
       <div className="tuner-controls">
         <section className="panel tuner-instrument-panel">
           <div className="panel-head">
-            <h2>Instrument</h2>
-            <span className="panel-note">{instrument.family}</span>
+            <h2>{t('Instrument')}</h2>
+            <span className="panel-note">{t(instrument.family)}</span>
           </div>
           <div className="tuner-instruments">
             {INSTRUMENTS.map((entry) => (
@@ -475,16 +502,18 @@ export default function Tuner() {
                 onClick={() => selectInstrument(entry.id)}
                 aria-pressed={instrumentId === entry.id}
               >
-                <span>{entry.name}</span>
-                <small>{entry.family}</small>
+                <span>{t(entry.name)}</span>
+                <small>{t(entry.family)}</small>
               </button>
             ))}
           </div>
 
           <div className="tuner-field">
-            <label htmlFor="tuner-tuning">Tuning</label>
+            <label htmlFor="tuner-tuning">{t('Tuning')}</label>
             {instrumentId === 'custom' ? (
-              <div className="tuner-fixed-value">Your custom string set ({customStrings.length} strings)</div>
+              <div className="tuner-fixed-value">
+                {t('Your custom string set ({n} strings)', { n: customStrings.length })}
+              </div>
             ) : (
               <select
                 id="tuner-tuning"
@@ -498,24 +527,28 @@ export default function Tuner() {
               >
                 {instrument.tunings.map((entry) => (
                   <option key={entry.id} value={entry.id}>
-                    {entry.name}
+                    {t(entry.name)}
                   </option>
                 ))}
               </select>
             )}
-            <p className="metronome-note">{tuning.description}</p>
+            <p className="metronome-note">{t(tuning.description)}</p>
           </div>
         </section>
 
         <section className="panel tuner-strings-panel">
           <div className="panel-head">
-            <h2>Strings</h2>
-            <span className="panel-note">{chromaticOnly ? 'Any note' : `${tuning.strings.length} strings`}</span>
+            <h2>{t('Strings')}</h2>
+            <span className="panel-note">
+              {chromaticOnly ? t('Any note') : t('{n} strings', { n: tuning.strings.length })}
+            </span>
           </div>
 
           {chromaticOnly ? (
             <p className="tuner-empty">
-              Piano and chromatic mode detect any semitone. Play a key and the nearest equal-tempered note appears above.
+              {t(
+                'Piano and chromatic mode detect any semitone. Play a key and the nearest equal-tempered note appears above.',
+              )}
             </p>
           ) : (
             <div className="tuner-string-list">
@@ -527,15 +560,21 @@ export default function Tuner() {
                   }`}
                 >
                   <button className="tuner-string-main" onClick={() => { setSelectedString(index); setMode('string'); }}>
-                    <span className="tuner-string-index">{stringLabel(index, tuning.strings.length)}</span>
+                    <span className="tuner-string-index">
+                      {stringPosition(index, tuning.strings.length).short}
+                    </span>
                     <strong>{midiToFullName(entry.midi)}</strong>
-                    <small>{midiToFrequencyWithReference(entry.midi, reference).toFixed(1)} Hz</small>
+                    <small>
+                      {t('{hz} Hz', {
+                        hz: midiToFrequencyWithReference(entry.midi, reference).toFixed(1),
+                      })}
+                    </small>
                   </button>
                   <button
                     className="tuner-string-play"
                     onClick={() => playTarget(entry.midi)}
-                    aria-label={`Play ${midiToFullName(entry.midi)}`}
-                    title={`Play ${midiToFullName(entry.midi)}`}
+                    aria-label={t('Play {note}', { note: midiToFullName(entry.midi) })}
+                    title={t('Play {note}', { note: midiToFullName(entry.midi) })}
                   >
                     <Icon name="sound" size={15} />
                   </button>
@@ -551,16 +590,16 @@ export default function Tuner() {
                 className={effectiveMode === entry.id ? 'active' : ''}
                 onClick={() => setMode(entry.id)}
                 disabled={chromaticOnly && entry.id !== 'chromatic'}
-                title={entry.hint}
+                title={t(entry.hint)}
               >
-                {entry.label}
+                {t(entry.label)}
               </button>
             ))}
           </div>
           <p className="metronome-note">
             {chromaticOnly
-              ? 'Chromatic mode is always used for instruments without strings.'
-              : MODES.find((entry) => entry.id === effectiveMode)?.hint}
+              ? t('Chromatic mode is always used for instruments without strings.')
+              : activeModeHint && t(activeModeHint)}
           </p>
         </section>
       </div>
@@ -568,22 +607,25 @@ export default function Tuner() {
       {instrumentId === 'custom' ? (
         <section className="panel tuner-custom-panel">
           <div className="panel-head">
-            <h2>Custom strings</h2>
-            <span className="panel-note">{customStrings.length} of 12</span>
+            <h2>{t('Custom strings')}</h2>
+            <span className="panel-note">{t('{n} of 12', { n: customStrings.length })}</span>
           </div>
           <p className="metronome-note">
-            Order the strings from lowest to highest. The number on the left counts down from the highest string, the way
-            guitar and bass strings are normally numbered.
+            {t(
+              'Order the strings from lowest to highest. The number on the left counts down from the highest string, the way guitar and bass strings are normally numbered.',
+            )}
           </p>
           <div className="tuner-custom-list">
             {customStrings.map((midi, index) => (
               <div className="tuner-custom-row" key={`${index}-${midi}`}>
-                <span className="tuner-string-index">{stringLabel(index, customStrings.length)}</span>
+                <span className="tuner-string-index">
+                  {stringPosition(index, customStrings.length).short}
+                </span>
                 <select
                   className="tuner-select"
                   value={midi}
                   onChange={(event) => updateCustomString(index, Number(event.target.value))}
-                  aria-label={`String ${index + 1} note`}
+                  aria-label={t('String {n} note', { n: index + 1 })}
                 >
                   {STRING_NOTE_OPTIONS.map((option) => (
                     <option key={option.midi} value={option.midi}>
@@ -591,12 +633,16 @@ export default function Tuner() {
                     </option>
                   ))}
                 </select>
-                <span className="tuner-custom-hz">{midiToFrequencyWithReference(midi, reference).toFixed(1)} Hz</span>
+                <span className="tuner-custom-hz">
+                  {t('{hz} Hz', {
+                    hz: midiToFrequencyWithReference(midi, reference).toFixed(1),
+                  })}
+                </span>
                 <button
                   className="metronome-dock-icon"
                   onClick={() => removeCustomString(index)}
                   disabled={customStrings.length <= 1}
-                  aria-label="Remove string"
+                  aria-label={t('Remove string')}
                 >
                   <Icon name="close" size={14} />
                 </button>
@@ -605,25 +651,27 @@ export default function Tuner() {
           </div>
           <div className="tuner-custom-actions">
             <button className="button ghost small" onClick={addCustomString} disabled={customStrings.length >= 12}>
-              Add string
+              {t('Add string')}
             </button>
             <button className="button ghost small" onClick={() => setCustomStrings(DEFAULT_CUSTOM_STRINGS)}>
-              Reset to guitar standard
+              {t('Reset to guitar standard')}
             </button>
           </div>
         </section>
       ) : (
         <section className="panel tuner-custom-panel">
           <div className="panel-head">
-            <h2>Custom string set</h2>
-            <span className="panel-note">Build any tuning</span>
+            <h2>{t('Custom string set')}</h2>
+            <span className="panel-note">{t('Build any tuning')}</span>
           </div>
           <p className="tuner-empty">
-            Choose <strong>Custom strings</strong> above to build a tuning note by note. It is useful for extended-range
-            guitars, lute-family instruments, and any experiment that does not fit a preset.
+            {t('Choose')} <strong>{t('Custom strings')}</strong>{' '}
+            {t(
+              'above to build a tuning note by note. It is useful for extended-range guitars, lute-family instruments, and any experiment that does not fit a preset.',
+            )}
           </p>
           <button className="button ghost small" onClick={() => selectInstrument('custom')}>
-            Start a custom tuning
+            {t('Start a custom tuning')}
             <Icon name="arrow" size={15} />
           </button>
         </section>
@@ -631,8 +679,10 @@ export default function Tuner() {
 
       <section className="panel tuner-reference-panel">
         <div className="panel-head">
-          <h2>Reference pitch</h2>
-          <span className="panel-note">A4 = {reference.toFixed(1)} Hz</span>
+          <h2>{t('Reference pitch')}</h2>
+          <span className="panel-note">
+            {t('A4 = {hz} Hz', { hz: reference.toFixed(1) })}
+          </span>
         </div>
         <div className="tuner-reference-row">
           <input
@@ -643,7 +693,7 @@ export default function Tuner() {
             step={0.5}
             value={reference}
             onChange={(event) => setReference(Number(event.target.value))}
-            aria-label="Reference pitch for A4 in hertz"
+            aria-label={t('Reference pitch for A4 in hertz')}
           />
           <strong className="tuner-reference-value">{reference.toFixed(1)}</strong>
         </div>
@@ -659,18 +709,21 @@ export default function Tuner() {
           ))}
         </div>
         <p className="metronome-note">
-          Orchestras often tune to 442 or 443 Hz; period-instrument ensembles sometimes use 415 or 430 Hz. Every target
-          note and reference tone follows this setting.
+          {t(
+            'Orchestras often tune to 442 or 443 Hz; period-instrument ensembles sometimes use 415 or 430 Hz. Every target note and reference tone follows this setting.',
+          )}
         </p>
       </section>
 
       <div className="tool-crosslink">
         <div>
-          <strong>Keep the pulse steady</strong>
-          <p>Open the metronome while you warm up, then leave it running in the dock.</p>
+          <strong>{t('Keep the pulse steady')}</strong>
+          <p>
+            {t('Open the metronome while you warm up, then leave it running in the dock.')}
+          </p>
         </div>
         <Link className="button secondary small" to="/metronome">
-          Open the metronome
+          {t('Open the metronome')}
           <Icon name="arrow" size={15} />
         </Link>
       </div>

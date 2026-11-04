@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icons';
 import NoteText from '../components/NoteText';
-import { COURSES, LEVELS, type Course } from '../data/curriculum';
+import { type Course } from '../data/curriculum';
+import { useCurriculum } from '../data/i18n';
 import { completedLessonsInCourse, coursePercent, overallPercent, totalCompleted } from '../lib/courseStats';
-import { ALL_LESSONS } from '../data/curriculum';
+import { useI18n } from '../lib/i18n';
 import { useProgress } from '../lib/progress';
 
 function CourseCard({ course }: { course: Course }) {
   const { state } = useProgress();
+  const { t } = useI18n();
   const percent = Math.round(coursePercent(course, state) * 100);
   const completed = completedLessonsInCourse(course, state);
   const minutes = course.lessons.reduce((sum, lesson) => sum + lesson.minutes, 0);
@@ -22,12 +24,12 @@ function CourseCard({ course }: { course: Course }) {
         <span className={`course-state ${completed === course.lessons.length ? 'complete' : ''}`}>
           {completed === course.lessons.length ? (
             <>
-              <Icon name="check" size={13} /> Complete
+              <Icon name="check" size={13} /> {t('Complete')}
             </>
           ) : completed > 0 ? (
-            'In progress'
+            t('In progress')
           ) : (
-            'Not started'
+            t('Not started')
           )}
         </span>
       </div>
@@ -39,10 +41,10 @@ function CourseCard({ course }: { course: Course }) {
       </p>
       <div className="course-card-meta">
         <span>
-          <Icon name="book" size={14} /> {course.lessons.length} lessons
+          <Icon name="book" size={14} /> {t('{n} lessons', { n: course.lessons.length })}
         </span>
         <span>
-          <Icon name="clock" size={14} /> {minutes} min
+          <Icon name="clock" size={14} /> {t('{n} min', { n: minutes })}
         </span>
       </div>
       <div className="inline-progress">
@@ -57,6 +59,8 @@ function CourseCard({ course }: { course: Course }) {
 
 export default function Courses() {
   const { state } = useProgress();
+  const { courses: allCourses, levels, allLessons } = useCurriculum();
+  const { t } = useI18n();
   const completed = totalCompleted(state);
   const percent = Math.round(overallPercent(state) * 100);
 
@@ -64,28 +68,30 @@ export default function Courses() {
     <div className="page">
       <header className="page-header">
         <div>
-          <span className="eyebrow">The curriculum</span>
-          <h1>From first notes to master form.</h1>
+          <span className="eyebrow">{t('The curriculum')}</span>
+          <h1>{t('From first notes to master form.')}</h1>
           <p>
-            {COURSES.length} courses in five levels, from first notes to post-tonal analysis. Each lesson ends with
-            interactive reading and listening exercises, and every answer feeds the daily review queue.
+            {t(
+              '{n} courses in five levels, from first notes to post-tonal analysis. Each lesson ends with interactive reading and listening exercises, and every answer feeds the daily review queue.',
+              { n: allCourses.length },
+            )}
           </p>
         </div>
         <div className="header-stat">
-          <span>Overall progress</span>
+          <span>{t('Overall progress')}</span>
           <strong>{percent}%</strong>
           <div className="progress-track">
             <div className="progress-fill" style={{ width: `${percent}%` }} />
           </div>
           <small>
-            {completed} of {ALL_LESSONS.length} lessons complete
+            {t('{completed} of {total} lessons complete', { completed, total: allLessons.length })}
           </small>
         </div>
       </header>
 
       <div className="level-stack">
-        {LEVELS.map((level, levelIndex) => {
-          const courses = COURSES.filter((course) => course.level === level.id);
+        {levels.map((level, levelIndex) => {
+          const courses = allCourses.filter((course) => course.level === level.id);
           const levelLessons = courses.flatMap((course) => course.lessons);
           const levelDone = levelLessons.filter((lesson) => state.lessons[lesson.id]?.completedAt).length;
           return (
@@ -98,7 +104,7 @@ export default function Courses() {
                 </div>
                 <div className="level-progress">
                   <span>
-                    {levelDone}/{levelLessons.length} lessons
+                    {t('{done}/{total} lessons', { done: levelDone, total: levelLessons.length })}
                   </span>
                   <div className="progress-track slim">
                     <div

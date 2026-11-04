@@ -6,6 +6,7 @@ import MetronomeDock from './components/MetronomeDock';
 import UpdatePrompt from './components/UpdatePrompt';
 import { MetronomeProvider } from './lib/metronome';
 import { useProgress, levelFromXp, syncStatusLabel, todayKey, ProgressProvider } from './lib/progress';
+import { useI18n } from './lib/i18n';
 import Courses from './pages/Courses';
 import CoursePage from './pages/CoursePage';
 import Dashboard from './pages/Dashboard';
@@ -37,6 +38,7 @@ function ScrollToTop() {
 
 function Sidebar() {
   const { state, dueSkills, email, status } = useProgress();
+  const { t } = useI18n();
   const levelInfo = levelFromXp(state.xp);
   return (
     <aside className="sidebar">
@@ -45,16 +47,16 @@ function Sidebar() {
           <Icon name="music" size={24} />
         </span>
         <span className="brand-copy">
-          <strong>Cadence</strong>
-          <small>Music theory, in practice</small>
+          <strong>{t('Cadence')}</strong>
+          <small>{t('Music theory, in practice')}</small>
         </span>
       </NavLink>
 
-      <nav className="side-nav" aria-label="Main navigation">
+      <nav className="side-nav" aria-label={t('Main navigation')}>
         {NAV.map((item) => (
           <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `side-link ${isActive ? 'active' : ''}`}>
             <Icon name={item.icon} size={20} />
-            <span>{item.label}</span>
+            <span>{t(item.label)}</span>
             {item.to === '/practice' && dueSkills.length > 0 && <span className="nav-badge">{dueSkills.length}</span>}
           </NavLink>
         ))}
@@ -63,24 +65,24 @@ function Sidebar() {
       <div className="sidebar-foot">
         <NavLink to="/settings" className={`sidebar-sync ${status}`}>
           <Icon name="cloud" size={15} />
-          <span>{email ? syncStatusLabel[status] : 'Sync across devices'}</span>
+          <span>{email ? t(syncStatusLabel[status]) : t('Sync across devices')}</span>
         </NavLink>
         <div className="level-card">
           <div className="level-card-top">
             <span>
-              Level {levelInfo.level} · {levelInfo.title}
+              {t('Level')} {levelInfo.level} · {t(levelInfo.title)}
             </span>
-            <strong>{state.xp} XP</strong>
+            <strong>{t('{n} XP', { n: state.xp })}</strong>
           </div>
           <div className="progress-track slim">
             <div className="progress-fill" style={{ width: `${Math.round(levelInfo.progress * 100)}%` }} />
           </div>
           <div className="level-card-sub">
-            <span>{state.streak > 0 ? `${state.streak}-day streak` : 'Start a streak today'}</span>
-            <span>{state.lastActive === todayKey() ? 'Active today' : ''}</span>
+            <span>{state.streak > 0 ? t('{n}-day streak', { n: state.streak }) : t('Start a streak today')}</span>
+            <span>{state.lastActive === todayKey() ? t('Active today') : ''}</span>
           </div>
         </div>
-        <p className="sidebar-note">Works offline · Installable · Piano & guitar</p>
+        <p className="sidebar-note">{t('Works offline · Installable · Piano & guitar')}</p>
       </div>
     </aside>
   );
@@ -88,6 +90,7 @@ function Sidebar() {
 
 function MobileHeader() {
   const { state } = useProgress();
+  const { t } = useI18n();
   return (
     <header className="mobile-header">
       <NavLink to="/" className="brand compact">
@@ -95,7 +98,7 @@ function MobileHeader() {
           <Icon name="music" size={20} />
         </span>
         <span className="brand-copy">
-          <strong>Cadence</strong>
+          <strong>{t('Cadence')}</strong>
         </span>
       </NavLink>
       <div className="mobile-header-stats">
@@ -103,7 +106,7 @@ function MobileHeader() {
           <Icon name="flame" size={16} />
           {state.streak}
         </span>
-        <span className="xp-chip">{state.xp} XP</span>
+        <span className="xp-chip">{t('{n} XP', { n: state.xp })}</span>
       </div>
     </header>
   );
@@ -111,15 +114,16 @@ function MobileHeader() {
 
 function MobileNav() {
   const { dueSkills } = useProgress();
+  const { t } = useI18n();
   return (
-    <nav className="mobile-nav" aria-label="Main navigation">
+    <nav className="mobile-nav" aria-label={t('Main navigation')}>
       {NAV.map((item) => (
         <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `mobile-link ${isActive ? 'active' : ''}`}>
           <span className="mobile-icon">
             <Icon name={item.icon} size={21} />
             {item.to === '/practice' && dueSkills.length > 0 && <span className="mobile-badge" />}
           </span>
-          <span>{item.label === 'Trainer' ? 'Train' : item.label}</span>
+          <span>{item.label === 'Trainer' ? t('Train') : t(item.label)}</span>
         </NavLink>
       ))}
     </nav>

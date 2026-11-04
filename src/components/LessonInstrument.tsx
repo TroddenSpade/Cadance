@@ -1,4 +1,5 @@
 import { synth } from '../lib/audio';
+import { useI18n } from '../lib/i18n';
 import { useProgress } from '../lib/progress';
 import type { InstrumentDemoSpec } from '../lib/types';
 import Icon from './Icons';
@@ -8,6 +9,7 @@ import RichText from './RichText';
 
 export default function LessonInstrument({ spec }: { spec: InstrumentDemoSpec }) {
   const { settings } = useProgress();
+  const { t } = useI18n();
 
   const play = () => {
     synth.setTimbre(settings.timbre);
@@ -20,13 +22,13 @@ export default function LessonInstrument({ spec }: { spec: InstrumentDemoSpec })
 
   const instrumentLabel =
     settings.instrument === 'guitar'
-      ? 'On the guitar'
+      ? t('On the guitar')
       : settings.instrument === 'piano'
-        ? 'At the piano'
-        : 'At the instrument';
+        ? t('At the piano')
+        : t('At the instrument');
 
   return (
-    <aside className="lesson-instrument" aria-label="Guided instrument example">
+    <aside className="lesson-instrument" aria-label={t('Guided instrument example')}>
       <div className="lesson-instrument-top">
         <div className="lesson-instrument-title">
           <span className="lesson-instrument-icon">
@@ -35,13 +37,13 @@ export default function LessonInstrument({ spec }: { spec: InstrumentDemoSpec })
           <div>
             <span className="eyebrow">{instrumentLabel}</span>
             <strong>
-              <NoteText text={spec.title ?? 'Play the example'} />
+              <NoteText text={spec.title ?? t('Play the example')} />
             </strong>
           </div>
         </div>
         <button type="button" className="button secondary small lesson-instrument-play" onClick={play}>
           <Icon name="play" size={14} />
-          Hear it
+          {t('Hear it')}
         </button>
       </div>
 

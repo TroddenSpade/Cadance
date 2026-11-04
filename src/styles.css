@@ -6317,3 +6317,153 @@ kbd {
 
 
 
+
+/* ───────────── Persian / RTL ───────────── */
+
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn-500.woff2') format('woff2');
+  font-weight: 500 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn-700.woff2') format('woff2');
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html.lang-fa {
+  --serif: 'Vazirmatn', 'Tahoma', 'Segoe UI', sans-serif;
+  --sans: 'Vazirmatn', 'Tahoma', 'Segoe UI', sans-serif;
+}
+
+html.lang-fa body,
+html.lang-fa button,
+html.lang-fa input,
+html.lang-fa select,
+html.lang-fa textarea {
+  font-family: 'Vazirmatn', 'Tahoma', 'Segoe UI', sans-serif;
+}
+
+html.lang-fa h1,
+html.lang-fa h2,
+html.lang-fa h3 {
+  font-family: 'Vazirmatn', 'Tahoma', 'Segoe UI', sans-serif;
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+html.lang-fa .eyebrow,
+html.lang-fa .brand-copy small {
+  letter-spacing: 0;
+}
+
+/* The sidebar moves to the right and content takes the opposite margin. */
+html[dir='rtl'] .sidebar {
+  inset: 0 0 0 auto;
+  border-right: 0;
+  border-left: 1px solid var(--line);
+}
+
+html[dir='rtl'] .main-content {
+  margin-left: 0;
+  margin-right: var(--sidebar);
+}
+
+html[dir='rtl'] .nav-badge {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Keep the dock clear of the sidebar, which now lives on the right. */
+html[dir='rtl'] .metronome-dock {
+  right: auto;
+  left: 24px;
+}
+
+html[dir='rtl'] .install-prompt {
+  direction: rtl;
+}
+
+/* Musical surfaces are read left-to-right in every language. */
+html[dir='rtl'] .staff,
+html[dir='rtl'] .piano,
+html[dir='rtl'] .fretboard,
+html[dir='rtl'] .rhythm-display,
+html[dir='rtl'] .metronome-stage-visual,
+html[dir='rtl'] .metronome-figure,
+html[dir='rtl'] .tuner-gauge,
+html[dir='rtl'] .lesson-notation,
+html[dir='rtl'] .instrument-surface {
+  direction: ltr;
+}
+
+/* Directional arrows mirror; playback and check icons do not. */
+html[dir='rtl'] .breadcrumbs > svg,
+html[dir='rtl'] .pager-link svg,
+html[dir='rtl'] .lesson-row-arrow,
+html[dir='rtl'] .text-link svg,
+html[dir='rtl'] .icon-link svg,
+html[dir='rtl'] .tool-card-open svg,
+html[dir='rtl'] .metronome-more svg {
+  transform: scaleX(-1);
+}
+
+@media (max-width: 1180px) {
+  html[dir='rtl'] .course-progress-ring {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 1080px) {
+  html[dir='rtl'] .main-content {
+    margin-right: 0;
+  }
+
+  html[dir='rtl'] .level-progress {
+    margin-left: 0;
+    margin-right: 50px;
+    text-align: right;
+  }
+
+  html[dir='rtl'] .header-stat,
+  html[dir='rtl'] .course-hero-action {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  html[dir='rtl'] .difficulty-card small {
+    margin-left: 0;
+    margin-right: auto;
+    text-align: left;
+  }
+
+  html[dir='rtl'] .metronome-controls .button {
+    margin-left: 0;
+  }
+}
+
+/* Numeric and notation controls should not jump around while being dragged. */
+html[dir='rtl'] .tuner-cents,
+html[dir='rtl'] .metronome-dock-tempo,
+html[dir='rtl'] .bpm-display,
+html[dir='rtl'] .tuner-custom-hz,
+html[dir='rtl'] .tuner-string small {
+  direction: ltr;
+  unicode-bidi: isolate;
+}

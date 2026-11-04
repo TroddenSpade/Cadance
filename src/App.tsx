@@ -3,6 +3,7 @@ import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import Icon, { type IconName } from './components/Icons';
 import InstallPrompt from './components/InstallPrompt';
 import MetronomeDock from './components/MetronomeDock';
+import UpdatePrompt from './components/UpdatePrompt';
 import { MetronomeProvider } from './lib/metronome';
 import { useProgress, levelFromXp, syncStatusLabel, todayKey, ProgressProvider } from './lib/progress';
 import Courses from './pages/Courses';
@@ -148,6 +149,7 @@ function Shell() {
       <MobileNav />
       <MetronomeDock />
       <InstallPrompt />
+      <UpdatePrompt />
     </div>
   );
 }

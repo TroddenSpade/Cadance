@@ -39,6 +39,11 @@ export default function InstallPrompt() {
   }, [eligible]);
 
   useEffect(() => {
+    document.body.classList.toggle('has-install-prompt', visible);
+    return () => document.body.classList.remove('has-install-prompt');
+  }, [visible]);
+
+  useEffect(() => {
     // Settings can bring the reminder back without a reload.
     const onShow = () => {
       if (!eligible || isStandalone()) return;

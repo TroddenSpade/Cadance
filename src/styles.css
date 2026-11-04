@@ -129,8 +129,10 @@ strong {
 
 .install-prompt {
   position: fixed;
-  right: 26px;
+  left: 0;
+  right: 0;
   bottom: 26px;
+  margin: 0 auto;
   z-index: 55;
   display: flex;
   align-items: flex-start;
@@ -222,12 +224,124 @@ strong {
     left: 12px;
     right: 12px;
     bottom: calc(76px + env(safe-area-inset-bottom));
+    margin: 0;
     width: auto;
+  }
+
+  /* Keep the floating metronome clear of the install card. */
+  body.has-install-prompt .metronome-dock {
+    bottom: calc(76px + env(safe-area-inset-bottom) + 196px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .install-prompt {
+    animation: none;
+  }
+}
+
+/* ───────────── update prompt ───────────── */
+
+.update-prompt {
+  position: fixed;
+  top: 16px;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(560px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 11px 12px;
+  border: 1px solid var(--accent-line);
+  border-radius: 14px;
+  background: rgba(20, 23, 29, 0.98);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(18px);
+  animation: update-prompt-in 0.3s cubic-bezier(0.22, 0.8, 0.24, 1) both;
+}
+
+@keyframes update-prompt-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.update-prompt-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--accent-line);
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.update-prompt-copy {
+  display: grid;
+  flex: 1;
+  gap: 1px;
+  min-width: 0;
+}
+
+.update-prompt-copy strong {
+  font-size: 12.5px;
+}
+
+.update-prompt-copy p {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.update-prompt-action {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.update-prompt-close {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--faint);
+}
+
+.update-prompt-close:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+}
+
+@media (max-width: 560px) {
+  .update-prompt {
+    top: 10px;
+    gap: 9px;
+    padding: 9px 10px;
+  }
+
+  .update-prompt-copy p {
+    display: none;
+  }
+
+  .update-prompt-action {
+    padding: 8px 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .update-prompt {
     animation: none;
   }
 }
@@ -4934,7 +5048,7 @@ strong {
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.42);
   backdrop-filter: blur(16px);
   padding: 12px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, bottom 0.25s cubic-bezier(0.22, 0.8, 0.24, 1);
 }
 
 .metronome-dock.running {

@@ -15,7 +15,7 @@ The interface is installable as a PWA and is structured so the same build can be
 - **Synthesized audio** for piano and Karplus–Strong guitar, generated locally with the Web Audio API. No audio files to download.
 - **Metronome** with a floating dock that follows you through the app and a full settings page. The page shows a mechanical metronome whose brass weight slides up and down a printed tempo scale as you change tempo, while the rod swings in time. It supports 2/4–7/8 meters, eighth-note and triplet subdivisions, downbeat accents, tap tempo, and independent volume, and it schedules clicks on the AudioContext clock so the pulse does not drift.
 - **Tuner** with live microphone pitch detection. Presets cover guitar, bass, ukulele, violin, viola, cello, double bass, mandolin, banjo, and chromatic piano, alongside alternate tunings such as Drop D, DADGAD, open G/D/E, and custom string sets. It shows cents, a needle, a string-by-string target, configurable A4 reference pitch, and playable reference tones.
-- **Offline support** through a service worker. Progress, settings, and review history live in `localStorage`, with optional account sync across devices.
+- **Offline support** through a service worker. Progress, settings, and review history live in `localStorage`, with optional account sync across devices. When a new build is deployed, a banner at the top offers a one-click refresh that clears the old cache and reloads the latest version.
 - **Responsive layout** with a desktop sidebar and a mobile bottom navigation bar.
 
 ## Run it
@@ -158,7 +158,7 @@ npx cap sync android
 ```text
 src/
   App.tsx                 app shell, navigation, routes
-  components/             staff, piano, fretboard, rhythm, session engine, metronome dock and figure
+  components/             staff, piano, fretboard, rhythm, session engine, metronome dock and figure, prompts
   data/curriculum.ts      core courses, levels, skill blueprints
   data/expansion/         advanced courses and their instrument examples
   lib/
@@ -168,6 +168,7 @@ src/
     music.ts              pitch, intervals, chords, scales, key signatures
     progress.tsx          React state, auth, sync, XP, spaced repetition
     progressState.ts      document shape, per-device counters, merge rules
+    pwa.ts                service worker update checks, cache clearing, refresh
     supabase.ts           optional Supabase client (env-driven)
     courseStats.ts        lesson/course progress helpers
     tuner.ts              YIN pitch detection, cents maths, target selection

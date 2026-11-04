@@ -215,7 +215,7 @@ The interface ships in English (default) and Persian. **Settings → Language & 
 - UI copy lives in `src/locales/fa/`, keyed by the exact English string, so a missing Persian entry falls back to English instead of showing a blank.
 - Curriculum content — levels, courses, lessons, section bodies, instrument demo captions, exercise metadata, and skill names — is translated in `src/locales/fa/content/` and exposed through `useCurriculum()` in `src/data/i18n.ts`.
 - Generated exercise prompts, explanations, hints, and choices are translated at question-build time, so they follow the active language even mid-session.
-- Vazirmatn is bundled in `public/fonts/` and applied only in Persian, keeping the Latin design intact.
+- Estedad (body) and Markazi Text (headings) are bundled in `public/fonts/` and applied only to Persian glyphs, so Latin note names and notation keep the original design fonts.
 - Musical content stays unchanged: note names and octaves, chord symbols, Roman numerals, figured bass, meters, and audio terminology remain in Latin notation regardless of language. Note names may still appear alongside their solfège form when the naming setting asks for it.
 - The sidebar moves to the right, content margins mirror, the metronome dock moves to the left, and staff/keyboard/fretboard surfaces keep a left-to-right orientation so the notation is not reversed.
 - `src/locales/fa/coverage.test.ts`, `uiCoverage.test.ts`, and `dictionary.test.ts` fail the test suite if a curriculum string or a literal `t()` key is missing a Persian translation, or if two modules translate the same key differently.

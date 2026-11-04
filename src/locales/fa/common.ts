@@ -13,6 +13,8 @@ export const faCommon: Record<string, string> = {
   Settings: 'تنظیمات',
   Train: 'تمرین',
   'Main navigation': 'ناوبری اصلی',
+  'Switch to Persian': 'تغییر به فارسی',
+  'Switch to English': 'تغییر به انگلیسی',
   'Sync across devices': 'همگام‌سازی بین دستگاه‌ها',
   Level: 'سطح',
   'Level {level} · {title}': 'سطح {level} · {title}',

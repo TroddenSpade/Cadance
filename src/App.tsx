@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import Icon, { type IconName } from './components/Icons';
 import InstallPrompt from './components/InstallPrompt';
+import LanguageToggle from './components/LanguageToggle';
 import MetronomeDock from './components/MetronomeDock';
 import UpdatePrompt from './components/UpdatePrompt';
 import { MetronomeProvider } from './lib/metronome';
@@ -63,6 +64,10 @@ function Sidebar() {
       </nav>
 
       <div className="sidebar-foot">
+        <div className="sidebar-language">
+          <span className="sidebar-language-label">{t('Language')}</span>
+          <LanguageToggle />
+        </div>
         <NavLink to="/settings" className={`sidebar-sync ${status}`}>
           <Icon name="cloud" size={15} />
           <span>{email ? t(syncStatusLabel[status]) : t('Sync across devices')}</span>
@@ -107,6 +112,7 @@ function MobileHeader() {
           {state.streak}
         </span>
         <span className="xp-chip">{t('{n} XP', { n: state.xp })}</span>
+        <LanguageToggle compact />
       </div>
     </header>
   );

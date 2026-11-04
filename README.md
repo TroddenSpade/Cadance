@@ -210,7 +210,7 @@ The scheduler is intentionally local-first: all state is in `localStorage` under
 
 ## Languages and right-to-left layout
 
-The interface ships in English (default) and Persian. **Settings → Language & direction** switches between them; the selection is stored under `cadence.language` in `localStorage`, and an inline script in `index.html` applies the saved `lang` and `dir` before the first paint so there is no flash of the wrong direction.
+The interface ships in English (default) and Persian. A language switch sits in the sidebar footer on desktop and in the mobile header on smaller screens, so it is reachable from every page; **Settings → Language & direction** offers the full picker. The selection is stored under `cadence.language` in `localStorage`, and an inline script in `index.html` applies the saved `lang` and `dir` before the first paint so there is no flash of the wrong direction.
 
 - UI copy lives in `src/locales/fa/`, keyed by the exact English string, so a missing Persian entry falls back to English instead of showing a blank.
 - Curriculum content — levels, courses, lessons, section bodies, instrument demo captions, exercise metadata, and skill names — is translated in `src/locales/fa/content/` and exposed through `useCurriculum()` in `src/data/i18n.ts`.

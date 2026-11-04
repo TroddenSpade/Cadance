@@ -29,7 +29,8 @@ export type IconName =
   | 'trophy'
   | 'cloud'
   | 'user'
-  | 'download';
+  | 'download'
+  | 'globe';
 
 const paths: Record<IconName, React.ReactNode> = {
   today: (
@@ -175,6 +176,13 @@ const paths: Record<IconName, React.ReactNode> = {
     <>
       <path d="M8 4h8v6a4 4 0 0 1-8 0V4Z" />
       <path d="M8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3M12 14v4M9 21h6M10 18h4" />
+    </>
+  ),
+  globe: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3.5 9h17M3.5 15h17" />
+      <path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" />
     </>
   ),
 };

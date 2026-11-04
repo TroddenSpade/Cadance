@@ -519,7 +519,7 @@ html.lang-fa .sidebar-language-label {
 }
 
 .language-toggle-label:lang(fa) {
-  font-family: 'IRANSans', Tahoma, sans-serif;
+  font-family: 'Vazirmatn', Tahoma, sans-serif;
   font-size: 12px;
 }
 
@@ -5066,6 +5066,12 @@ html.lang-fa .sidebar-language-label {
   }
 }
 
+@media (max-width: 360px) {
+  .hero h1 {
+    font-size: 31px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -6406,11 +6412,11 @@ kbd {
 
 /* ───────────── Persian / RTL ───────────── */
 
-/* IRANSans: Persian UI/body sans. The Arabic subset keeps Latin text on the
-   app's original sans-serif stack. */
+/* Vazirmatn: Persian UI and heading font, matching the typography of
+   synup.ir. The Arabic subset keeps Latin text on the app's original stacks. */
 @font-face {
-  font-family: 'IRANSans';
-  src: url('/fonts/IRANSans-Regular.woff2') format('woff2');
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -6419,8 +6425,8 @@ kbd {
 }
 
 @font-face {
-  font-family: 'IRANSans';
-  src: url('/fonts/IRANSans-Medium.woff2') format('woff2');
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -6429,21 +6435,9 @@ kbd {
 }
 
 @font-face {
-  font-family: 'IRANSans';
-  src: url('/fonts/IRANSans-Bold.woff2') format('woff2');
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn-Bold.woff2') format('woff2');
   font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+0600-06FF, U+0750-077F, U+08E3-08FF, U+200C-200E, U+2010-2011,
-    U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
-}
-
-/* Nazanin: classic Persian serif for headings, matching the editorial serif
-   of the English interface. */
-@font-face {
-  font-family: 'Nazanin';
-  src: url('/fonts/Nazanin-Regular.woff2') format('woff2');
-  font-weight: 400;
   font-style: normal;
   font-display: swap;
   unicode-range: U+0600-06FF, U+0750-077F, U+08E3-08FF, U+200C-200E, U+2010-2011,
@@ -6451,10 +6445,10 @@ kbd {
 }
 
 html.lang-fa {
-  --serif: 'Nazanin', 'B Nazanin', 'Iowan Old Style', 'Palatino Linotype',
-    Palatino, 'Book Antiqua', Georgia, serif;
-  --sans: 'IRANSans', 'IRANSansWeb', ui-sans-serif, system-ui, -apple-system,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --serif: 'Vazirmatn', 'Iowan Old Style', 'Palatino Linotype', Palatino,
+    'Book Antiqua', Georgia, serif;
+  --sans: 'Vazirmatn', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 html.lang-fa h1,
@@ -6462,7 +6456,7 @@ html.lang-fa h2,
 html.lang-fa h3 {
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 html.lang-fa .eyebrow,

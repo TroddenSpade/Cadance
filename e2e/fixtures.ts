@@ -30,7 +30,7 @@ export type RouteCheck = {
 };
 
 export async function openRoute(page: Page, path: string): Promise<void> {
-  await page.goto(`/#${path}`, { waitUntil: 'networkidle' });
+  await page.goto(path, { waitUntil: 'networkidle' });
   await expect(page.locator('main h1')).toBeVisible();
 }
 

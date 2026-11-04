@@ -22,12 +22,12 @@ test.describe('mobile layout', () => {
     await openRoute(page, '/');
 
     const targets = [
-      { href: '#/courses', heading: 'From first notes to master form.' },
-      { href: '#/practice', heading: 'Daily practice' },
-      { href: '#/trainer', heading: 'Trainer' },
-      { href: '#/tools', heading: 'Tools' },
-      { href: '#/settings', heading: 'Settings' },
-      { href: '#/', heading: /Good (morning|afternoon|evening)\./ },
+      { href: '/courses', heading: 'From first notes to master form.' },
+      { href: '/practice', heading: 'Daily practice' },
+      { href: '/trainer', heading: 'Trainer' },
+      { href: '/tools', heading: 'Tools' },
+      { href: '/settings', heading: 'Settings' },
+      { href: '/', heading: /Good (morning|afternoon|evening)\./ },
     ];
 
     for (const target of targets) {
@@ -55,7 +55,7 @@ test.describe('mobile layout', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'fa');
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
     expect(await page.evaluate(() => localStorage.getItem('cadence.language'))).toBe('fa');
-    await expect(page.locator('.mobile-link[href="#/settings"]')).toContainText('تنظیمات');
+    await expect(page.locator('.mobile-link[href="/settings"]')).toContainText('تنظیمات');
 
     await page.reload({ waitUntil: 'networkidle' });
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');

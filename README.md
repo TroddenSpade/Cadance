@@ -77,6 +77,25 @@ BASE_PATH=/cadence/ npm run preview
 
 If you only want to serve it from a plain GitHub repository without Actions, you can build with `BASE_PATH=/<repo>/` and publish the contents of `dist/` to a `gh-pages` branch, but the included workflow is the simpler path.
 
+## Clean URLs, SEO, and sharing
+
+Routes are real URLs (`/courses/staff-pitch`, `/lesson/treble-clef-reading`) rather than hash fragments. The build copies `dist/index.html` to `dist/404.html`, which GitHub Pages serves for unknown paths so the client router can render deep links. Old `#/...` bookmarks redirect to the equivalent clean URL on startup.
+
+Each route updates its own `<title>`, description, canonical link, and Open Graph/Twitter tags while the app runs. `index.html` carries static defaults (including the social card at `public/og-card.png`) for crawlers that do not execute JavaScript.
+
+The `cadence-seo` Vite plugin emits two files at build time:
+
+- `sitemap.xml` lists every public page, course, and lesson from the curriculum data.
+- `robots.txt` allows crawling and points at the sitemap.
+
+Both use `SITE_URL` (default `https://cadance.parsasam.ir`) plus `BASE_PATH`. Override it when the site lives elsewhere:
+
+```bash
+SITE_URL=https://example.com BASE_PATH=/cadence/ npm run build
+```
+
+If the canonical domain changes, update `SITE_URL` and the expectations in `e2e/seo.spec.ts`; the static defaults in `index.html` are rewritten to match at build time.
+
 ## Accounts and cross-device sync
 
 Progress is local-first: the app works fully offline and keeps writing to `localStorage`. Signing in adds an optional copy in Supabase so lessons, skills, XP, streaks, and settings follow you between phone and computer. A build without Supabase credentials keeps working normally and shows a short setup note in Settings instead.
@@ -149,7 +168,7 @@ npx cap sync android
 
 ### Notes for the native wrap
 
-- Routing uses `HashRouter`, so deep links such as `#/lesson/treble-clef-reading` work from static files and from Capacitor's local server.
+- Routing uses `BrowserRouter` with clean URLs such as `/lesson/treble-clef-reading`. In the browser, the build writes `dist/404.html` as an SPA fallback so static hosts serve deep links; Capacitor loads `index.html` and client-side navigation stays inside the document. Old `#/...` links redirect to the matching clean URL on startup.
 - Audio starts after the first user gesture, as required by mobile browsers. The instrument and **Listen** controls provide that gesture.
 - The PWA manifest and service worker are not used by the native shell, but they remain useful for the browser version.
 - If you publish the web build under a sub-path, adjust `base` in `vite.config.ts` and the manifest `start_url`/`scope` accordingly.
@@ -225,7 +244,7 @@ The interface ships in English (default) and Persian. On the first visit, a lang
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the Vite development server |
-| `npm run build` | Type-check and build the production bundle |
+| `npm run build` | Type-check, build the production bundle, generate `sitemap.xml`/`robots.txt`, and write the `404.html` fallback |
 | `npm run preview` | Serve the production build locally |
 | `npm test` | Run the note-naming, progress merge, migration, and curriculum tests |
 | `npm run test:e2e` | Run the full Playwright suite against the production build |
@@ -237,7 +256,7 @@ The interface ships in English (default) and Persian. On the first visit, a lang
 The automated checks cover the pure logic with Vitest and the shipped app with Playwright.
 
 - **Unit tests** (`npm test`) run 79 checks across note naming, exercise generation, progress merging and migration, curriculum/Persian coverage, and the metronome/tuner helpers.
-- **End-to-end tests** (`npm run test:e2e`) build the production bundle and serve it with `vite preview` on `127.0.0.1:4173`, including the service worker. They cover first-visit language choice and persistence, all main routes, the sidebar and mobile navigation, lessons and daily practice, the trainer, metronome, tuner, settings/backup/reset, accessibility structure, PWA installation metadata and offline reloads, and the mobile layout.
+- **End-to-end tests** (`npm run test:e2e`) build the production bundle and serve it with `vite preview` on `127.0.0.1:4173`, including the service worker. They cover first-visit language choice and persistence, all main routes, clean URLs and the legacy hash redirect, per-page metadata, sitemap/robots, the sidebar and mobile navigation, lessons and daily practice, the trainer, metronome, tuner, settings/backup/reset, accessibility structure, PWA installation metadata and offline reloads, and the mobile layout.
 - The suite runs in two Playwright projects: `desktop-chromium` for the desktop flows and `mobile-chromium` (Pixel 7) for `mobile.spec.ts`. Install the browser once with `npx playwright install chromium`.
 - Failed runs keep traces, screenshots, and video in `test-results/`; open the HTML report with `npx playwright show-report`.
 

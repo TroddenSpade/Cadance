@@ -1,25 +1,29 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import Icon, { type IconName } from './components/Icons';
 import InstallPrompt from './components/InstallPrompt';
 import LanguageModal from './components/LanguageModal';
 import LanguageToggle from './components/LanguageToggle';
 import MetronomeDock from './components/MetronomeDock';
+import RouteMeta from './components/RouteMeta';
 import UpdatePrompt from './components/UpdatePrompt';
 import { MetronomeProvider } from './lib/metronome';
 import { useProgress, levelFromXp, syncStatusLabel, todayKey, ProgressProvider } from './lib/progress';
 import { useI18n } from './lib/i18n';
-import Courses from './pages/Courses';
-import CoursePage from './pages/CoursePage';
 import Dashboard from './pages/Dashboard';
-import LessonPage from './pages/LessonPage';
-import MetronomePage from './pages/MetronomePage';
 import NotFound from './pages/NotFound';
-import Practice from './pages/Practice';
-import Settings from './pages/Settings';
-import Tools from './pages/Tools';
-import Trainer from './pages/Trainer';
-import Tuner from './pages/Tuner';
+
+// Each route loads its own chunk; the dashboard stays eager because it is the
+// landing page and already pulls in the curriculum index.
+const Courses = lazy(() => import('./pages/Courses'));
+const CoursePage = lazy(() => import('./pages/CoursePage'));
+const LessonPage = lazy(() => import('./pages/LessonPage'));
+const MetronomePage = lazy(() => import('./pages/MetronomePage'));
+const Practice = lazy(() => import('./pages/Practice'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Tools = lazy(() => import('./pages/Tools'));
+const Trainer = lazy(() => import('./pages/Trainer'));
+const Tuner = lazy(() => import('./pages/Tuner'));
 
 const NAV: Array<{ to: string; label: string; icon: IconName; end?: boolean }> = [
   { to: '/', label: 'Today', icon: 'today', end: true },
@@ -137,25 +141,38 @@ function MobileNav() {
   );
 }
 
+function RouteFallback() {
+  const { t } = useI18n();
+  return (
+    <div className="page route-loading" role="status">
+      <span className="route-loading-bar" aria-hidden="true" />
+      <span className="sr-only">{t('Loading page')}</span>
+    </div>
+  );
+}
+
 function Shell() {
   return (
     <div className="app-shell">
       <Sidebar />
       <MobileHeader />
       <main className="main-content">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/courses/:courseId" element={<CoursePage />} />
-          <Route path="/lesson/:lessonId" element={<LessonPage />} />
-          <Route path="/practice" element={<Practice />} />
-          <Route path="/trainer" element={<Trainer />} />
-          <Route path="/tools" element={<Tools />} />
-          <Route path="/metronome" element={<MetronomePage />} />
-          <Route path="/tuner" element={<Tuner />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <RouteMeta />
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/courses/:courseId" element={<CoursePage />} />
+            <Route path="/lesson/:lessonId" element={<LessonPage />} />
+            <Route path="/practice" element={<Practice />} />
+            <Route path="/trainer" element={<Trainer />} />
+            <Route path="/tools" element={<Tools />} />
+            <Route path="/metronome" element={<MetronomePage />} />
+            <Route path="/tuner" element={<Tuner />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </main>
       <MobileNav />
       <MetronomeDock />

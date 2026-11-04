@@ -119,10 +119,12 @@ test.describe('tuner', () => {
     await page.locator('.metronome-dock').getByRole('button', { name: 'Start' }).click();
     await expect(page.locator('.metronome-dock')).toHaveClass(/running/);
 
-    await page.goto('/#/tuner', { waitUntil: 'networkidle' });
+    await page.locator('.side-link[href="/tools"]').click();
+    await page.locator('.tool-card[href="/tuner"]').click();
+    await expect(page).toHaveURL(/\/tuner$/);
     await expect(page.locator('.metronome-dock')).toHaveCount(0);
 
-    await page.locator('.side-link[href="#/"]').click();
+    await page.locator('.side-link[href="/"]').click();
     await expect(page.locator('.metronome-dock')).toBeVisible();
     await expect(page.locator('.metronome-dock')).toHaveClass(/running/);
   });

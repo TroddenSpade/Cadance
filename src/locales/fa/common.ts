@@ -30,6 +30,7 @@ export const faCommon: Record<string, string> = {
   'Start a streak today': 'امروز زنجیره‌ات را شروع کن',
   'Active today': 'امروز فعال',
   'Works offline · Installable · Piano & guitar': 'آفلاین کار می‌کند · قابل نصب · پیانو و گیتار',
+  'Loading page': 'در حال بارگذاری صفحه',
   'Best: {value}': 'بهترین: {value}',
   'Best: {value} days': 'بهترین: {value} روز',
 

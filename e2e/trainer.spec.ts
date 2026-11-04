@@ -63,8 +63,8 @@ test.describe('trainer', () => {
     await expect(page.locator('.topic-card.selected')).toContainText('Ear intervals');
 
     // Leave the trainer so an unknown query parameter is evaluated on mount.
-    await page.goto('/#/', { waitUntil: 'networkidle' });
-    await page.goto('/#/trainer?topic=not-a-topic', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/trainer?topic=not-a-topic', { waitUntil: 'networkidle' });
     await expect(page.locator('main h1')).toHaveText('Trainer');
     await expect(page.locator('.topic-card.selected')).toContainText('Staff reading');
   });
@@ -77,7 +77,7 @@ test.describe('trainer', () => {
     await expect(page.locator('main h1')).toHaveText('Settings');
 
     await page.locator('.instrument-choice').filter({ hasText: 'Guitar fretboard' }).click();
-    await page.goto('/#/trainer', { waitUntil: 'networkidle' });
+    await page.goto('/trainer', { waitUntil: 'networkidle' });
     await expect(page.locator('.trainer-header-stat')).toContainText('Guitar');
   });
 });

@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { Session } from '@supabase/supabase-js';
+import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import { synth } from './audio';
 import {
   STORAGE_KEY,
@@ -24,7 +24,7 @@ import {
   type Settings,
   type SkillProgress,
 } from './progressState';
-import { supabase } from './supabase';
+import { loadSupabase, supabaseConfigured } from './supabase';
 
 export { todayKey } from './progressState';
 export type {
@@ -86,20 +86,39 @@ function authRedirectUrl(): string {
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const deviceId = useMemo(() => getDeviceId(), []);
   const [state, setState] = useState<AppState>(() => loadState(deviceId));
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [status, setStatus] = useState<SyncStatus>(supabase ? 'signed-out' : 'disabled');
+  const [status, setStatus] = useState<SyncStatus>(supabaseConfigured ? 'signed-out' : 'disabled');
   const [syncError, setSyncError] = useState<string | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState<number | null>(null);
 
   const stateRef = useRef(state);
   const lastPushedRef = useRef<string | null>(null);
   const lastPullRef = useRef(0);
-  const syncReadyRef = useRef(!supabase);
-  const [syncReady, setSyncReady] = useState(!supabase);
+  const syncReadyRef = useRef(!supabaseConfigured);
+  const [syncReady, setSyncReady] = useState(!supabaseConfigured);
 
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  // Sync is optional, so the Supabase chunk is fetched only when this build
+  // actually has credentials.
+  useEffect(() => {
+    let active = true;
+    void loadSupabase().then((client) => {
+      if (!active) return;
+      setSupabase(client);
+      if (!client) {
+        syncReadyRef.current = true;
+        setSyncReady(true);
+        setStatus('disabled');
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -151,7 +170,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       active = false;
       listener.subscription.unsubscribe();
     };
-  }, []);
+  }, [supabase]);
 
   const pushState = useCallback(
     async (next: AppState) => {
@@ -186,7 +205,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setSyncError(null);
       setLastSyncedAt(Date.now());
     },
-    [session],
+    [session, supabase],
   );
 
   const pullState = useCallback(
@@ -250,7 +269,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         setSyncReady(true);
       }
     },
-    [session, deviceId, pushState],
+    [session, deviceId, pushState, supabase],
   );
 
   useEffect(() => {
@@ -262,7 +281,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       void pushState(stateRef.current);
     }, PUSH_DELAY);
     return () => window.clearTimeout(timer);
-  }, [state, session, syncReady, pushState]);
+  }, [state, session, syncReady, pushState, supabase]);
 
   useEffect(() => {
     if (!session) return;
@@ -416,9 +435,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string) => {
-    if (!supabase) return { ok: false, error: 'Sync is not configured in this build.' };
+    if (!supabaseConfigured) return { ok: false, error: 'Sync is not configured in this build.' };
+    const client = supabase ?? (await loadSupabase());
+    if (!client) return { ok: false, error: 'Sync is not configured in this build.' };
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      const { error } = await client.auth.signInWithOtp({
         email: email.trim(),
         options: { emailRedirectTo: authRedirectUrl() },
       });
@@ -429,18 +450,19 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         error: 'Could not send the sign-in link. Check your connection and try again.',
       };
     }
-  }, []);
+  }, [supabase]);
 
   const signOut = useCallback(async () => {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+    const client = supabase ?? (await loadSupabase());
+    if (!client) return;
+    await client.auth.signOut();
     setSession(null);
     setStatus('signed-out');
     setLastSyncedAt(null);
     syncReadyRef.current = false;
     setSyncReady(false);
     lastPushedRef.current = null;
-  }, []);
+  }, [supabase]);
 
   const syncNow = useCallback(async () => {
     await pullState({ force: true });
@@ -487,7 +509,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       finishLesson,
       resetProgress,
       resetAll,
-      configured: Boolean(supabase),
+      configured: supabaseConfigured,
       status,
       email: session?.user.email ?? null,
       lastSyncedAt,

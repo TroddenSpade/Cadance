@@ -55,7 +55,7 @@ baseTest.describe('first visit', () => {
   });
 
   baseTest('asks on a deep link and keeps focus inside the dialog', async ({ page }) => {
-    await page.goto('/#/metronome');
+    await page.goto('/metronome');
     await expect(page.locator('.language-modal')).toBeVisible();
 
     // Focus starts on English; Tab and Shift+Tab must cycle inside the dialog.
@@ -91,7 +91,7 @@ test.describe('language switching', () => {
     ];
 
     for (const route of routes) {
-      await page.goto(`/#${route.path}`, { waitUntil: 'networkidle' });
+      await page.goto(route.path, { waitUntil: 'networkidle' });
       await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
       await expect(page.locator('main h1')).toContainText(route.heading);
       const overflow = await page.evaluate(
@@ -102,12 +102,12 @@ test.describe('language switching', () => {
   });
 
   test('keeps the language across routes and settings', async ({ page }) => {
-    await page.goto('/#/settings');
+    await page.goto('/settings');
     await page.getByRole('button', { name: /فارسی \(Persian\)/ }).click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'fa');
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
 
-    await page.goto('/#/courses', { waitUntil: 'networkidle' });
+    await page.goto('/courses', { waitUntil: 'networkidle' });
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
     expect(await page.evaluate(() => localStorage.getItem('cadence.language'))).toBe('fa');
 

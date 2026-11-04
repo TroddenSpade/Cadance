@@ -28,13 +28,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Set base path
+      - name: Set base path and site URL
         run: |
           repo="${GITHUB_REPOSITORY#*/}"
+          owner="${GITHUB_REPOSITORY%%/*}"
           if [[ -f public/CNAME || "$repo" == *.github.io ]]; then
             echo "BASE_PATH=/" >> "$GITHUB_ENV"
           else
             echo "BASE_PATH=/$repo/" >> "$GITHUB_ENV"
+          fi
+          if [[ -f public/CNAME ]]; then
+            echo "SITE_URL=https://$(cat public/CNAME)" >> "$GITHUB_ENV"
+          elif [[ "$repo" == *.github.io ]]; then
+            echo "SITE_URL=https://${repo}" >> "$GITHUB_ENV"
+          else
+            echo "SITE_URL=https://${owner}.github.io/${repo}" >> "$GITHUB_ENV"
           fi
 
       - name: Build

@@ -45,11 +45,11 @@ test.describe('PWA and offline', () => {
     await expect(page.locator('.hero')).toBeVisible();
     await expect(page.locator('main h1')).toContainText(/Good (morning|afternoon|evening)\./);
 
-    // Hash routes are part of the same cached document.
-    await page.goto('/#/courses', { waitUntil: 'domcontentloaded' });
+    // Clean URLs are served by the cached document through the SPA fallback.
+    await page.goto('/courses', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('main h1')).toHaveText('From first notes to master form.');
 
-    await page.goto('/#/lesson/treble-clef-reading', { waitUntil: 'domcontentloaded' });
+    await page.goto('/lesson/treble-clef-reading', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('main h1')).toHaveText('Reading the Treble Clef');
 
     await context.setOffline(false);

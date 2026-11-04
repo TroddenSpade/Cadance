@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * People often paste the REST endpoint from the Supabase dashboard instead of
@@ -21,27 +21,34 @@ export function normalizeSupabaseUrl(value: string | undefined): string | undefi
 const url = normalizeSupabaseUrl(import.meta.env.VITE_SUPABASE_URL);
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
 
-function createSupabaseClient(): SupabaseClient | null {
-  if (!url || !anonKey) return null;
-  try {
-    return createClient(url, anonKey, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        flowType: 'pkce',
-      },
-    });
-  } catch {
-    return null;
-  }
-}
-
 /**
- * Null when the build has no (valid) Supabase credentials. The app then
- * behaves exactly as before: local-only progress, with a note in Settings
- * explaining how to enable sync.
+ * True when the build has credentials. The Supabase client itself is loaded on
+ * demand so local-only builds do not pay for it on first paint.
  */
-export const supabase: SupabaseClient | null = createSupabaseClient();
+export const supabaseConfigured = Boolean(url && anonKey);
 
-export const supabaseConfigured = supabase !== null;
+let clientPromise: Promise<SupabaseClient | null> | null = null;
+
+/** Loads the client once. Resolves to null for local-only builds. */
+export function loadSupabase(): Promise<SupabaseClient | null> {
+  if (!supabaseConfigured) return Promise.resolve(null);
+  if (!clientPromise) {
+    clientPromise = import('@supabase/supabase-js')
+      .then(({ createClient }) => {
+        try {
+          return createClient(url!, anonKey!, {
+            auth: {
+              persistSession: true,
+              autoRefreshToken: true,
+              detectSessionInUrl: true,
+              flowType: 'pkce',
+            },
+          });
+        } catch {
+          return null;
+        }
+      })
+      .catch(() => null);
+  }
+  return clientPromise;
+}

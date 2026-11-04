@@ -31,8 +31,8 @@ test('sidebar marks the current section and reaches every page', async ({ page }
   const nav = page.getByRole('navigation', { name: 'Main navigation' }).first();
 
   for (const route of ROUTES.filter((item) => item.nav)) {
-    await page.locator(`.side-link[href="#${route.path}"]`).click();
-    await expect(page).toHaveURL(new RegExp(`#${route.path.replace('/', '\\/')}$`));
+    await page.locator(`.side-link[href="${route.path}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`${route.path.replace('/', '\\/')}$`));
     await expect(nav.locator('.side-link.active')).toHaveCount(1);
     await expect(nav.locator('.side-link.active')).toContainText(route.nav!);
     await expect(page.locator('main h1')).toBeVisible();
@@ -45,12 +45,12 @@ test('course cards and lessons drill down without leaving the app', async ({ pag
   const courseCard = page.locator('.course-card').first();
   const courseTitle = (await courseCard.locator('h3').innerText()).trim();
   await courseCard.click();
-  await page.waitForURL(/#\/courses\//);
+  await page.waitForURL(/\/courses\//);
   await expect(page.locator('main h1')).toContainText(courseTitle);
 
   const lessonRow = page.locator('.lesson-row').first();
   await lessonRow.click();
-  await page.waitForURL(/#\/lesson\//);
+  await page.waitForURL(/\/lesson\//);
   await expect(page.locator('.lesson-header h1')).toBeVisible();
   await expect(page.locator('.lesson-section').first()).toBeVisible();
   await expect(page.locator('.practice-banner')).toBeVisible();
@@ -67,10 +67,10 @@ test('unknown routes show the not-found page with working exits', async ({ page 
   await page.getByRole('link', { name: 'Back to today' }).click();
   await expect(page.locator('.hero')).toBeVisible();
 
-  await page.goto('/#/lesson/not-a-real-lesson', { waitUntil: 'networkidle' });
+  await page.goto('/lesson/not-a-real-lesson', { waitUntil: 'networkidle' });
   await expect(page.locator('main h1')).toHaveText('This page is off the staff.');
 
-  await page.goto('/#/courses/not-a-real-course', { waitUntil: 'networkidle' });
+  await page.goto('/courses/not-a-real-course', { waitUntil: 'networkidle' });
   await expect(page.locator('main h1')).toHaveText('This page is off the staff.');
 });
 
@@ -78,11 +78,11 @@ test('the metronome dock is available away from its full page only', async ({ pa
   await openRoute(page, '/metronome');
   await expect(page.locator('.metronome-dock')).toHaveCount(0);
 
-  await page.locator('.side-link[href="#/"]').click();
+  await page.locator('.side-link[href="/"]').click();
   await expect(page.locator('.metronome-dock')).toBeVisible();
   await expect(page.locator('.metronome-dock-fab, .metronome-dock')).toHaveCount(1);
 
-  await page.goto('/#/tuner', { waitUntil: 'networkidle' });
+  await page.goto('/tuner', { waitUntil: 'networkidle' });
   await expect(page.locator('.metronome-dock')).toHaveCount(0);
 });
 

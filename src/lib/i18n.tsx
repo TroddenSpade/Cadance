@@ -47,16 +47,6 @@ function applyDocument() {
   document.documentElement.lang = language;
   document.documentElement.dir = isRtl() ? 'rtl' : 'ltr';
   document.documentElement.classList.toggle('lang-fa', language === 'fa');
-  document.title = t('Cadence — Music Theory Trainer');
-  const description = document.querySelector('meta[name="description"]');
-  if (description) {
-    description.setAttribute(
-      'content',
-      t(
-        'Cadence is an interactive trainer for music theory reading and listening, with piano and guitar.',
-      ),
-    );
-  }
 }
 
 /** Apply the saved language before React paints its first frame. */

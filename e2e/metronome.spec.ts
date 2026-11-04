@@ -137,7 +137,7 @@ test.describe('metronome', () => {
     await page.locator('.metronome-play').click();
     await expect(page.locator('.metronome-play')).toContainText('Stop');
 
-    await page.locator('.side-link[href="#/"]').click();
+    await page.locator('.side-link[href="/"]').click();
     const dock = page.locator('.metronome-dock');
     await expect(dock).toBeVisible();
     await expect(dock).toHaveClass(/running/);

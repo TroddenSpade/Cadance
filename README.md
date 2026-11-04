@@ -227,5 +227,25 @@ The interface ships in English (default) and Persian. On the first visit, a lang
 | `npm run dev` | Start the Vite development server |
 | `npm run build` | Type-check and build the production bundle |
 | `npm run preview` | Serve the production build locally |
-| `npm test` | Run the note-naming, progress merge, and migration tests |
+| `npm test` | Run the note-naming, progress merge, migration, and curriculum tests |
+| `npm run test:e2e` | Run the full Playwright suite against the production build |
+| `npm run test:e2e:ui` | Open Playwright's interactive UI runner |
 | `npm run typecheck` | Run TypeScript without emitting files |
+
+## Testing
+
+The automated checks cover the pure logic with Vitest and the shipped app with Playwright.
+
+- **Unit tests** (`npm test`) run 79 checks across note naming, exercise generation, progress merging and migration, curriculum/Persian coverage, and the metronome/tuner helpers.
+- **End-to-end tests** (`npm run test:e2e`) build the production bundle and serve it with `vite preview` on `127.0.0.1:4173`, including the service worker. They cover first-visit language choice and persistence, all main routes, the sidebar and mobile navigation, lessons and daily practice, the trainer, metronome, tuner, settings/backup/reset, accessibility structure, PWA installation metadata and offline reloads, and the mobile layout.
+- The suite runs in two Playwright projects: `desktop-chromium` for the desktop flows and `mobile-chromium` (Pixel 7) for `mobile.spec.ts`. Install the browser once with `npx playwright install chromium`.
+- Failed runs keep traces, screenshots, and video in `test-results/`; open the HTML report with `npx playwright show-report`.
+
+A typical full verification run is:
+
+```bash
+npm run typecheck
+npm test
+npm run test:e2e
+npm run build
+```

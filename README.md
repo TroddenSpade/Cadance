@@ -88,7 +88,7 @@ The `cadence-seo` Vite plugin emits two files at build time:
 - `sitemap.xml` lists every public page, course, and lesson from the curriculum data.
 - `robots.txt` allows crawling and points at the sitemap.
 
-Both use `SITE_URL` (default `https://cadance.parsasam.ir`) plus `BASE_PATH`. Override it when the site lives elsewhere:
+Both use `SITE_URL` (default `https://cadence.parsasam.ir`) plus `BASE_PATH`. Override it when the site lives elsewhere:
 
 ```bash
 SITE_URL=https://example.com BASE_PATH=/cadence/ npm run build

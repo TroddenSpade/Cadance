@@ -74,7 +74,7 @@ test.describe('metadata and shareability', () => {
     expect(robots.ok()).toBe(true);
     const rules = await robots.text();
     expect(rules).toContain('User-agent: *');
-    expect(rules).toContain('Sitemap: https://cadance.parsasam.ir/sitemap.xml');
+    expect(rules).toContain('Sitemap: https://cadence.parsasam.ir/sitemap.xml');
 
     const fallback = await request.get('/404.html');
     expect(fallback.ok()).toBe(true);

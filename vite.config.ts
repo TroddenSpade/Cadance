@@ -6,7 +6,7 @@ import { COURSES } from './src/data/curriculum';
 // GitHub Pages project sites live under /<repo>/. Set BASE_PATH when building
 // for Pages; local development and root-hosted sites keep "/".
 const base = process.env.BASE_PATH ?? '/';
-const siteUrl = (process.env.SITE_URL ?? 'https://cadance.parsasam.ir').replace(/\/$/, '');
+const siteUrl = (process.env.SITE_URL ?? 'https://cadence.parsasam.ir').replace(/\/$/, '');
 
 const sitePrefix = `${siteUrl}${base === '/' ? '' : base.replace(/\/$/, '')}`;
 
@@ -18,7 +18,7 @@ function seoFiles(): Plugin {
     transformIndexHtml(html) {
       // Keep the static crawler metadata aligned with SITE_URL and BASE_PATH;
       // the runtime RouteMeta component handles navigation after that.
-      return html.replaceAll('https://cadance.parsasam.ir', sitePrefix);
+      return html.replaceAll('https://cadence.parsasam.ir', sitePrefix);
     },
     generateBundle() {
       const paths = [

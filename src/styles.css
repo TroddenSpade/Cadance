@@ -16,7 +16,7 @@
   --line-strong: rgba(240, 236, 228, 0.18);
   --text: #f0ece4;
   --muted: #a09c93;
-  --faint: #706d67;
+  --faint: #85827b;
   --accent: #e8b568;
   --accent-bright: #f3c983;
   --accent-soft: rgba(232, 181, 104, 0.12);
@@ -123,6 +123,31 @@ strong {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 6px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  inset-inline-start: 12px;
+  z-index: 1000;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #1a1409;
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 16px));
+  transition: transform 0.16s ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+  }
 }
 
 /* ───────────── install prompt ───────────── */
@@ -1258,7 +1283,7 @@ html.lang-fa .sidebar-language-label {
   gap: 20px;
 }
 
-.daily-copy h3 {
+.daily-copy h2 {
   font-size: 21px;
   margin-bottom: 5px;
 }
@@ -2885,10 +2910,26 @@ html.lang-fa .sidebar-language-label {
 
 .piano-key {
   cursor: pointer;
+  outline: none;
 }
 
 .piano-key.disabled {
   cursor: default;
+}
+
+.piano-key:focus-visible rect:first-child {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.fret-position {
+  outline: none;
+}
+
+.fret-position:focus-visible .fret-hit {
+  fill: rgba(232, 181, 104, 0.2);
+  stroke: var(--accent);
+  stroke-width: 2.5;
 }
 
 .piano-key.white rect:first-child {
@@ -4834,6 +4875,18 @@ html.lang-fa .sidebar-language-label {
 @media (max-width: 720px) {
   body {
     font-size: 15px;
+  }
+
+  /* Keep keys at least 24 CSS px wide on phones; the keyboard scrolls inside
+     its own frame instead of shrinking the targets. */
+  .piano-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .piano {
+    min-width: 620px;
   }
 
   .main-content {

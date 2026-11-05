@@ -22,7 +22,7 @@ test.describe('metadata and shareability', () => {
       'content',
       'Reading the Treble Clef — Cadence',
     );
-    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'website');
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
       'content',
       'summary_large_image',
@@ -78,7 +78,30 @@ test.describe('metadata and shareability', () => {
 
     const fallback = await request.get('/404.html');
     expect(fallback.ok()).toBe(true);
-    expect(await fallback.text()).toContain('<div id="root"></div>');
+    const fallbackHtml = await fallback.text();
+    expect(fallbackHtml).toContain('<div id="root"></div>');
+    expect(fallbackHtml).toContain('<meta name="robots" content="noindex" />');
+  });
+
+  test('serves deep routes as static HTML with route-specific metadata', async ({ request }) => {
+    const lesson = await request.get('/lesson/treble-clef-reading');
+    expect(lesson.status()).toBe(200);
+    const lessonHtml = await lesson.text();
+    expect(lessonHtml).toContain('<title>Reading the Treble Clef — Cadence</title>');
+    expect(lessonHtml).toContain('<meta property="og:type" content="article" />');
+    expect(lessonHtml).toContain(
+      '<link rel="canonical" href="https://cadence.parsasam.ir/lesson/treble-clef-reading" />',
+    );
+
+    const course = await request.get('/courses/staff-pitch');
+    expect(course.status()).toBe(200);
+    const courseHtml = await course.text();
+    expect(courseHtml).toContain('<title>Pitch &amp; the Staff — Cadence</title>');
+    expect(courseHtml).toContain('<meta property="og:type" content="article" />');
+
+    const staticPage = await request.get('/courses');
+    expect(staticPage.status()).toBe(200);
+    expect(await staticPage.text()).toContain('<title>Courses — Cadence</title>');
   });
 
   test('serves deep links directly and redirects old hash links', async ({ page }) => {

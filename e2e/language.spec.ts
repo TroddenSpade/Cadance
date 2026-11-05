@@ -101,6 +101,31 @@ test.describe('language switching', () => {
     }
   });
 
+  test('gives Persian lesson sections stable, shareable anchors', async ({ page }) => {
+    await page.goto('/lesson/sound-pitch-keyboard', { waitUntil: 'networkidle' });
+    await page.locator('.sidebar-language .language-toggle').click();
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+
+    const sections = await page.locator('.lesson-section').evaluateAll((nodes) =>
+      nodes.map((node) => ({ id: node.id, heading: node.querySelector('h2')?.textContent?.trim() ?? '' })),
+    );
+    expect(sections.length).toBeGreaterThan(1);
+    expect(sections.every((section) => section.id.length > 0)).toBe(true);
+    expect(new Set(sections.map((section) => section.id)).size).toBe(sections.length);
+
+    const tocHrefs = await page.locator('.toc a').evaluateAll((links) =>
+      links.map((link) => link.getAttribute('href')),
+    );
+    for (const section of sections) {
+      expect(tocHrefs).toContain(`#${section.id}`);
+    }
+
+    await page.locator('.toc a').first().click();
+    await expect(page).toHaveURL(new RegExp(`#${sections[0].id}$`));
+    const focusedHeading = await page.evaluate(() => document.activeElement?.textContent?.trim() ?? '');
+    expect(focusedHeading).toBe(sections[0].heading);
+  });
+
   test('keeps the language across routes and settings', async ({ page }) => {
     await page.goto('/settings');
     await page.getByRole('button', { name: /فارسی \(Persian\)/ }).click();

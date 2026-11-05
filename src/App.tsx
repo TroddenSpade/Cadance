@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import Icon, { type IconName } from './components/Icons';
 import InstallPrompt from './components/InstallPrompt';
@@ -34,11 +34,47 @@ const NAV: Array<{ to: string; label: string; icon: IconName; end?: boolean }> =
   { to: '/settings', label: 'Settings', icon: 'settings' },
 ];
 
-function ScrollToTop() {
-  const { pathname } = useLocation();
+function RouteFocus() {
+  const { pathname, hash } = useLocation();
+  const firstRender = useRef(true);
+
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-  }, [pathname]);
+    if (!hash) window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, [pathname, hash]);
+
+  // Client-side navigation should behave like a new page: focus its heading,
+  // not leave the keyboard at the end of the previous route. Initial loads keep
+  // the browser's normal focus behavior.
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    if (hash) return;
+
+    const main = document.getElementById('main-content');
+    if (!main) return;
+
+    let cancelled = false;
+    let timer = 0;
+    const focusHeading = (attempt = 0) => {
+      if (cancelled) return;
+      const heading = main.querySelector<HTMLElement>('h1');
+      if (heading) {
+        heading.tabIndex = -1;
+        heading.focus({ preventScroll: true });
+        return;
+      }
+      if (attempt < 20) timer = window.setTimeout(() => focusHeading(attempt + 1), 25);
+    };
+    focusHeading();
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [pathname, hash]);
+
   return null;
 }
 
@@ -152,11 +188,23 @@ function RouteFallback() {
 }
 
 function Shell() {
+  const { t } = useI18n();
   return (
     <div className="app-shell">
+      <a
+        className="skip-link"
+        href="#main-content"
+        onClick={(event) => {
+          event.preventDefault();
+          window.history.replaceState(null, '', '#main-content');
+          document.getElementById('main-content')?.focus();
+        }}
+      >
+        {t('Skip to content')}
+      </a>
       <Sidebar />
       <MobileHeader />
-      <main className="main-content">
+      <main id="main-content" className="main-content" tabIndex={-1}>
         <RouteMeta />
         <Suspense fallback={<RouteFallback />}>
           <Routes>
@@ -187,7 +235,7 @@ export default function App() {
   return (
     <ProgressProvider>
       <MetronomeProvider>
-        <ScrollToTop />
+        <RouteFocus />
         <Shell />
       </MetronomeProvider>
     </ProgressProvider>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import ExerciseSession from '../components/ExerciseSession';
 import Icon from '../components/Icons';
 import InstrumentSurface from '../components/InstrumentSurface';
@@ -17,12 +17,24 @@ import { useProgress } from '../lib/progress';
 import type { SessionResult } from '../lib/types';
 import NotFound from './NotFound';
 
-function slug(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+/** Scroll to a lesson anchor and move focus to its heading for screen readers. */
+function focusAnchor(id: string, behavior: ScrollBehavior = 'smooth'): void {
+  const target = document.getElementById(id);
+  if (!target) return;
+  target.scrollIntoView({ behavior, block: 'start' });
+  const heading = target.querySelector<HTMLElement>('h2, h3');
+  if (heading) {
+    heading.tabIndex = -1;
+    heading.focus({ preventScroll: true });
+  } else {
+    target.tabIndex = -1;
+    target.focus({ preventScroll: true });
+  }
 }
 
 export default function LessonPage() {
   const { lessonId } = useParams();
+  const { hash } = useLocation();
   const { t } = useI18n();
   const { lessonMap, courseMap, levels, lessonDemos, nextLesson, previousLesson } = useCurriculum();
   const { state, settings, finishLesson } = useProgress();
@@ -41,6 +53,25 @@ export default function LessonPage() {
       window.setTimeout(() => sessionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     }
   }, [sessionActive]);
+
+  // Deep links such as /lesson/treble-clef-reading#the-staff need to wait for
+  // the lesson to render before the browser can find the target.
+  useEffect(() => {
+    if (!hash || !lesson) return;
+    const id = decodeURIComponent(hash.slice(1));
+    const timer = window.setTimeout(() => focusAnchor(id, 'auto'), 80);
+    return () => window.clearTimeout(timer);
+  }, [hash, lesson?.id]);
+
+  useEffect(() => {
+    if (!lesson) return;
+    const onHashChange = () => {
+      if (!window.location.hash) return;
+      focusAnchor(decodeURIComponent(window.location.hash.slice(1)), 'auto');
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, [lesson?.id]);
 
   if (!lesson) return <NotFound />;
 
@@ -71,9 +102,7 @@ export default function LessonPage() {
   const handleDone = () => {
     setSessionActive(false);
     setSessionKey((value) => value + 1);
-    window.setTimeout(() => {
-      document.getElementById('lesson-practice')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 60);
+    window.setTimeout(() => focusAnchor('lesson-practice'), 60);
   };
 
   return (
@@ -140,7 +169,7 @@ export default function LessonPage() {
             </section>
           )}
           {lesson.sections.map((section, index) => (
-            <section key={index} id={section.heading ? slug(section.heading) : undefined} className="lesson-section">
+            <section key={index} id={section.anchor ?? `section-${index + 1}`} className="lesson-section">
               {section.heading && (
                 <div className="section-heading">
                   <span className="section-number">{String(index + 1).padStart(2, '0')}</span>
@@ -300,22 +329,29 @@ export default function LessonPage() {
           <section className="panel side-sticky">
             <span className="eyebrow">{t('In this lesson')}</span>
             <nav className="toc">
-              {lesson.sections.map((section, index) => (
-                <a key={index} href={section.heading ? `#${slug(section.heading)}` : '#'} onClick={(event) => {
-                  if (section.heading) {
-                    event.preventDefault();
-                    document.getElementById(slug(section.heading!))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
-                }}>
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                  {section.heading ?? t('Introduction')}
-                </a>
-              ))}
+              {lesson.sections.map((section, index) => {
+                const anchor = section.anchor ?? `section-${index + 1}`;
+                return (
+                  <a
+                    key={anchor}
+                    href={`#${anchor}`}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      window.history.pushState(null, '', `#${anchor}`);
+                      focusAnchor(anchor);
+                    }}
+                  >
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    {section.heading ?? t('Introduction')}
+                  </a>
+                );
+              })}
               <a
                 href="#lesson-practice"
                 onClick={(event) => {
                   event.preventDefault();
-                  document.getElementById('lesson-practice')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  window.history.pushState(null, '', '#lesson-practice');
+                  focusAnchor('lesson-practice');
                 }}
               >
                 <span>→</span>

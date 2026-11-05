@@ -6,6 +6,8 @@ import { LESSON_GUIDES } from './guides';
 export type LevelId = 'foundations' | 'beginner' | 'intermediate' | 'advanced' | 'master';
 
 export interface LessonSection {
+  /** Stable, language-independent anchor used by the lesson table of contents. */
+  anchor?: string;
   heading?: string;
   body: string;
   staff?: StaffSpec;
@@ -2120,7 +2122,41 @@ function withGuides(course: Course): Course {
   };
 }
 
-export const COURSES: Course[] = COURSE_CONTENT.map(withGuides);
+/**
+ * Compute section anchors once, from the English source data. Localizing a
+ * lesson replaces its heading but keeps this anchor, so Persian and English
+ * readers share the same deep links.
+ */
+function sectionAnchor(heading: string | undefined, index: number, used: Set<string>): string {
+  const base =
+    (heading ?? `section-${index + 1}`)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || `section-${index + 1}`;
+  let anchor = base;
+  let suffix = 2;
+  while (used.has(anchor)) anchor = `${base}-${suffix++}`;
+  used.add(anchor);
+  return anchor;
+}
+
+function withSectionAnchors(course: Course): Course {
+  return {
+    ...course,
+    lessons: course.lessons.map((lesson) => {
+      const used = new Set<string>();
+      return {
+        ...lesson,
+        sections: lesson.sections.map((section, index) => ({
+          ...section,
+          anchor: section.anchor ?? sectionAnchor(section.heading, index, used),
+        })),
+      };
+    }),
+  };
+}
+
+export const COURSES: Course[] = COURSE_CONTENT.map(withGuides).map(withSectionAnchors);
 
 export const COURSE_MAP: Record<string, Course> = Object.fromEntries(COURSES.map((course) => [course.id, course]));
 

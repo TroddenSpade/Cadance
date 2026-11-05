@@ -23,6 +23,7 @@ type Audit = {
   duplicateIds: string[];
   imagesWithoutAlt: string[];
   mainLandmarks: number;
+  headingJumps: string[];
 };
 
 async function auditPage(page: import('@playwright/test').Page): Promise<Audit> {
@@ -61,6 +62,17 @@ async function auditPage(page: import('@playwright/test').Page): Promise<Audit> 
 
     const ids = [...document.querySelectorAll('[id]')].map((element) => element.id);
     const duplicateIds = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
+    const headings = [...document.querySelectorAll('main h1, main h2, main h3, main h4, main h5, main h6')];
+    const headingJumps = headings
+      .map((heading, index) => {
+        if (index === 0) return null;
+        const previous = Number(headings[index - 1].tagName[1]);
+        const current = Number(heading.tagName[1]);
+        return current > previous + 1
+          ? `${headings[index - 1].tagName} → ${heading.tagName}: ${heading.textContent?.trim().slice(0, 60)}`
+          : null;
+      })
+      .filter((entry): entry is string => Boolean(entry));
 
     return {
       h1: document.querySelectorAll('main h1').length,
@@ -76,6 +88,7 @@ async function auditPage(page: import('@playwright/test').Page): Promise<Audit> 
       duplicateIds,
       imagesWithoutAlt: [...document.images].filter((image) => !image.hasAttribute('alt')).map((image) => image.src),
       mainLandmarks: document.querySelectorAll('main').length,
+      headingJumps,
     };
   });
 }
@@ -94,6 +107,7 @@ test('audits every route for structural accessibility', async ({ page }) => {
     expect(audit.unlabeledControls, `${route} has unlabeled controls`).toEqual([]);
     expect(audit.duplicateIds, `${route} has duplicate ids`).toEqual([]);
     expect(audit.imagesWithoutAlt, `${route} has images without alt text`).toEqual([]);
+    expect(audit.headingJumps, `${route} skips heading levels`).toEqual([]);
   }
 
   expect(errors, errors.join('\n')).toEqual([]);
@@ -107,7 +121,21 @@ test('names navigation landmarks and breadcrumbs', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Today' }).first()).toBeVisible();
 });
 
-test('exposes instrument keys and frets as labelled buttons', async ({ page }) => {
+test('offers a skip link and moves focus to the new page heading', async ({ page }) => {
+  await openRoute(page, '/');
+
+  await page.keyboard.press('Tab');
+  const skip = page.locator('.skip-link');
+  await expect(skip).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('main')).toBeFocused();
+
+  await page.locator('.side-link[href="/courses"]').click();
+  await expect(page.locator('main h1')).toBeFocused();
+  await expect(page).toHaveURL(/\/courses$/);
+});
+
+test('exposes instrument keys and frets as labelled buttons with one tab stop each', async ({ page }) => {
   await openRoute(page, '/trainer?topic=find-notes');
   await page.getByRole('button', { name: 'Start drill' }).click();
   await expect(page.locator('.instrument-surface')).toBeVisible();
@@ -118,24 +146,32 @@ test('exposes instrument keys and frets as labelled buttons', async ({ page }) =
   for (let index = 0; index < keyCount; index += 1) {
     const key = keys.nth(index);
     await expect(key).toHaveAttribute('role', 'button');
-    await expect(key).toHaveAttribute('tabindex', '0');
     await expect(key).toHaveAttribute('aria-label', /^Piano key /);
   }
+  await expect(page.locator('.piano-key[tabindex="0"]')).toHaveCount(1);
 
   const frets = page.locator('.fret-position');
   const fretCount = await frets.count();
   expect(fretCount).toBeGreaterThan(0);
   await expect(frets.first()).toHaveAttribute('role', 'button');
   await expect(frets.first()).toHaveAttribute('aria-label', /\S/);
+  await expect(page.locator('.fret-position[tabindex="0"]')).toHaveCount(1);
+
+  // Arrow keys rove within the single tab stop.
+  const activeKey = page.locator('.piano-key[tabindex="0"]');
+  await activeKey.focus();
+  const before = await page.evaluate(() => document.activeElement?.getAttribute('aria-label'));
+  await page.keyboard.press('ArrowRight');
+  const after = await page.evaluate(() => document.activeElement?.getAttribute('aria-label'));
+  expect(after).not.toBe(before);
+  expect(after).toMatch(/^Piano key /);
 
   // Labels are hidden during the quiz but the controls stay operable.
-  const firstKey = keys.first();
-  await firstKey.focus();
   await page.keyboard.press('Space');
   await expect(page.locator('.feedback-panel')).toBeVisible();
 });
 
-test('names every exercise choice and reports feedback to assistive tech', async ({ page }) => {
+test('names every exercise choice, reports feedback, and moves focus', async ({ page }) => {
   await openRoute(page, '/trainer?topic=staff-reading');
   await page.getByRole('button', { name: 'Start drill' }).click();
 
@@ -152,6 +188,26 @@ test('names every exercise choice and reports feedback to assistive tech', async
   await choices.first().click();
   await expect(page.locator('.feedback-panel')).toBeVisible();
   await expect(page.locator('.feedback-panel .feedback-head strong')).toHaveText(/Correct|Not quite/);
+  await expect(page.locator('.exercise-session [role="status"]')).toContainText(/Correct|Not quite/);
+  await expect(page.locator('.feedback-panel .button.primary')).toBeFocused();
+});
+
+test('keeps lesson instrument demos to a single tab stop per surface', async ({ page }) => {
+  await openRoute(page, '/lesson/sound-pitch-keyboard');
+
+  await expect(page.locator('.lesson-section .piano-key[tabindex="0"]')).toHaveCount(
+    await page.locator('.lesson-section .piano-wrap').count(),
+  );
+  await expect(page.locator('.lesson-section .fret-position[tabindex="0"]')).toHaveCount(
+    await page.locator('.lesson-section .fretboard').count(),
+  );
+  const focusables = await page.evaluate(
+    () =>
+      document.querySelectorAll(
+        'main a[href], main button, main input, main select, main textarea, main [tabindex]:not([tabindex="-1"])',
+      ).length,
+  );
+  expect(focusables).toBeLessThan(100);
 });
 
 baseTest.describe('language dialog', () => {

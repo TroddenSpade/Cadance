@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { synth } from '../lib/audio';
 import {
   EXERCISE_LABELS,
@@ -61,6 +61,9 @@ export default function ExerciseSession({
   const [selection, setSelection] = useState<number[]>([]);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [result, setResult] = useState<SessionResult | null>(null);
+  const promptRef = useRef<HTMLHeadingElement | null>(null);
+  const continueRef = useRef<HTMLButtonElement | null>(null);
+  const summaryRef = useRef<HTMLHeadingElement | null>(null);
 
   const question = questions[index];
   const naming = settings.noteNaming;
@@ -125,6 +128,26 @@ export default function ExerciseSession({
   useEffect(() => {
     synth.setTimbre(settings.timbre);
   }, [settings.timbre]);
+
+  // Move focus with the session: read the new prompt, then land on Continue so
+  // the next answer can be given from the keyboard.
+  useEffect(() => {
+    const target =
+      phase === 'feedback' ? continueRef.current : phase === 'quiz' ? promptRef.current : summaryRef.current;
+    if (!target) return;
+    const timer = window.setTimeout(() => target.focus({ preventScroll: true }), 30);
+    return () => window.clearTimeout(timer);
+  }, [phase, index]);
+
+  const wasCorrect = answers[answers.length - 1];
+  const feedbackAnnouncement =
+    phase === 'feedback' && question
+      ? `${wasCorrect ? t('Correct') : t('Not quite')}. ${
+          !wasCorrect && !question.choiceRhythms
+            ? `${t('Answer: {answer}', { answer: noteText(question.answer) })}. `
+            : ''
+        }${noteText(question.explanation)}`
+      : '';
 
   const grade = (correct: boolean, choice?: string) => {
     if (phase !== 'quiz' || !question) return;
@@ -243,7 +266,9 @@ export default function ExerciseSession({
         </div>
         <div className="summary-copy">
           <span className="eyebrow">{context === 'lesson' ? t('Exercises') : t('Practice')}</span>
-          <h2>{heading}</h2>
+          <h2 ref={summaryRef} tabIndex={-1}>
+            {heading}
+          </h2>
           <p>
             {t('{n} of {total} correct', { n: result.correct, total: result.total })}
             {context === 'lesson' && !passed
@@ -293,6 +318,9 @@ export default function ExerciseSession({
 
   return (
     <div className="exercise-session">
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {feedbackAnnouncement}
+      </p>
       <div className="session-head">
         <div>
           <span className="eyebrow">
@@ -318,7 +346,9 @@ export default function ExerciseSession({
 
       <div className="question-card">
         <div className="question-body">
-          <h2 className="question-prompt">{noteText(question.prompt)}</h2>
+          <h2 ref={promptRef} className="question-prompt" tabIndex={-1}>
+            {noteText(question.prompt)}
+          </h2>
           {question.instruction && <p className="question-instruction">{noteText(question.instruction)}</p>}
 
           {question.staff && (
@@ -468,7 +498,7 @@ export default function ExerciseSession({
             {question.hint && !answers[answers.length - 1] && (
               <p className="feedback-hint">{t('Tip: {tip}', { tip: noteText(question.hint) })}</p>
             )}
-            <button className="button primary" onClick={next}>
+            <button ref={continueRef} className="button primary" onClick={next}>
               {index + 1 >= questions.length ? t('See results') : t('Continue')}
               <Icon name="arrow" size={17} />
             </button>

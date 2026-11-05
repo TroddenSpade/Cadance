@@ -1,3 +1,9 @@
+import {
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from 'react';
 import { useI18n } from '../lib/i18n';
 import { midiToName, noteLabelLines, noteName, pitchClass, type Letter, type NoteNaming } from '../lib/music';
 import type { GuitarSpot } from '../lib/types';
@@ -44,18 +50,61 @@ export default function Fretboard({
   rootPitchClasses = [],
 }: FretboardProps) {
   const { t } = useI18n();
+  const fretboardRef = useRef<SVGSVGElement | null>(null);
+  const hintId = useId();
   const width = 920;
   const height = TOP + STRING_GAP * 5 + 58;
   const fretWidth = (RIGHT - LEFT) / FRETS;
   const stringY = (index: number) => TOP + index * STRING_GAP;
 
+  const defaultPosition = spots?.[0] ?? { string: 0, fret: 0 };
+  const [activePosition, setActivePosition] = useState(defaultPosition);
+
+  const focusPosition = (stringIndex: number, fret: number) => {
+    setActivePosition({ string: stringIndex, fret });
+    fretboardRef.current
+      ?.querySelector<SVGGElement>(`[data-string="${stringIndex}"][data-fret="${fret}"]`)
+      ?.focus();
+  };
+
+  const onKeyDown = (
+    event: ReactKeyboardEvent<SVGGElement>,
+    stringIndex: number,
+    fret: number,
+  ) => {
+    if (disabled) return;
+    const midi = STRINGS[stringIndex].midi + fret;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onNote?.(midi, stringIndex, fret);
+      return;
+    }
+
+    let nextString = stringIndex;
+    let nextFret = fret;
+    if (event.key === 'ArrowRight') nextFret = Math.min(FRETS, fret + 1);
+    else if (event.key === 'ArrowLeft') nextFret = Math.max(0, fret - 1);
+    else if (event.key === 'ArrowUp') nextString = Math.max(0, stringIndex - 1);
+    else if (event.key === 'ArrowDown') nextString = Math.min(STRINGS.length - 1, stringIndex + 1);
+    else if (event.key === 'Home') nextFret = 0;
+    else if (event.key === 'End') nextFret = FRETS;
+    else return;
+
+    event.preventDefault();
+    if (nextString !== stringIndex || nextFret !== fret) {
+      focusPosition(nextString, nextFret);
+    }
+  };
+
   return (
     <div className="fretboard-scroll">
       <svg
+        ref={fretboardRef}
         viewBox={`0 0 ${width} ${height}`}
         className="fretboard"
         role="group"
         aria-label={t('Guitar fretboard, standard tuning, frets 0 to 12')}
+        aria-describedby={disabled ? undefined : hintId}
       >
         <rect x={LEFT} y={TOP - 16} width={RIGHT - LEFT} height={STRING_GAP * 5 + 32} rx={4} className="fretboard-wood" />
 
@@ -130,23 +179,30 @@ export default function Fretboard({
             return (
               <g
                 key={`pos-${stringIndex}-${fret}`}
+                data-string={stringIndex}
+                data-fret={fret}
                 className={`fret-position ${mark ? `mark-${mark}` : ''} ${disabled ? 'disabled' : ''}`}
-                onClick={() => !disabled && onNote?.(midi, stringIndex, fret)}
+                onClick={() => {
+                  setActivePosition({ string: stringIndex, fret });
+                  if (!disabled) onNote?.(midi, stringIndex, fret);
+                }}
+                onFocus={() => setActivePosition({ string: stringIndex, fret })}
                 role="button"
-                tabIndex={disabled ? -1 : 0}
+                tabIndex={
+                  disabled
+                    ? -1
+                    : activePosition.string === stringIndex && activePosition.fret === fret
+                      ? 0
+                      : -1
+                }
                 aria-label={t('{string} string, fret {fret}, {note}', {
                   string: t(string.name),
                   fret,
                   note: displayName,
                 })}
-                onKeyDown={(event) => {
-                  if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
-                    event.preventDefault();
-                    onNote?.(midi, stringIndex, fret);
-                  }
-                }}
+                onKeyDown={(event) => onKeyDown(event, stringIndex, fret)}
               >
-                <rect x={xStart} y={y - 14} width={Math.max(xEnd - xStart, 18)} height={28} rx={5} className="fret-hit" />
+                <rect x={xStart} y={y - 16} width={Math.max(xEnd - xStart, 18)} height={32} rx={5} className="fret-hit" />
                 {mark && (
                   <circle
                     cx={spot && fret === 0 ? LEFT - 12 : (xStart + xEnd) / 2}
@@ -170,6 +226,11 @@ export default function Fretboard({
           }),
         )}
       </svg>
+      {!disabled && (
+        <p id={hintId} className="sr-only">
+          {t('Use arrow keys to move between strings and frets, then Enter or Space to play.')}
+        </p>
+      )}
     </div>
   );
 }

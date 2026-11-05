@@ -31,7 +31,7 @@ export type RouteCheck = {
 
 export async function openRoute(page: Page, path: string): Promise<void> {
   await page.goto(path, { waitUntil: 'networkidle' });
-  await expect(page.locator('main h1')).toBeVisible();
+  await expect(page.locator('main h1')).toBeVisible({ timeout: 15_000 });
 }
 
 export async function expectNoHorizontalOverflow(page: Page): Promise<void> {

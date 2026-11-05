@@ -44,4 +44,12 @@ describe('curriculum structure', () => {
     const levels = new Set(COURSES.map((course) => course.level));
     expect(levels).toEqual(new Set(['foundations', 'beginner', 'intermediate', 'advanced', 'master']));
   });
+
+  it('gives every section a non-empty, unique anchor', () => {
+    for (const lesson of ALL_LESSONS) {
+      const anchors = lesson.sections.map((section) => section.anchor);
+      expect(anchors.every((anchor) => anchor && /^[a-z0-9-]+$/.test(anchor)), lesson.id).toBe(true);
+      expect(new Set(anchors).size, `${lesson.id} has duplicate anchors`).toBe(anchors.length);
+    }
+  });
 });

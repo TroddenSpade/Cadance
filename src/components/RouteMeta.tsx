@@ -100,8 +100,13 @@ export default function RouteMeta() {
       }
     }
 
+    const isContentRoute =
+      Boolean(courseMap[pathname.replace(/^\/courses\//, '')]) ||
+      Boolean(lessonMap[pathname.replace(/^\/lesson\//, '')]);
+
     document.title = info.title;
     upsertMeta('name', 'description', info.description);
+    upsertMeta('property', 'og:type', isContentRoute ? 'article' : 'website');
     upsertMeta('property', 'og:title', info.title);
     upsertMeta('property', 'og:description', info.description);
     upsertMeta('property', 'og:url', absoluteUrl(pathname));

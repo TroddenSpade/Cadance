@@ -31,6 +31,7 @@ export const faCommon: Record<string, string> = {
   'Active today': 'امروز فعال',
   'Works offline · Installable · Piano & guitar': 'آفلاین کار می‌کند · قابل نصب · پیانو و گیتار',
   'Loading page': 'در حال بارگذاری صفحه',
+  'Skip to content': 'رفتن به محتوای صفحه',
   'Best: {value}': 'بهترین: {value}',
   'Best: {value} days': 'بهترین: {value} روز',
 
@@ -140,6 +141,10 @@ export const faCommon: Record<string, string> = {
   'bass clef staff with {count} notes': 'خط حامل کلید فا با {count} نُت',
 
   'Piano keyboard': 'صفحه‌کلید پیانو',
+  'Use arrow keys to move between keys, then Enter or Space to play.':
+    'با کلیدهای جهت‌دار بین کلیدها حرکت کنید، سپس با Enter یا فاصله بنوازید.',
+  'Use arrow keys to move between strings and frets, then Enter or Space to play.':
+    'با کلیدهای جهت‌دار بین سیم‌ها و پرده‌ها حرکت کنید، سپس با Enter یا فاصله بنوازید.',
   'Piano key {note}': 'کلید پیانو {note}',
   'Piano key {note} middle C': 'کلید پیانو {note} (دو وسط)',
   'Guitar fretboard, standard tuning, frets 0 to 12':

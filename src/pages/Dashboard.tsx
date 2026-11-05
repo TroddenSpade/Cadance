@@ -99,7 +99,7 @@ export default function Dashboard() {
                 <span>{t('of {n} questions', { n: settings.dailyGoal })}</span>
               </ProgressRing>
               <div className="daily-copy">
-                <h3>{today === 0 ? t('A fresh start') : today >= settings.dailyGoal ? t('Daily goal met') : t('Keep going')}</h3>
+                <h2>{today === 0 ? t('A fresh start') : today >= settings.dailyGoal ? t('Daily goal met') : t('Keep going')}</h2>
                 <p>
                   {dueSkills.length > 0
                     ? t(dueSkills.length === 1 ? '{n} skill due for review right now.' : '{n} skills due for review right now.', { n: dueSkills.length })

@@ -1,7 +1,19 @@
 import { test as baseTest } from '@playwright/test';
 import { expect, expectNoHorizontalOverflow, openRoute, test } from './fixtures';
 
-const ROUTES = ['/', '/courses', '/practice', '/trainer', '/tools', '/metronome', '/tuner', '/settings'];
+const ROUTES = [
+  '/',
+  '/courses',
+  '/repertoire',
+  '/repertoire/ode-to-joy',
+  '/explorer',
+  '/practice',
+  '/trainer',
+  '/tools',
+  '/metronome',
+  '/tuner',
+  '/settings',
+];
 
 test.describe('mobile layout', () => {
   test('uses the compact header and bottom navigation instead of the sidebar', async ({ page }) => {
@@ -10,7 +22,7 @@ test.describe('mobile layout', () => {
     await expect(page.locator('.mobile-header')).toBeVisible();
     await expect(page.locator('.mobile-nav')).toBeVisible();
     await expect(page.locator('.sidebar')).toBeHidden();
-    await expect(page.locator('.mobile-link')).toHaveCount(6);
+    await expect(page.locator('.mobile-link')).toHaveCount(7);
     await expect(page.locator('.mobile-header .language-toggle')).toBeVisible();
     await expect(page.locator('.mobile-link.active')).toContainText('Today');
     await expect(page.locator('.install-prompt')).toHaveCount(0);
@@ -23,6 +35,7 @@ test.describe('mobile layout', () => {
 
     const targets = [
       { href: '/courses', heading: 'From first notes to master form.' },
+      { href: '/repertoire', heading: 'Graded repertoire' },
       { href: '/practice', heading: 'Daily practice' },
       { href: '/trainer', heading: 'Trainer' },
       { href: '/tools', heading: 'Tools' },
@@ -39,6 +52,7 @@ test.describe('mobile layout', () => {
   });
 
   test('keeps every page inside the viewport', async ({ page }) => {
+    test.setTimeout(90_000);
     for (const route of ROUTES) {
       await openRoute(page, route);
       await expectNoHorizontalOverflow(page);

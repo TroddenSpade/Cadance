@@ -4,6 +4,7 @@ import NoteText from '../components/NoteText';
 import ProgressRing from '../components/ProgressRing';
 import { useCurriculum } from '../data/i18n';
 import { exerciseSkillLabel, STARTER_SPECS } from '../lib/exercises';
+import { REPERTOIRE } from '../data/repertoire';
 import {
   coursePercent,
   currentLesson,
@@ -44,6 +45,9 @@ export default function Dashboard() {
     .filter((skill) => !dueSkills.some((due) => due.id === skill.id))
     .sort((a, b) => a.strength - b.strength)
     .slice(0, 4);
+  const routinePiece =
+    REPERTOIRE.find((piece) => piece.afterLesson === lesson.id) ??
+    REPERTOIRE[completed % REPERTOIRE.length];
 
   return (
     <div className="page dashboard">
@@ -162,6 +166,50 @@ export default function Dashboard() {
             <span>{t('reviews due')}</span>
           </div>
           <small>{t('{n} skills tracked', { n: Object.keys(state.skills).length })}</small>
+        </div>
+      </section>
+
+      <section className="panel routine-panel">
+        <div className="panel-head">
+          <div>
+            <span className="eyebrow">{t('15-minute routine')}</span>
+            <h2>{t('Warm up, review, learn, play')}</h2>
+          </div>
+          <span className="panel-note">{t('Four short steps')}</span>
+        </div>
+        <div className="routine-steps">
+          <Link to="/metronome" className="routine-step">
+            <span className="routine-number">1</span>
+            <div>
+              <strong>{t('Warm up · 3 min')}</strong>
+              <span>{t('Set the metronome to a comfortable pulse and play slow scales or open chords.')}</span>
+            </div>
+            <Icon name="metronome" size={18} />
+          </Link>
+          <Link to="/practice" className="routine-step">
+            <span className="routine-number">2</span>
+            <div>
+              <strong>{t('Review · 5 min')}</strong>
+              <span>{t('Clear the due skills in your spaced-review queue.')}</span>
+            </div>
+            <Icon name="refresh" size={18} />
+          </Link>
+          <Link to={`/lesson/${lesson.id}`} className="routine-step">
+            <span className="routine-number">3</span>
+            <div>
+              <strong>{t('New lesson · 5 min')}</strong>
+              <span>{t('Read one section, then answer its questions at your own pace.')}</span>
+            </div>
+            <Icon name="book" size={18} />
+          </Link>
+          <Link to={`/repertoire/${routinePiece.id}`} className="routine-step">
+            <span className="routine-number">4</span>
+            <div>
+              <strong>{t('One piece · 2 min')}</strong>
+              <span>{t(routinePiece.title)}</span>
+            </div>
+            <Icon name="music" size={18} />
+          </Link>
         </div>
       </section>
 

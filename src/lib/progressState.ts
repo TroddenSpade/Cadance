@@ -1,10 +1,13 @@
 import type { Timbre } from './audio';
 import { clamp, type NoteNaming } from './music';
+import { instrumentById } from './tunings';
 
 export type InstrumentMode = 'piano' | 'guitar' | 'both';
 
 export interface Settings {
   instrument: InstrumentMode;
+  /** Guitar tuning id from src/lib/tunings.ts; lesson demos stay in standard. */
+  guitarTuning: string;
   timbre: Timbre;
   showLabels: boolean;
   noteNaming: NoteNaming;
@@ -69,6 +72,7 @@ export const MAX_PRACTICE_DATES = 400;
 
 export const defaultSettings: Settings = {
   instrument: 'both',
+  guitarTuning: 'standard',
   timbre: 'piano',
   showLabels: true,
   noteNaming: 'both',
@@ -222,6 +226,11 @@ function sanitizeSettings(raw: unknown): Settings {
       : defaultSettings.instrument;
   return {
     instrument,
+    guitarTuning:
+      typeof value.guitarTuning === 'string' &&
+      instrumentById('guitar').tunings.some((tuning) => tuning.id === value.guitarTuning)
+        ? value.guitarTuning
+        : defaultSettings.guitarTuning,
     timbre: value.timbre === 'guitar' ? 'guitar' : 'piano',
     showLabels: value.showLabels !== false,
     noteNaming:

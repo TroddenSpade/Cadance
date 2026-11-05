@@ -4696,7 +4696,7 @@ html.lang-fa .sidebar-language-label {
     right: 0;
     z-index: 50;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
     background: rgba(11, 12, 15, 0.9);
     border-top: 1px solid var(--line);
@@ -6841,6 +6841,889 @@ html[dir='rtl'] .metronome-dock-tempo,
 html[dir='rtl'] .bpm-display,
 html[dir='rtl'] .tuner-custom-hz,
 html[dir='rtl'] .tuner-string small {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* ───────────── play-along transport ───────────── */
+
+.play-along {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 4px 0 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.006));
+}
+
+.play-along.compact {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+}
+
+.play-along-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.play-along-button {
+  min-width: 92px;
+  justify-content: center;
+}
+
+.play-along-button.active {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.play-along-tempo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.play-along-tempo label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+}
+
+.play-along-tempo output {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.play-along-tempo input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.play-along-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.play-along-toggles {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.play-along-toggle,
+.play-along-stepper {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  padding: 4px 11px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.play-along-toggle:hover,
+.play-along-stepper:hover {
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+
+.play-along-toggle.active {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.play-along-count-in {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.play-along-count-in select {
+  padding: 3px 6px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface, #101216);
+  color: var(--text);
+  font-size: 11.5px;
+}
+
+.play-along-beats {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 18px;
+}
+
+.play-along-beat {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background 0.08s, transform 0.08s;
+}
+
+.play-along-beat.strong {
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--accent-line);
+}
+
+.play-along-beat.active {
+  background: var(--accent);
+  transform: scale(1.25);
+}
+
+.play-along-count {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+}
+
+/* ───────────── notation ───────────── */
+
+.melody-score-scroll,
+.tablature-scroll {
+  width: 100%;
+  overflow-x: auto;
+  margin: 10px 0 14px;
+  padding-bottom: 4px;
+}
+
+.melody-score,
+.tablature {
+  display: block;
+  max-width: none;
+  height: auto;
+}
+
+.staff-barline {
+  stroke: rgba(240, 236, 228, 0.34);
+  stroke-width: 1.1;
+}
+
+.staff-barline.end {
+  stroke-width: 2.4;
+}
+
+.staff-flag {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.staff-dot {
+  fill: currentColor;
+}
+
+.score-cursor {
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+  opacity: 0.85;
+}
+
+.score-note.active .staff-note-head {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+.tab-string {
+  stroke: rgba(240, 236, 228, 0.36);
+  stroke-width: 1.05;
+}
+
+.tab-string-label {
+  fill: var(--faint);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.tab-note-dot {
+  fill: #0d0f13;
+  stroke: rgba(240, 236, 228, 0.45);
+  stroke-width: 1;
+}
+
+.tab-fret {
+  fill: var(--text);
+  stroke: #0d0f13;
+  stroke-width: 3.4;
+  paint-order: stroke;
+  font-size: 10.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tab-note.active .tab-note-dot {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.tab-note.active .tab-fret {
+  fill: var(--accent);
+}
+
+/* ───────────── chord diagrams ───────────── */
+
+.chord-diagram-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 16px;
+}
+
+.chord-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 10px 8px 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.014);
+}
+
+.chord-diagram svg {
+  width: 100%;
+  max-width: 128px;
+  height: auto;
+}
+
+.chord-diagram figcaption {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+  text-align: center;
+}
+
+.chord-string {
+  stroke: rgba(240, 236, 228, 0.42);
+  stroke-width: 1;
+}
+
+.chord-fret {
+  stroke: rgba(240, 236, 228, 0.26);
+  stroke-width: 1;
+}
+
+.chord-nut {
+  stroke: rgba(240, 236, 228, 0.72);
+  stroke-width: 3;
+}
+
+.chord-dot {
+  fill: var(--accent);
+}
+
+.chord-finger {
+  fill: #17130c;
+  font-size: 8.5px;
+  font-weight: 750;
+}
+
+.chord-marker {
+  fill: var(--faint);
+  font-size: 14px;
+}
+
+.chord-marker.open {
+  fill: none;
+  stroke: var(--faint);
+  stroke-width: 1.4;
+}
+
+.chord-barre {
+  fill: var(--accent);
+  opacity: 0.92;
+}
+
+.chord-base-fret {
+  fill: var(--faint);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+/* ───────────── repertoire ───────────── */
+
+.repertoire-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+
+.repertoire-filter {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.repertoire-filter:hover {
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+
+.repertoire-filter.active {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.repertoire-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.repertoire-card {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(460px 220px at 100% 0%, rgba(232, 181, 104, 0.075), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.026), rgba(255, 255, 255, 0.005));
+  color: var(--text);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.repertoire-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-line);
+}
+
+.repertoire-card-eyebrow {
+  color: var(--faint);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.repertoire-card h2 {
+  font-size: 21px;
+  line-height: 1.2;
+}
+
+.repertoire-card-composer {
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.repertoire-card p {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.repertoire-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.repertoire-card-meta span,
+.repertoire-chips span {
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--faint);
+  font-size: 10.5px;
+}
+
+.repertoire-card-lesson {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.repertoire-card-lesson svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.repertoire-card-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 14px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.repertoire-note {
+  margin-top: 20px;
+}
+
+.repertoire-note p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.repertoire-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.repertoire-header h1 {
+  margin: 4px 0 2px;
+}
+
+.repertoire-composer {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.repertoire-summary {
+  max-width: 62ch;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.repertoire-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.repertoire-lesson-card {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 220px;
+  align-items: flex-start;
+}
+
+.repertoire-lesson-card strong {
+  font-family: var(--serif);
+  font-size: 16px;
+}
+
+.repertoire-practice {
+  display: flex;
+  flex-direction: column;
+}
+
+.repertoire-practice-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.repertoire-practice-head h2 {
+  font-size: 22px;
+}
+
+.repertoire-hands {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.repertoire-hand {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.repertoire-hand.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.repertoire-hand-note {
+  margin: 8px 0 18px;
+  padding: 14px 16px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+.repertoire-surface {
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #08090c;
+}
+
+.repertoire-tuning-note {
+  margin-top: 10px;
+  color: var(--faint);
+  font-size: 10.5px;
+}
+
+.repertoire-chords,
+.repertoire-plan {
+  margin-top: 20px;
+}
+
+.repertoire-plan ol {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 22px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.repertoire-plan li::marker {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ───────────── explorer ───────────── */
+
+.explorer-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.explorer-control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.explorer-control label,
+.explorer-control-label {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.explorer-control select {
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface, #101216);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.explorer-root-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.explorer-root-row select {
+  flex: 1;
+  text-align: center;
+  font-weight: 700;
+}
+
+.explorer-step {
+  width: 34px;
+  height: 36px;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.explorer-step:hover {
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+
+.explorer-spelling {
+  align-self: flex-start;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.explorer-spelling.active {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.explorer-view-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 8px;
+}
+
+.explorer-view-head h2 {
+  font-size: 26px;
+}
+
+.explorer-score {
+  margin: 12px 0 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #08090c;
+  overflow: hidden;
+}
+
+.explorer-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 12px 0 16px;
+}
+
+.explorer-notes span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 4px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 12px;
+}
+
+.explorer-notes strong {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.explorer-surface {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #08090c;
+}
+
+.explorer-caged {
+  margin-top: 20px;
+}
+
+/* ───────────── dashboard routine ───────────── */
+
+.routine-panel {
+  margin-top: 20px;
+}
+
+.routine-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.routine-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.014);
+  color: var(--text);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.routine-step:hover {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.routine-step > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.routine-step strong {
+  font-size: 12px;
+}
+
+.routine-step span:not(.routine-number) {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.routine-step > svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.routine-number {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--accent-line);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* ───────────── settings ───────────── */
+
+.tuning-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.tuning-setting label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tuning-setting label strong {
+  font-size: 13px;
+}
+
+.tuning-setting label small {
+  max-width: 52ch;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.tuning-setting select {
+  min-width: 160px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface, #101216);
+  color: var(--text);
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .routine-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .explorer-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .repertoire-header {
+    flex-direction: column;
+  }
+
+  .repertoire-lesson-card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .play-along-top,
+  .play-along-bottom {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .play-along-button {
+    width: 100%;
+  }
+
+  .play-along-beats {
+    justify-content: flex-end;
+  }
+
+  .routine-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .repertoire-practice-head {
+    flex-direction: column;
+  }
+
+  .tuning-setting {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tuning-setting select {
+    width: 100%;
+  }
+}
+
+html[dir='rtl'] .repertoire-plan ol {
+  padding-left: 0;
+  padding-right: 22px;
+}
+
+html[dir='rtl'] .play-along-tempo output,
+html[dir='rtl'] .tab-fret {
   direction: ltr;
   unicode-bidi: isolate;
 }

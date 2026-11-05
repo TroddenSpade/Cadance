@@ -1,6 +1,7 @@
 import { synth } from '../lib/audio';
 import { useI18n } from '../lib/i18n';
 import { useProgress } from '../lib/progress';
+import { tuningById } from '../lib/tunings';
 import type { GuitarSpot } from '../lib/types';
 import Fretboard from './Fretboard';
 import Icon from './Icons';
@@ -18,6 +19,11 @@ interface InstrumentSurfaceProps {
   pianoEnd?: number;
   guitarSpots?: GuitarSpot[];
   rootPitchClasses?: number[];
+  /** Suggested finger per MIDI note. */
+  fingers?: Record<number, number>;
+  /** Override the open strings (high string first). */
+  tuning?: number[];
+  tuningLabel?: string;
 }
 
 export default function InstrumentSurface({
@@ -32,11 +38,19 @@ export default function InstrumentSurface({
   pianoEnd,
   guitarSpots,
   rootPitchClasses,
+  fingers,
+  tuning,
+  tuningLabel,
 }: InstrumentSurfaceProps) {
   const { settings } = useProgress();
   const { t } = useI18n();
   const showLabels = showLabelsOverride ?? settings.showLabels;
   const mode = settings.instrument;
+
+  const selectedTuning = tuningById('guitar', settings.guitarTuning);
+  const tuningMidi =
+    tuning ?? [...selectedTuning.strings].reverse().map((string) => string.midi);
+  const activeTuningLabel = tuningLabel ?? t(selectedTuning.name);
 
   const handleNote = (midi: number) => {
     if (disabled) return;
@@ -65,6 +79,7 @@ export default function InstrumentSurface({
             endMidi={pianoEnd}
             markedKeys={pianoKeys}
             rootPitchClasses={rootPitchClasses}
+            fingers={fingers}
           />
         </div>
       )}
@@ -73,7 +88,7 @@ export default function InstrumentSurface({
           {label && mode === 'both' && (
             <div className="instrument-heading">
               <Icon name="guitar" size={18} />
-              <span>{t('Guitar · standard tuning')}</span>
+              <span>{t('Guitar · {tuning}', { tuning: activeTuningLabel })}</span>
             </div>
           )}
           <Fretboard
@@ -85,6 +100,8 @@ export default function InstrumentSurface({
             preferFlats={preferFlats}
             spots={guitarSpots}
             rootPitchClasses={rootPitchClasses}
+            tuning={tuningMidi}
+            tuningLabel={activeTuningLabel}
           />
         </div>
       )}

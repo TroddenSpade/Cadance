@@ -94,6 +94,21 @@ describe('normalizeState', () => {
     expect(state.xp).toBe(0);
     expect(state.lessons).toEqual({});
     expect(state.settings.instrument).toBe('both');
+    expect(state.settings.guitarTuning).toBe('standard');
+  });
+
+  it('keeps a known guitar tuning and rejects unknown ids', () => {
+    const accepted = normalizeState(
+      { settings: { instrument: 'guitar', guitarTuning: 'drop-d' } },
+      'device-a',
+    );
+    expect(accepted.settings.guitarTuning).toBe('drop-d');
+
+    const rejected = normalizeState(
+      { settings: { instrument: 'guitar', guitarTuning: 'not-a-tuning' } },
+      'device-a',
+    );
+    expect(rejected.settings.guitarTuning).toBe('standard');
   });
 });
 

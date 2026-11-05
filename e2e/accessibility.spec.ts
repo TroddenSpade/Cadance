@@ -6,6 +6,9 @@ const ROUTES = [
   '/courses',
   '/courses/staff-pitch',
   '/lesson/treble-clef-reading',
+  '/repertoire',
+  '/repertoire/ode-to-joy',
+  '/explorer',
   '/practice',
   '/trainer',
   '/tools',
@@ -94,6 +97,7 @@ async function auditPage(page: import('@playwright/test').Page): Promise<Audit> 
 }
 
 test('audits every route for structural accessibility', async ({ page }) => {
+  test.setTimeout(120_000);
   const errors = collectPageErrors(page);
 
   for (const route of ROUTES) {

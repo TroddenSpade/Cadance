@@ -24,6 +24,26 @@ const TOOLS = [
       'Tune by microphone with a needle, cents readout, and reference tones. Presets cover guitar, bass, ukulele, violin, viola, cello, double bass, mandolin, banjo, piano, and your own custom string set.',
     points: ['Guitar, bass, and orchestral strings', 'Drop D, DADGAD, open tunings', 'Custom strings and chromatic piano mode'],
   },
+  {
+    to: '/repertoire',
+    icon: 'book' as const,
+    title: 'Graded repertoire',
+    eyebrow: 'Play',
+    open: 'Open repertoire',
+    description:
+      'Short public-domain pieces with a staff, tab, chord diagrams, piano fingering, and a practice transport. Each piece links to the lesson that prepares it.',
+    points: ['Eight to twelve bars per piece', 'Tempo, count-in, loop, and click', 'Right hand, left hand, or both'],
+  },
+  {
+    to: '/explorer',
+    icon: 'music' as const,
+    title: 'Scale & chord explorer',
+    eyebrow: 'Reference',
+    open: 'Open explorer',
+    description:
+      'Pick any root and type to see and hear it on the staff, piano, and fretboard. Transpose by semitone and map the five CAGED chord positions.',
+    points: ['Every scale and chord in the app', 'Piano fingering and root emphasis', 'CAGED shapes for major and minor'],
+  },
 ];
 
 export default function Tools() {
@@ -38,7 +58,7 @@ export default function Tools() {
           <h1>{t('Tools')}</h1>
           <p>
             {t(
-              'The utilities that sit beside the curriculum: a clock to keep time and a tuner to keep pitch honest. Both work offline and remember your settings.',
+              'The utilities that sit beside the curriculum: a clock to keep time, a tuner to keep pitch honest, graded pieces to play, and an explorer for every scale and chord. Everything works offline.',
             )}
           </p>
         </div>

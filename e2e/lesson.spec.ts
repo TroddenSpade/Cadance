@@ -25,6 +25,7 @@ test.describe('lesson page', () => {
   });
 
   test('passes the lesson by finding the requested notes, then persists completion', async ({ page }) => {
+    test.setTimeout(90_000);
     const lessonId = 'sound-pitch-keyboard';
     await openRoute(page, `/lesson/${lessonId}`);
 

@@ -1,24 +1,27 @@
-import { synth } from '../lib/audio';
+import { useMemo } from 'react';
 import { useI18n } from '../lib/i18n';
+import { STANDARD_GUITAR_TUNING } from '../lib/notation';
+import { demoBpm, patternFromDemo, usePlayAlong } from '../lib/playAlong';
 import { useProgress } from '../lib/progress';
 import type { InstrumentDemoSpec } from '../lib/types';
 import Icon from './Icons';
 import InstrumentSurface from './InstrumentSurface';
 import NoteText from './NoteText';
+import PlayAlongControls from './PlayAlongControls';
 import RichText from './RichText';
 
 export default function LessonInstrument({ spec }: { spec: InstrumentDemoSpec }) {
   const { settings } = useProgress();
   const { t } = useI18n();
-
-  const play = () => {
-    synth.setTimbre(settings.timbre);
-    synth.stopAll();
-    if (spec.rhythm) synth.playRhythm(spec.rhythm, spec.tempo ?? 0.46, spec.notes[0] ?? 84);
-    else if (spec.chords) synth.playChords(spec.chords, spec.tempo ?? 0.8);
-    else if (spec.mode === 'chord') synth.playChords([spec.notes], spec.tempo ?? 1.1);
-    else synth.playSequence(spec.notes, 'sequence', spec.tempo ?? 0.5);
-  };
+  const pattern = useMemo(() => patternFromDemo(spec), [spec]);
+  const controls = usePlayAlong(pattern, {
+    bpm: demoBpm(spec),
+    countIn: 0,
+    loop: true,
+    click: false,
+  });
+  const standardTuningDemo =
+    Boolean(spec.guitarSpots) && settings.guitarTuning !== 'standard';
 
   const instrumentLabel =
     settings.instrument === 'guitar'
@@ -41,13 +44,20 @@ export default function LessonInstrument({ spec }: { spec: InstrumentDemoSpec })
             </strong>
           </div>
         </div>
-        <button type="button" className="button secondary small lesson-instrument-play" onClick={play}>
-          <Icon name="play" size={14} />
-          {t('Hear it')}
+        <button
+          type="button"
+          className="button secondary small lesson-instrument-play"
+          onClick={controls.toggle}
+          aria-label={controls.playing ? t('Stop play-along') : t('Start play-along')}
+        >
+          <Icon name={controls.playing ? 'pause' : 'play'} size={14} />
+          {controls.playing ? t('Stop') : t('Hear it')}
         </button>
       </div>
 
       {spec.body && <RichText body={spec.body} className="lesson-instrument-body" />}
+
+      <PlayAlongControls controls={controls} compact />
 
       <div className="lesson-instrument-surface">
         <InstrumentSurface
@@ -57,11 +67,21 @@ export default function LessonInstrument({ spec }: { spec: InstrumentDemoSpec })
           pianoKeys={spec.notes}
           pianoStart={spec.pianoStart}
           pianoEnd={spec.pianoEnd}
-          guitarSpots={spec.guitarSpots}
+          guitarSpots={standardTuningDemo ? undefined : spec.guitarSpots}
           rootPitchClasses={spec.rootPitchClasses}
           preferFlats={spec.preferFlats}
+          tuning={standardTuningDemo ? STANDARD_GUITAR_TUNING : undefined}
+          tuningLabel={standardTuningDemo ? t('Standard tuning') : undefined}
         />
       </div>
+
+      {standardTuningDemo && (
+        <p className="lesson-instrument-caption">
+          {t(
+            'This hand position is written for standard tuning. The fretboard shows standard tuning here; your saved tuning applies to exercises, repertoire, and the explorer.',
+          )}
+        </p>
+      )}
 
       {spec.caption && (
         <p className="lesson-instrument-caption">

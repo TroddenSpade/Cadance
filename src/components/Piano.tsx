@@ -31,6 +31,8 @@ interface PianoProps {
   markedKeys?: number[];
   /** Pitch classes drawn with root emphasis inside `markedKeys`. */
   rootPitchClasses?: number[];
+  /** Suggested finger per MIDI note, drawn as a small badge on the key. */
+  fingers?: Record<number, number>;
 }
 
 const WHITE_WIDTH = 50;
@@ -56,6 +58,7 @@ export default function Piano({
   preferFlats = false,
   markedKeys,
   rootPitchClasses = [],
+  fingers = {},
 }: PianoProps) {
   const { t } = useI18n();
   const keyboardRef = useRef<SVGSVGElement | null>(null);
@@ -149,6 +152,14 @@ export default function Piano({
               onKeyDown={(event) => onKeyDown(event, midi)}
             >
               <rect x={index * WHITE_WIDTH + 1} y={1} width={WHITE_WIDTH - 2} height={WHITE_HEIGHT} rx={5} />
+              {fingers[midi] && (
+                <g className="piano-finger">
+                  <circle cx={index * WHITE_WIDTH + WHITE_WIDTH / 2} cy={20} r={10} />
+                  <text x={index * WHITE_WIDTH + WHITE_WIDTH / 2} y={24}>
+                    {fingers[midi]}
+                  </text>
+                </g>
+              )}
               {mark && <rect className="key-mark" x={index * WHITE_WIDTH + 5} y={WHITE_HEIGHT - 18} width={WHITE_WIDTH - 10} height={5} rx={2.5} />}
               {showLabels && (
                 <>
@@ -201,6 +212,14 @@ export default function Piano({
               onKeyDown={(event) => onKeyDown(event, midi)}
             >
               <rect x={x} y={0} width={BLACK_WIDTH} height={BLACK_HEIGHT} rx={4} />
+              {fingers[midi] && (
+                <g className="piano-finger black-finger">
+                  <circle cx={x + BLACK_WIDTH / 2} cy={18} r={9} />
+                  <text x={x + BLACK_WIDTH / 2} y={22}>
+                    {fingers[midi]}
+                  </text>
+                </g>
+              )}
               {mark && <rect className="key-mark" x={x + 6} y={BLACK_HEIGHT - 14} width={BLACK_WIDTH - 12} height={4} rx={2} />}
               {showLabels && (
                 <>

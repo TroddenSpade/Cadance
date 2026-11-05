@@ -20,6 +20,9 @@ const CoursePage = lazy(() => import('./pages/CoursePage'));
 const LessonPage = lazy(() => import('./pages/LessonPage'));
 const MetronomePage = lazy(() => import('./pages/MetronomePage'));
 const Practice = lazy(() => import('./pages/Practice'));
+const Repertoire = lazy(() => import('./pages/Repertoire'));
+const RepertoirePiece = lazy(() => import('./pages/RepertoirePiece'));
+const Explorer = lazy(() => import('./pages/Explorer'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Tools = lazy(() => import('./pages/Tools'));
 const Trainer = lazy(() => import('./pages/Trainer'));
@@ -28,6 +31,7 @@ const Tuner = lazy(() => import('./pages/Tuner'));
 const NAV: Array<{ to: string; label: string; icon: IconName; end?: boolean }> = [
   { to: '/', label: 'Today', icon: 'today', end: true },
   { to: '/courses', label: 'Courses', icon: 'courses' },
+  { to: '/repertoire', label: 'Repertoire', icon: 'book' },
   { to: '/practice', label: 'Practice', icon: 'practice' },
   { to: '/trainer', label: 'Trainer', icon: 'trainer' },
   { to: '/tools', label: 'Tools', icon: 'tools' },
@@ -212,6 +216,9 @@ function Shell() {
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:courseId" element={<CoursePage />} />
             <Route path="/lesson/:lessonId" element={<LessonPage />} />
+            <Route path="/repertoire" element={<Repertoire />} />
+            <Route path="/repertoire/:pieceId" element={<RepertoirePiece />} />
+            <Route path="/explorer" element={<Explorer />} />
             <Route path="/practice" element={<Practice />} />
             <Route path="/trainer" element={<Trainer />} />
             <Route path="/tools" element={<Tools />} />

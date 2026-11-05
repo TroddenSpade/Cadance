@@ -5,6 +5,7 @@ import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { COURSES } from './src/data/curriculum';
+import { REPERTOIRE } from './src/data/repertoire';
 
 // GitHub Pages project sites live under /<repo>/. Set BASE_PATH when building
 // for Pages; local development and root-hosted sites keep "/".
@@ -23,6 +24,16 @@ const STATIC_PAGES: Record<string, { title: string; description: string }> = {
     title: 'Courses — Cadence',
     description:
       'Browse the full Cadence curriculum: courses across five levels, from first notes to post-tonal analysis.',
+  },
+  '/repertoire': {
+    title: 'Graded repertoire — Cadence',
+    description:
+      'Short public-domain pieces with score, tab, chord diagrams, and a tempo, count-in, loop, and click.',
+  },
+  '/explorer': {
+    title: 'Scale & chord explorer — Cadence',
+    description:
+      'See any scale or chord on the staff, piano, and fretboard, hear it, transpose it, and view CAGED shapes.',
   },
   '/practice': {
     title: 'Daily practice — Cadence',
@@ -58,6 +69,9 @@ const COURSE_PATHS = new Map(COURSES.map((course) => [`/courses/${course.id}`, c
 const LESSON_PATHS = new Map(
   COURSES.flatMap((course) => course.lessons.map((lesson) => [`/lesson/${lesson.id}`, lesson])),
 );
+const REPERTOIRE_PATHS = new Map(
+  REPERTOIRE.map((piece) => [`/repertoire/${piece.id}`, piece]),
+);
 
 function escapeHtml(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -75,6 +89,14 @@ function pageMeta(path: string): { title: string; description: string; type: str
   const lesson = LESSON_PATHS.get(path);
   if (lesson) {
     return { title: `${lesson.title} — Cadence`, description: lesson.summary, type: 'article' };
+  }
+  const piece = REPERTOIRE_PATHS.get(path);
+  if (piece) {
+    return {
+      title: `${piece.title} — Cadence`,
+      description: piece.summary,
+      type: 'article',
+    };
   }
   const page = STATIC_PAGES[path] ?? STATIC_PAGES['/'];
   return { ...page, type: 'website' };
@@ -120,6 +142,7 @@ function seoFiles(): Plugin {
     ...Object.keys(STATIC_PAGES).filter((path) => path !== '/'),
     ...COURSES.map((course) => `/courses/${course.id}`),
     ...COURSES.flatMap((course) => course.lessons.map((lesson) => `/lesson/${lesson.id}`)),
+    ...REPERTOIRE.map((piece) => `/repertoire/${piece.id}`),
   ];
   const uniquePaths = [...new Set(paths)];
 

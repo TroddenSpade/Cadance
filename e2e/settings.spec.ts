@@ -9,6 +9,12 @@ test.describe('settings', () => {
     await page.locator('.instrument-choice').filter({ hasText: 'Guitar fretboard' }).click();
     await expect(page.locator('.instrument-choice').filter({ hasText: 'Guitar fretboard' })).toHaveClass(/selected/);
 
+    const tuning = page.locator('#guitar-tuning');
+    await expect(tuning).toBeVisible();
+    await expect(tuning.locator('option')).toHaveCount(10);
+    await tuning.selectOption('drop-d');
+    await expect(tuning).toHaveValue('drop-d');
+
     await page.locator('.naming-option').filter({ hasText: 'Letter names only' }).click();
     await expect(page.locator('.naming-option').filter({ hasText: 'Letter names only' })).toHaveClass(/selected/);
 
@@ -30,6 +36,7 @@ test.describe('settings', () => {
       .poll(async () => (await progressState(page)).settings)
       .toMatchObject({
         instrument: 'guitar',
+        guitarTuning: 'drop-d',
         noteNaming: 'letters',
         timbre: 'guitar',
         autoPlay: false,
@@ -40,6 +47,7 @@ test.describe('settings', () => {
 
     await page.reload({ waitUntil: 'networkidle' });
     await expect(page.locator('.instrument-choice').filter({ hasText: 'Guitar fretboard' })).toHaveClass(/selected/);
+    await expect(page.locator('#guitar-tuning')).toHaveValue('drop-d');
     await expect(page.getByRole('checkbox', { name: /Auto-play listening questions/ })).not.toBeChecked();
     await expect(page.locator('.goal-option.selected')).toContainText('30');
 

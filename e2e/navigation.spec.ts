@@ -5,6 +5,9 @@ const ROUTES = [
   { path: '/courses', heading: 'From first notes to master form.', nav: 'Courses' },
   { path: '/courses/staff-pitch', heading: 'Pitch & the Staff' },
   { path: '/lesson/treble-clef-reading', heading: 'Reading the Treble Clef' },
+  { path: '/repertoire', heading: 'Graded repertoire', nav: 'Repertoire' },
+  { path: '/repertoire/ode-to-joy', heading: 'Ode to Joy' },
+  { path: '/explorer', heading: 'Scale & chord explorer' },
   { path: '/practice', heading: 'Daily practice', nav: 'Practice' },
   { path: '/trainer', heading: 'Trainer', nav: 'Trainer' },
   { path: '/tools', heading: 'Tools', nav: 'Tools' },
@@ -14,6 +17,7 @@ const ROUTES = [
 ];
 
 test('every route renders one heading and no horizontal overflow', async ({ page }) => {
+  test.setTimeout(90_000);
   const errors = collectPageErrors(page);
 
   for (const route of ROUTES) {

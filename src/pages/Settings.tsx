@@ -6,6 +6,7 @@ import { ALL_LESSONS, COURSES } from '../data/curriculum';
 import { levelFromXp, syncStatusLabel, todayKey, useProgress, type InstrumentMode } from '../lib/progress';
 import type { NoteNaming } from '../lib/music';
 import { LANGUAGES, useI18n } from '../lib/i18n';
+import { instrumentById } from '../lib/tunings';
 import {
   installSnoozed,
   isChromium,
@@ -366,6 +367,29 @@ export default function Settings() {
               'Labels are hidden while you answer instrument questions, then revealed with the feedback. This keeps note-finding a real test.',
             )}
           </p>
+          {state.settings.instrument !== 'piano' && (
+            <div className="tuning-setting">
+              <label htmlFor="guitar-tuning">
+                <strong>{t('Guitar tuning')}</strong>
+                <small>
+                  {t(
+                    'Applied to fretboard exercises, repertoire, and the scale & chord explorer. Lesson examples keep the tuning written in the text.',
+                  )}
+                </small>
+              </label>
+              <select
+                id="guitar-tuning"
+                value={state.settings.guitarTuning}
+                onChange={(event) => updateSettings({ guitarTuning: event.target.value })}
+              >
+                {instrumentById('guitar').tunings.map((tuning) => (
+                  <option key={tuning.id} value={tuning.id}>
+                    {t(tuning.name)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </section>
 
         <section className="panel settings-panel">

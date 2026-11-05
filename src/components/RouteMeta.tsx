@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { REPERTOIRE_MAP } from '../data/repertoire';
 import { useCurriculum } from '../data/i18n';
 import { useI18n } from '../lib/i18n';
 
@@ -11,6 +12,8 @@ type RouteInfo = {
 const STATIC_TITLES: Record<string, string> = {
   '/': 'Cadence — Music Theory Trainer',
   '/courses': 'Courses',
+  '/repertoire': 'Graded repertoire',
+  '/explorer': 'Scale & chord explorer',
   '/practice': 'Daily practice',
   '/trainer': 'Trainer',
   '/tools': 'Tools',
@@ -63,6 +66,12 @@ export default function RouteMeta() {
           'Browse the full Cadence curriculum: {n} courses across five levels, from first notes to post-tonal analysis.',
           { n: courses.length },
         ),
+        '/repertoire': t(
+          'Short public-domain pieces with score, tab, chord diagrams, and a tempo, count-in, loop, and click.',
+        ),
+        '/explorer': t(
+          'See any scale or chord on the staff, piano, and fretboard, hear it, transpose it, and view CAGED shapes.',
+        ),
         '/practice': t(
           'A daily mix of reading, listening, and instrument questions, scheduled by spaced review.',
         ),
@@ -96,13 +105,22 @@ export default function RouteMeta() {
             title: `${lesson.title} — ${t('Cadence')}`,
             description: lesson.summary,
           };
+        } else {
+          const piece = REPERTOIRE_MAP[pathname.replace(/^\/repertoire\//, '')];
+          if (pathname.startsWith('/repertoire/') && piece) {
+            info = {
+              title: `${t(piece.title)} — ${t('Cadence')}`,
+              description: t(piece.summary),
+            };
+          }
         }
       }
     }
 
     const isContentRoute =
       Boolean(courseMap[pathname.replace(/^\/courses\//, '')]) ||
-      Boolean(lessonMap[pathname.replace(/^\/lesson\//, '')]);
+      Boolean(lessonMap[pathname.replace(/^\/lesson\//, '')]) ||
+      Boolean(REPERTOIRE_MAP[pathname.replace(/^\/repertoire\//, '')]);
 
     document.title = info.title;
     upsertMeta('name', 'description', info.description);

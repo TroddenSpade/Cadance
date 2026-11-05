@@ -76,6 +76,7 @@ baseTest.describe('first visit', () => {
 
 test.describe('language switching', () => {
   test('applies Persian to every main page without horizontal overflow', async ({ page }) => {
+    test.setTimeout(90_000);
     await page.goto('/');
     await page.locator('.sidebar-language .language-toggle').click();
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
@@ -83,6 +84,9 @@ test.describe('language switching', () => {
     const routes = [
       { path: '/', heading: 'ریتم را زنده نگه دار' },
       { path: '/courses', heading: 'از نخستین نُت‌ها تا فرم استادی.' },
+      { path: '/repertoire', heading: 'رپرتوار درجه‌بندی‌شده' },
+      { path: '/repertoire/ode-to-joy', heading: 'سرود شادی' },
+      { path: '/explorer', heading: 'کاوشگر گام و آکورد' },
       { path: '/practice', heading: 'تمرین روزانه' },
       { path: '/tools', heading: 'ابزارها' },
       { path: '/settings', heading: 'تنظیمات' },

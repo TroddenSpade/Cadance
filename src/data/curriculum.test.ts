@@ -26,6 +26,20 @@ describe('curriculum structure', () => {
     }
   });
 
+  it('gives every lesson an editorial guide with the four practice cues', () => {
+    for (const lesson of ALL_LESSONS) {
+      expect(lesson.guide, `${lesson.id} has no guide`).toBeDefined();
+      const guide = lesson.guide!;
+
+      expect(guide.idea.trim().length, `${lesson.id} guide idea is too short`).toBeGreaterThan(180);
+      expect(guide.practice.trim().length, `${lesson.id} guide practice is too short`).toBeGreaterThan(400);
+
+      for (const cue of ['**Try this:**', '**Watch out:**', '**You have it when:**', '**Going further:**']) {
+        expect(guide.practice, `${lesson.id} is missing ${cue}`).toContain(cue);
+      }
+    }
+  });
+
   it('covers the full starter-to-master range', () => {
     const levels = new Set(COURSES.map((course) => course.level));
     expect(levels).toEqual(new Set(['foundations', 'beginner', 'intermediate', 'advanced', 'master']));

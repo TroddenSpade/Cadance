@@ -1,4 +1,5 @@
 import { faCommon, faLevelTitles, faMetadata } from './common';
+import { GUIDE_FA } from '../../data/guides';
 import { faMeta } from './meta';
 import { faDashboard } from './dashboard';
 import { faCourses } from './courses';
@@ -66,6 +67,7 @@ export const fa: Record<string, string> = {
   ...faExercisePrompts,
   ...faExercisePromptsPartTwo,
   ...faMusicTerms,
+  ...GUIDE_FA,
   ...faLevels,
   ...faCoursesContent,
   ...faLessonsContent,

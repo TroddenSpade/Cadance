@@ -54,6 +54,9 @@ export function localizeLesson(lesson: Lesson): Lesson {
     summary: tx(lesson.summary),
     sections: lesson.sections.map(localizeSection),
     exercises: lesson.exercises.map(localizeExercise),
+    guide: lesson.guide
+      ? { idea: tx(lesson.guide.idea), practice: tx(lesson.guide.practice) }
+      : undefined,
   };
 }
 

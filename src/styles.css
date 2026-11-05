@@ -2110,6 +2110,33 @@ html.lang-fa .sidebar-language-label {
   margin-bottom: 0;
 }
 
+.lesson-guide {
+  margin-bottom: 30px;
+  padding: 20px 22px 6px;
+  border: 1px solid var(--line);
+  border-inline-start: 2px solid var(--accent-line);
+  border-radius: 10px;
+  background: rgba(232, 181, 104, 0.05);
+}
+
+.lesson-guide .eyebrow {
+  margin-bottom: 10px;
+}
+
+.lesson-guide .rich-text {
+  font-size: 14px;
+}
+
+.lesson-guide .rich-text p:first-child {
+  margin-top: 0;
+}
+
+.lesson-guide-practice {
+  margin-top: 6px;
+  margin-bottom: 32px;
+  background: var(--accent-soft);
+}
+
 .rich-text {
   color: #d9d4ca;
   font-size: 14.5px;

@@ -133,6 +133,12 @@ export default function LessonPage() {
 
       <div className="lesson-layout">
         <article className="lesson-content panel">
+          {lesson.guide && (
+            <section className="lesson-guide lesson-guide-idea" aria-label={t('The big idea')}>
+              <span className="eyebrow">{t('The big idea')}</span>
+              <RichText body={lesson.guide.idea} />
+            </section>
+          )}
           {lesson.sections.map((section, index) => (
             <section key={index} id={section.heading ? slug(section.heading) : undefined} className="lesson-section">
               {section.heading && (
@@ -176,6 +182,13 @@ export default function LessonPage() {
               {section.metronome && <Metronome />}
             </section>
           ))}
+
+          {lesson.guide && (
+            <section className="lesson-guide lesson-guide-practice" aria-label={t('Practice & pitfalls')}>
+              <span className="eyebrow">{t('Practice & pitfalls')}</span>
+              <RichText body={lesson.guide.practice} />
+            </section>
+          )}
 
           <div className="lesson-practice" id="lesson-practice" ref={sessionRef}>
             <div className="practice-banner">

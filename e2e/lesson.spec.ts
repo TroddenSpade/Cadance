@@ -48,7 +48,7 @@ test.describe('lesson page', () => {
     expect(state.lessons[lessonId]?.completedAt, 'lesson completion is stored').toBeGreaterThan(0);
     expect(state.lessons[lessonId]?.bestScore).toBeGreaterThanOrEqual(0.7);
 
-    await page.reload({ waitUntil: 'networkidle' });
+    await page.reload();
     await expect(page.locator('.done-chip')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Practise again' })).toBeVisible();
   });

@@ -27,6 +27,8 @@ describe('Persian content coverage', () => {
       course.lessons.forEach((lesson) => {
         check(lesson.title);
         check(lesson.summary);
+        check(lesson.guide?.idea);
+        check(lesson.guide?.practice);
         lesson.sections.forEach((section) => {
           check(section.heading);
           check(section.body);

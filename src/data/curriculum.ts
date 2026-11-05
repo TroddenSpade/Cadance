@@ -1,6 +1,7 @@
 import type { Accidental, Letter, RhythmItem } from '../lib/music';
 import type { AudioSpec, ExerciseConfig, ExerciseSpec, StaffNoteSpec, StaffSpec } from '../lib/types';
 import { EXPANSION_COURSES } from './expansion';
+import { LESSON_GUIDES } from './guides';
 
 export type LevelId = 'foundations' | 'beginner' | 'intermediate' | 'advanced' | 'master';
 
@@ -14,6 +15,13 @@ export interface LessonSection {
   metronome?: boolean;
 }
 
+export interface LessonGuide {
+  /** One mental model to hold before the detail. */
+  idea: string;
+  /** Drills, the usual mistake, a success check, and a stretch. */
+  practice: string;
+}
+
 export interface Lesson {
   id: string;
   title: string;
@@ -21,6 +29,7 @@ export interface Lesson {
   minutes: number;
   sections: LessonSection[];
   exercises: ExerciseSpec[];
+  guide?: LessonGuide;
 }
 
 export interface Course {
@@ -211,7 +220,7 @@ const progressions = (count: number, labels?: string[]): ExerciseSpec => ({
   label: 'Chord progressions',
 });
 
-export const COURSES: Course[] = [
+const COURSE_CONTENT: Course[] = [
   // ───────────────────────────── FOUNDATIONS ─────────────────────────────
   {
     id: 'staff-pitch',
@@ -2100,6 +2109,18 @@ Play each version, then compare which one tells the story you intended. Write a 
 
   ...EXPANSION_COURSES,
 ];
+
+function withGuides(course: Course): Course {
+  return {
+    ...course,
+    lessons: course.lessons.map((lesson) => {
+      const guide = LESSON_GUIDES[lesson.id];
+      return guide ? { ...lesson, guide } : lesson;
+    }),
+  };
+}
+
+export const COURSES: Course[] = COURSE_CONTENT.map(withGuides);
 
 export const COURSE_MAP: Record<string, Course> = Object.fromEntries(COURSES.map((course) => [course.id, course]));
 

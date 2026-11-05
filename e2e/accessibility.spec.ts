@@ -157,7 +157,7 @@ test('names every exercise choice and reports feedback to assistive tech', async
 baseTest.describe('language dialog', () => {
   baseTest('has dialog semantics and trapped focus', async ({ page }) => {
     await page.goto('/');
-    const dialog = page.getByRole('dialog');
+    const dialog = page.getByRole('dialog', { name: 'Choose your language' });
 
     await expect(dialog).toHaveAttribute('aria-modal', 'true');
     await expect(dialog).toHaveAttribute('aria-labelledby', 'language-modal-title');

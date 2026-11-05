@@ -29,6 +29,8 @@ export const faLesson: Record<string, string> = {
   Finish: 'پایان',
   'Back to all courses': 'بازگشت به همهٔ دوره‌ها',
   'In this lesson': 'در این درس',
+  'The big idea': 'ایدهٔ اصلی',
+  'Practice & pitfalls': 'تمرین و دام‌ها',
   Introduction: 'مقدمه',
   'Your instrument': 'ساز تو',
   'Piano & guitar': 'پیانو و گیتار',

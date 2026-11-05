@@ -8,6 +8,7 @@ The interface is installable as a PWA and is structured so the same build can be
 
 - **Structured curriculum** across five levels: Foundations, Beginner, Intermediate, Advanced, and Master.
 - **Guided instrument examples in every section.** Each concept is explained with exact piano keys and guitar string/fret positions, a short “Hear it” playback, and a caption naming the musical point. There are 198 section-level examples across the 77 lessons.
+- **An editorial layer on every lesson.** Each of the 77 lessons opens with **The big idea** — one mental model to hold before the detail — and closes with **Practice & pitfalls**, a four-part routine: *Try this*, *Watch out*, *You have it when*, and *Going further*. The last cue gives experienced players a stretch while the first three keep a beginner moving.
 - **Lesson exercises** for staff reading, note finding, heard and written intervals, chord quality and inversion, chord and scale building, key signatures, rhythm counting and dictation, melodic dictation, scale degrees, and chord progressions.
 - **Daily practice** driven by per-skill strength, review streaks, and expanding review intervals. Missed skills return sooner.
 - **Piano, guitar, or both.** Note-finding, chord-building, and scale-building questions render on the selected instrument surface. Pitch class is what counts, so any octave or fret position works.
@@ -18,6 +19,31 @@ The interface is installable as a PWA and is structured so the same build can be
 - **Offline support** through a service worker. Progress, settings, and review history live in `localStorage`, with optional account sync across devices. When a new build is deployed, a banner at the top offers a one-click refresh that clears the old cache and reloads the latest version.
 - **Responsive layout** with a desktop sidebar and a mobile bottom navigation bar.
 - **English and Persian (فارسی)**, with a full right-to-left layout for Persian that covers the interface, curriculum, exercises, and tool copy.
+
+## How lessons are designed
+
+Every lesson carries the same editorial frame, built from approaches that music educators and open textbooks converge on:
+
+- **Sound before symbol.** Concepts begin with something the ear can hold — a pulse, an octave, a cadence — before notation names it. Rote and aural work first, symbol second, is the long-standing recommendation in beginning-instrument pedagogy.
+- **One mental model, then the detail.** “The big idea” supplies a single organising image (a ruler, a hierarchy, a conversation) so the sections that follow have somewhere to attach.
+- **Landmarks over mnemonics.** Reading is taught from anchor notes and interval distance rather than a poem for every line; mnemonics are treated as training wheels.
+- **Two kinds of ear training.** Intervals are practised both by distance and by scale-degree function inside a key, and every answer is sung back. Recognition without reproduction is treated as a guess.
+- **Name the usual mistake.** “Watch out” states the error learners actually make — counting letter names instead of semitones, doubling the leading tone, reading 6/8 as six fast beats — so the correction arrives with the concept.
+- **Progressive drills with a success test.** “Try this” gives a concrete exercise; “You have it when” turns it into an observable criterion instead of a vague feeling.
+- **A stretch for the advanced player.** “Going further” applies the idea to repertoire, transcription, reharmonization, or a harder constraint, so the same lesson serves a starter and a master.
+- **Analysis applied to real music.** Form, harmony, and counterpoint are tied to pieces and recordings rather than to isolated labels.
+
+The content lives in `src/data/guides/`, one file per level. Each entry stores the English and Persian texts together in `GuideContent`, and `LESSON_GUIDES` / `GUIDE_FA` are derived from that single list, so a translation key cannot drift away from its lesson. Guides render as accent panels around the existing sections — above the prose and before the exercises — rather than as new `LessonSection` entries, which keeps section indexes, `afterSection` demo placement, and the table of contents stable.
+
+Research and teaching references that informed the explanations and drills:
+
+- [Open Music Theory, 2nd ed.](https://viva.pressbooks.pub/openmusictheory/) — fundamentals, harmonic function, species counterpoint, chromatic harmony.
+- [Integrated Music Theory — Part-writing errors](https://intmus.github.io/inttheory19-20/10-intro-part-writing/a1-part-writing-errors.html) — doubling and tendency-tone mistakes.
+- [How to Read Music Using Intervals and Landmark Notes vs. Mnemonics](https://www.musicandtheory.com/how-to-read-music-using-intervals-and-landmark-notes-vs-mnemonics/) — landmark reading.
+- [Berklee Take Note — Circle of Fifths](https://online.berklee.edu/takenote/circle-of-fifths-the-key-to-unlocking-harmonic-understanding/) and [Music Modes](https://online.berklee.edu/takenote/music-modes-major-and-minor/) — key relations and characteristic modal notes.
+- [Musical U — The Ultimate Guide to Interval Ear Training](https://www.musical-u.com/learn/ultimate-guide-to-interval-ear-training/) and [functional vs. interval ear training](https://music.stackexchange.com/questions/125958/functional-ear-training-vs-interval-ear-training-for-singers) — combined distance and function practice.
+- [Open Music Theory — Species Counterpoint](https://viva.pressbooks.pub/openmusictheory/chapter/species-counterpoint/) and [First Species Counterpoint, University of Puget Sound](https://musictheory.pugetsound.edu/mt21c/FirstSpecies.html) — the constraint ladder.
+- [Sight or Sound? A Review of the Literature](https://scholarworks.uni.edu/cgi/viewcontent.cgi?article=5679&context=grp) — sound-before-symbol and rote learning.
 
 ## Run it
 
@@ -181,6 +207,7 @@ src/
   components/             staff, piano, fretboard, rhythm, session engine, metronome dock and figure, prompts
   data/curriculum.ts      core courses, levels, skill blueprints
   data/expansion/         advanced courses and their instrument examples
+  data/guides/            per-lesson "big idea" and "practice & pitfalls" editorial layer, English + Persian
   data/i18n.ts            localized curriculum and instrument-demo lookups
   locales/fa/             Persian UI dictionaries and translated curriculum content
   lib/
@@ -255,7 +282,7 @@ The interface ships in English (default) and Persian. On the first visit, a lang
 
 The automated checks cover the pure logic with Vitest and the shipped app with Playwright.
 
-- **Unit tests** (`npm test`) run 79 checks across note naming, exercise generation, progress merging and migration, curriculum/Persian coverage, and the metronome/tuner helpers.
+- **Unit tests** (`npm test`) run 84 checks across note naming, exercise generation, progress merging and migration, guide coverage and pairing, curriculum/Persian coverage, and the metronome/tuner helpers.
 - **End-to-end tests** (`npm run test:e2e`) build the production bundle and serve it with `vite preview` on `127.0.0.1:4173`, including the service worker. They cover first-visit language choice and persistence, all main routes, clean URLs and the legacy hash redirect, per-page metadata, sitemap/robots, the sidebar and mobile navigation, lessons and daily practice, the trainer, metronome, tuner, settings/backup/reset, accessibility structure, PWA installation metadata and offline reloads, and the mobile layout.
 - The suite runs in two Playwright projects: `desktop-chromium` for the desktop flows and `mobile-chromium` (Pixel 7) for `mobile.spec.ts`. Install the browser once with `npx playwright install chromium`.
 - Failed runs keep traces, screenshots, and video in `test-results/`; open the HTML report with `npx playwright show-report`.

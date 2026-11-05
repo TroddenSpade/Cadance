@@ -66,6 +66,22 @@ test.describe('metadata and shareability', () => {
       `${origin}/explorer`,
     );
 
+    await openRoute(page, '/sight-reading');
+    await expect(page).toHaveTitle('Sight reading — Cadence');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /four bars/i);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      `${origin}/sight-reading`,
+    );
+
+    await openRoute(page, '/rhythm');
+    await expect(page).toHaveTitle('Rhythm room — Cadence');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /two-bar/i);
+
+    await openRoute(page, '/loops');
+    await expect(page).toHaveTitle('Backing loops — Cadence');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /four-bar/i);
+
     await openRoute(page, '/');
     await expect(page).toHaveTitle('Cadence — Music Theory Trainer');
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${origin}/`);
@@ -102,6 +118,9 @@ test.describe('metadata and shareability', () => {
     expect(xml).toContain('/repertoire</loc>');
     expect(xml).toContain('/repertoire/ode-to-joy</loc>');
     expect(xml).toContain('/explorer</loc>');
+    expect(xml).toContain('/sight-reading</loc>');
+    expect(xml).toContain('/rhythm</loc>');
+    expect(xml).toContain('/loops</loc>');
     expect(xml).not.toContain('/settings/settings');
 
     const robots = await request.get('/robots.txt');
@@ -146,6 +165,18 @@ test.describe('metadata and shareability', () => {
     const explorer = await request.get('/explorer');
     expect(explorer.status()).toBe(200);
     expect(await explorer.text()).toContain('<title>Scale &amp; chord explorer — Cadence</title>');
+
+    const sightReading = await request.get('/sight-reading');
+    expect(sightReading.status()).toBe(200);
+    expect(await sightReading.text()).toContain('<title>Sight reading — Cadence</title>');
+
+    const rhythm = await request.get('/rhythm');
+    expect(rhythm.status()).toBe(200);
+    expect(await rhythm.text()).toContain('<title>Rhythm room — Cadence</title>');
+
+    const loops = await request.get('/loops');
+    expect(loops.status()).toBe(200);
+    expect(await loops.text()).toContain('<title>Backing loops — Cadence</title>');
   });
 
   test('serves deep links directly and redirects old hash links', async ({ page }) => {

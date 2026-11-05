@@ -4,7 +4,7 @@ test.describe('trainer', () => {
   test('builds a drill from a topic and difficulty', async ({ page }) => {
     await openRoute(page, '/trainer');
 
-    await expect(page.locator('.topic-card')).toHaveCount(14);
+    await expect(page.locator('.topic-card')).toHaveCount(16);
     await expect(page.locator('.topic-card.selected')).toContainText('Staff reading');
     await expect(page.locator('.difficulty-card')).toHaveCount(3);
     await expect(page.locator('.difficulty-card.selected')).toContainText('Foundation');

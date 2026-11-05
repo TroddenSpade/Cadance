@@ -44,6 +44,36 @@ const TOOLS = [
       'Pick any root and type to see and hear it on the staff, piano, and fretboard. Transpose by semitone and map the five CAGED chord positions.',
     points: ['Every scale and chord in the app', 'Piano fingering and root emphasis', 'CAGED shapes for major and minor'],
   },
+  {
+    to: '/sight-reading',
+    icon: 'book' as const,
+    title: 'Sight reading',
+    eyebrow: 'Read',
+    open: 'Open sight reading',
+    description:
+      'Four-bar melodies in treble or bass clef. Read the score, play it back in order, and check every pitch. The click keeps the pulse honest.',
+    points: ['Four levels from steps to accidentals', 'Count-in, click, and reference tempo', 'Pitch-by-pitch feedback on piano or guitar'],
+  },
+  {
+    to: '/rhythm',
+    icon: 'metronome' as const,
+    title: 'Rhythm room',
+    eyebrow: 'Time',
+    open: 'Open rhythm room',
+    description:
+      'Hear a two-bar rhythm and echo it back by tapping. The score judges the spacing of your attacks, not when you happened to begin.',
+    points: ['Quarters, eighths, rests, and syncopation', 'Tap back with an internal clock', 'Timing accuracy and per-attack feedback'],
+  },
+  {
+    to: '/loops',
+    icon: 'headphones' as const,
+    title: 'Backing loops',
+    eyebrow: 'Play',
+    open: 'Open backing loops',
+    description:
+      'A bass line and chord progression that repeats while you solo. Six styles, twelve keys, and the matching scale on the staff and your instrument.',
+    points: ['Pop, rock, jazz, blues, waltz, and folk', 'Four-bar loops in every key', 'Two-octave solo scale on piano and guitar'],
+  },
 ];
 
 export default function Tools() {
@@ -58,7 +88,7 @@ export default function Tools() {
           <h1>{t('Tools')}</h1>
           <p>
             {t(
-              'The utilities that sit beside the curriculum: a clock to keep time, a tuner to keep pitch honest, graded pieces to play, and an explorer for every scale and chord. Everything works offline.',
+              'The utilities that sit beside the curriculum: a clock to keep time, a tuner to keep pitch honest, graded pieces to play, an explorer for every scale and chord, and rooms for sight-reading, rhythm, and backing loops. Everything works offline.',
             )}
           </p>
         </div>

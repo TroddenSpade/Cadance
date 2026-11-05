@@ -35,6 +35,21 @@ const STATIC_PAGES: Record<string, { title: string; description: string }> = {
     description:
       'See any scale or chord on the staff, piano, and fretboard, hear it, transpose it, and view CAGED shapes.',
   },
+  '/sight-reading': {
+    title: 'Sight reading — Cadence',
+    description:
+      'Read four bars of music and play them back in order, with a count-in, click, and pitch-by-pitch feedback.',
+  },
+  '/rhythm': {
+    title: 'Rhythm room — Cadence',
+    description:
+      'Listen to a two-bar rhythm and tap it back. The score judges the spacing of your attacks.',
+  },
+  '/loops': {
+    title: 'Backing loops — Cadence',
+    description:
+      'A bass line and chords in a repeating four-bar progression, with a solo scale in every key.',
+  },
   '/practice': {
     title: 'Daily practice — Cadence',
     description:

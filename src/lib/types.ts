@@ -15,6 +15,8 @@ export type ExerciseKind =
   | 'rhythm-count'
   | 'rhythm-dictation'
   | 'degree-ear'
+  | 'functional-degree'
+  | 'chord-function'
   | 'melody-dictation'
   | 'progression-ear';
 

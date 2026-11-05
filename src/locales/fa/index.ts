@@ -8,6 +8,7 @@ import { faPractice } from './practice';
 import { faTrainer } from './trainer';
 import { faTools } from './tools';
 import { faRepertoire } from './repertoire';
+import { faPlay } from './play';
 import { faMetronome } from './metronome';
 import { faTuner } from './tuner';
 import { faSettings } from './settings';
@@ -62,6 +63,7 @@ export const fa: Record<string, string> = {
   ...faTrainer,
   ...faTools,
   ...faRepertoire,
+  ...faPlay,
   ...faMetronome,
   ...faTuner,
   ...faSettings,

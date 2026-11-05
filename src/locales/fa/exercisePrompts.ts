@@ -113,6 +113,22 @@ export const faExercisePromptsPartTwo: Record<string, string> = {
   'Hear the tonic as home, then measure how far the note pulls away from it.':
     'تونیک را خانه بشنو، سپس اندازه بگیر نُت چقدر از آن دور می‌شود.',
 
+  'Which scale degree is the last note?': 'آخرین نُت کدام درجهٔ گام است؟',
+  'The tonic chord is played first, then the tonic an octave higher, then the mystery note.':
+    'اول آکورد تونیک، سپس تونیک یک اکتاو بالاتر و بعد نُت مرموز نواخته می‌شود.',
+  'In {root} major, the last note is {note}, scale degree {degree}.':
+    'در {root} ماژور، آخرین نُت {note} است، درجهٔ {degree} گام.',
+  'The tonic chord tells you the key. Hear the mystery note against the tonic, not against the chord that just ended.':
+    'آکورد تونیک مایه را به شما می‌گوید. نُت مرموز را نسبت به تونیک بشنوید، نه نسبت به آکوردی که تازه تمام شد.',
+
+  'Which chord function do you hear?': 'کدام کارکرد آکورد را می‌شنوی؟',
+  'The tonic chord is played first, then the mystery chord. Name the mystery chord with a Roman numeral.':
+    'اول آکورد تونیک و سپس آکورد مرموز نواخته می‌شود. آکورد مرموز را با شمارهٔ رومی نام ببر.',
+  'In {key}, the tonic is {tonic}. The mystery chord is {chord}, which is {roman} — the chord built on degree {degree}.':
+    'در {key}، تونیک {tonic} است. آکورد مرموز {chord} است، یعنی {roman} — آکوردی که روی درجهٔ {degree} ساخته شده است.',
+  'Hear the tonic chord as home, then find the root of the second chord. Its quality tells you whether it is major, minor, or diminished.':
+    'آکورد تونیک را خانه بشنو، سپس پایهٔ آکورد دوم را پیدا کن. کیفیت آن می‌گوید ماژور، مینور یا کاسته است.',
+
   'Which scale-degree pattern do you hear?': 'کدام الگوی درجه‌های گام را می‌شنوی؟',
   'The melody stays in one major key and begins on the tonic.':
     'ملودی در یک مایهٔ ماژور می‌ماند و از تونیک آغاز می‌شود.',

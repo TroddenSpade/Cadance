@@ -99,6 +99,17 @@ export default function Repertoire() {
             'Start at half tempo with the count-in on. Loop two bars until the fingering is secure, then join the phrases. Play the right hand alone, then the left hand, then both. Only raise the tempo when the take is clean three times in a row.',
           )}
         </p>
+        <div className="loop-links">
+          <Link className="text-link" to="/sight-reading">
+            {t('Practice reading')} <Icon name="arrow" size={14} />
+          </Link>
+          <Link className="text-link" to="/rhythm">
+            {t('Rhythm room')} <Icon name="arrow" size={14} />
+          </Link>
+          <Link className="text-link" to="/loops">
+            {t('Backing loops')} <Icon name="arrow" size={14} />
+          </Link>
+        </div>
       </section>
     </div>
   );

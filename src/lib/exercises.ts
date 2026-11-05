@@ -4,6 +4,7 @@ import {
   KEY_SIGNATURES,
   LETTERS,
   MAJOR_SCALE,
+  MAJOR_TRIADS,
   SCALES,
   WRITTEN_INTERVALS,
   chordByName,
@@ -811,6 +812,101 @@ export function generateQuestion(spec: ExerciseSpec): Question | null {
       };
     }
 
+    case 'functional-degree': {
+      const scale = scaleByName('Major');
+      const degrees = config.degrees ?? [2, 3, 4, 5, 6, 7];
+      const degree = randomItem(degrees);
+      const root = 55 + Math.floor(Math.random() * 8);
+      const tonicChord = [root, root + 4, root + 7];
+      const target = root + scale.intervals[degree - 1];
+      const rootSpelling = preferredRootSpelling(pitchClass(root));
+      const rootName = spelledPitchName(rootSpelling);
+      const degreeSpelling = spellFromRoot(
+        rootSpelling,
+        degree - 1,
+        scale.intervals[degree - 1],
+      );
+      const label = scale.degrees[degree - 1];
+      const allowedLabels = degrees.map((value) => scale.degrees[value - 1]);
+      const filler = scale.degrees.filter((value) => !allowedLabels.includes(value));
+      const pool =
+        allowedLabels.length >= 4 ? allowedLabels : [...allowedLabels, ...filler].slice(0, 4);
+      return {
+        id: qid(spec.kind),
+        kind: spec.kind,
+        prompt: t('Which scale degree is the last note?'),
+        instruction: t(
+          'The tonic chord is played first, then the tonic an octave higher, then the mystery note.',
+        ),
+        audio: { midis: [...tonicChord, root + 12, target], mode: 'sequence', tempo: 0.6 },
+        autoPlay: true,
+        choices: mcChoices(label, pool),
+        answer: label,
+        explanation: t('In {root} major, the last note is {note}, scale degree {degree}.', {
+          root: rootName,
+          note: spelledPitchName(degreeSpelling),
+          degree: label,
+        }),
+        hint: t(
+          'The tonic chord tells you the key. Hear the mystery note against the tonic, not against the chord that just ended.',
+        ),
+        skills,
+      };
+    }
+
+    case 'chord-function': {
+      const degrees = config.degrees ?? [2, 3, 4, 5, 6];
+      const targetDegree = randomItem(degrees);
+      const root = 48 + Math.floor(Math.random() * 12);
+      const rootSpelling = preferredRootSpelling(pitchClass(root));
+      const rootName = spelledPitchName(rootSpelling);
+      const tonic = MAJOR_TRIADS[0];
+      const target = MAJOR_TRIADS[targetDegree - 1] ?? MAJOR_TRIADS[4];
+      const build = (triad: (typeof MAJOR_TRIADS)[number]) => {
+        const offset = MAJOR_SCALE[triad.degree];
+        return chordByName(triad.quality).intervals.map((interval) => root + offset + interval);
+      };
+      const tonicMidis = build(tonic);
+      const targetMidis = build(target);
+      const targetRoot = spellFromRoot(rootSpelling, target.degree, MAJOR_SCALE[target.degree]);
+      const targetName = `${spelledPitchName(targetRoot)}${chordByName(target.quality).symbol}`;
+      const tonicName = `${rootName}${chordByName(tonic.quality).symbol}`;
+      const allowedRomans = degrees
+        .map((degree) => MAJOR_TRIADS[degree - 1]?.roman)
+        .filter(Boolean) as string[];
+      const fillerRomans = MAJOR_TRIADS.map((triad) => triad.roman).filter(
+        (roman) => !allowedRomans.includes(roman),
+      );
+      const pool =
+        allowedRomans.length >= 2 ? allowedRomans : [...allowedRomans, ...fillerRomans].slice(0, 4);
+      return {
+        id: qid(spec.kind),
+        kind: spec.kind,
+        prompt: t('Which chord function do you hear?'),
+        instruction: t(
+          'The tonic chord is played first, then the mystery chord. Name the mystery chord with a Roman numeral.',
+        ),
+        audio: { chords: [tonicMidis, targetMidis], mode: 'chord', tempo: 1.1 },
+        autoPlay: true,
+        choices: mcChoices(target.roman, pool),
+        answer: target.roman,
+        explanation: t(
+          'In {key}, the tonic is {tonic}. The mystery chord is {chord}, which is {roman} — the chord built on degree {degree}.',
+          {
+            key: rootName,
+            tonic: tonicName,
+            chord: targetName,
+            roman: target.roman,
+            degree: targetDegree,
+          },
+        ),
+        hint: t(
+          'Hear the tonic chord as home, then find the root of the second chord. Its quality tells you whether it is major, minor, or diminished.',
+        ),
+        skills,
+      };
+    }
+
     case 'melody-dictation': {
       const root = randomItem([60, 62, 65, 67, 70]);
       const rootSpelling = preferredRootSpelling(pitchClass(root));
@@ -933,6 +1029,8 @@ export const EXERCISE_LABELS: Record<ExerciseKind, string> = {
   'rhythm-count': 'Rhythm counting',
   'rhythm-dictation': 'Rhythm dictation',
   'degree-ear': 'Scale degrees',
+  'functional-degree': 'Functional degrees',
+  'chord-function': 'Chord functions',
   'melody-dictation': 'Melodic dictation',
   'progression-ear': 'Progressions',
 };
@@ -966,6 +1064,8 @@ export function exerciseSkillLabel(skill: string): string {
     'rhythm-count-dotted': 'Dotted notes and rests',
     'rhythm-dictation': 'Rhythmic dictation',
     'degree-ear-major': 'Scale degrees by ear',
+    'functional-degree': 'Scale degrees in a key',
+    'chord-function': 'Chord functions by ear',
     'melody-dictation': 'Melodic dictation',
     'progression-ear-cadences': 'Cadences by ear',
     'progression-ear-pop': 'Common progressions by ear',
@@ -1102,6 +1202,24 @@ export const TOPIC_SPECS = {
     easy: { scales: ['Major'], degrees: [2, 3, 4, 5] },
     medium: { scales: ['Major'], degrees: [2, 3, 4, 5, 6, 7] },
     hard: { scales: ['Major', 'Natural minor'], degrees: [2, 3, 4, 5, 6, 7] },
+  },
+  'functional-degrees': {
+    label: 'Functional degrees',
+    description: 'Name a scale degree after hearing the tonic chord establish the key.',
+    kind: 'functional-degree' as ExerciseKind,
+    skills: ['functional-degree'],
+    easy: { degrees: [2, 3, 5] },
+    medium: { degrees: [2, 3, 4, 5, 6, 7] },
+    hard: { degrees: [2, 3, 4, 5, 6, 7] },
+  },
+  'chord-functions': {
+    label: 'Chord functions',
+    description: 'Hear a tonic chord, then name the Roman numeral of the chord that follows.',
+    kind: 'chord-function' as ExerciseKind,
+    skills: ['chord-function'],
+    easy: { degrees: [4, 5] },
+    medium: { degrees: [2, 3, 4, 5, 6] },
+    hard: { degrees: [2, 3, 4, 5, 6, 7] },
   },
   'melody-dictation': {
     label: 'Melodic dictation',

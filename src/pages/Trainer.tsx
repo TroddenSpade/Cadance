@@ -20,6 +20,8 @@ const TOPIC_GLYPHS: Record<string, string> = {
   rhythm: '♩',
   'rhythm-dictation': '♩♪',
   degrees: '7',
+  'functional-degrees': '1',
+  'chord-functions': 'IV',
   'melody-dictation': '♪',
   progressions: 'I–V',
   mixed: '✦',
@@ -37,6 +39,8 @@ const TOPIC_ORDER: TopicId[] = [
   'rhythm',
   'rhythm-dictation',
   'degrees',
+  'functional-degrees',
+  'chord-functions',
   'melody-dictation',
   'progressions',
 ];

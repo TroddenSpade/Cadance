@@ -61,6 +61,12 @@ export const faTrainer: Record<string, string> = {
   'Hear a two-bar rhythm and choose its notation.': 'ریتمی دو‌میزانی را بشنوید و نمادش را انتخاب کنید.',
   'Scale degrees': 'درجات گام',
   'Hear where a note sits inside the scale.': 'بشنوید یک نُت کجای گام قرار دارد.',
+  'Functional degrees': 'درجات گام در بافت',
+  'Name a scale degree after hearing the tonic chord establish the key.':
+    'پس از شنیدن آکورد تونیک که مایه را تثبیت می‌کند، درجهٔ گام را نام ببرید.',
+  'Chord functions': 'کارکردهای آکورد',
+  'Hear a tonic chord, then name the Roman numeral of the chord that follows.':
+    'آکورد تونیک را بشنوید، سپس شمارهٔ رومی آکورد بعدی را نام ببرید.',
   'Melodic dictation': 'دیکتهٔ ملودیک',
   'Hear a short melody and name its scale degrees.': 'ملودی کوتاهی را بشنوید و درجات گامش را نام ببرید.',
   Progressions: 'پیش‌روی‌ها',

@@ -23,6 +23,9 @@ const Practice = lazy(() => import('./pages/Practice'));
 const Repertoire = lazy(() => import('./pages/Repertoire'));
 const RepertoirePiece = lazy(() => import('./pages/RepertoirePiece'));
 const Explorer = lazy(() => import('./pages/Explorer'));
+const SightReading = lazy(() => import('./pages/SightReading'));
+const Rhythm = lazy(() => import('./pages/Rhythm'));
+const Loops = lazy(() => import('./pages/Loops'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Tools = lazy(() => import('./pages/Tools'));
 const Trainer = lazy(() => import('./pages/Trainer'));
@@ -219,6 +222,9 @@ function Shell() {
             <Route path="/repertoire" element={<Repertoire />} />
             <Route path="/repertoire/:pieceId" element={<RepertoirePiece />} />
             <Route path="/explorer" element={<Explorer />} />
+            <Route path="/sight-reading" element={<SightReading />} />
+            <Route path="/rhythm" element={<Rhythm />} />
+            <Route path="/loops" element={<Loops />} />
             <Route path="/practice" element={<Practice />} />
             <Route path="/trainer" element={<Trainer />} />
             <Route path="/tools" element={<Tools />} />

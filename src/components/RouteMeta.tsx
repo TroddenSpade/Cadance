@@ -14,6 +14,9 @@ const STATIC_TITLES: Record<string, string> = {
   '/courses': 'Courses',
   '/repertoire': 'Graded repertoire',
   '/explorer': 'Scale & chord explorer',
+  '/sight-reading': 'Sight reading',
+  '/rhythm': 'Rhythm room',
+  '/loops': 'Backing loops',
   '/practice': 'Daily practice',
   '/trainer': 'Trainer',
   '/tools': 'Tools',
@@ -71,6 +74,15 @@ export default function RouteMeta() {
         ),
         '/explorer': t(
           'See any scale or chord on the staff, piano, and fretboard, hear it, transpose it, and view CAGED shapes.',
+        ),
+        '/sight-reading': t(
+          'Read four bars of music and play them back in order, with a count-in, click, and pitch-by-pitch feedback.',
+        ),
+        '/rhythm': t(
+          'Listen to a two-bar rhythm and tap it back. The score judges the spacing of your attacks.',
+        ),
+        '/loops': t(
+          'A bass line and chords in a repeating four-bar progression, with a solo scale in every key.',
         ),
         '/practice': t(
           'A daily mix of reading, listening, and instrument questions, scheduled by spaced review.',

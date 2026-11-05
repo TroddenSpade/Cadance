@@ -7727,3 +7727,739 @@ html[dir='rtl'] .tab-fret {
   direction: ltr;
   unicode-bidi: isolate;
 }
+
+/* ───────────── sight reading ───────────── */
+
+.sight-levels,
+.rhythm-levels {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.sight-level,
+.rhythm-level {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.015);
+  color: var(--muted);
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, color 0.18s;
+}
+
+.sight-level:hover,
+.rhythm-level:hover {
+  border-color: var(--accent-line);
+  color: var(--text);
+}
+
+.sight-level.selected,
+.rhythm-level.selected {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.sight-level-number,
+.rhythm-level-number {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.sight-level strong,
+.rhythm-level strong {
+  display: block;
+  margin-bottom: 3px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.sight-level small,
+.rhythm-level small {
+  display: block;
+  color: var(--faint);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.sight-room,
+.rhythm-room,
+.loop-room {
+  margin-top: 20px;
+}
+
+.room-note {
+  margin: 5px 0 0;
+  color: var(--faint);
+  font-size: 12.5px;
+  line-height: 1.65;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: normal;
+}
+
+.sight-score,
+.rhythm-score {
+  margin: 16px 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #08090c;
+  overflow-x: auto;
+}
+
+.sight-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 14px 0;
+}
+
+.sight-slot {
+  display: flex;
+  flex-direction: column;
+  min-width: 42px;
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  text-align: center;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.sight-slot strong {
+  color: var(--faint);
+  font-size: 9.5px;
+  font-weight: 600;
+}
+
+.sight-slot small {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.sight-slot.filled small {
+  color: var(--text);
+}
+
+.sight-slot.correct {
+  border-color: rgba(143, 202, 155, 0.5);
+  background: var(--green-soft);
+}
+
+.sight-slot.correct small {
+  color: var(--green);
+}
+
+.sight-slot.wrong {
+  border-color: rgba(232, 131, 111, 0.5);
+  background: var(--red-soft);
+}
+
+.sight-slot.wrong small {
+  color: var(--red);
+}
+
+.sight-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sight-count {
+  margin-inline-end: auto;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.sight-feedback {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.sight-feedback.correct {
+  border-color: rgba(143, 202, 155, 0.4);
+  background: var(--green-soft);
+}
+
+.sight-feedback.wrong {
+  border-color: rgba(232, 131, 111, 0.4);
+  background: var(--red-soft);
+}
+
+.sight-feedback strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.sight-feedback p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.sight-feedback ul {
+  margin: 8px 0 0;
+  padding-inline-start: 20px;
+  color: var(--muted);
+}
+
+.sight-surface {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #08090c;
+  overflow-x: auto;
+}
+
+.sight-tips,
+.rhythm-tips,
+.loop-tips {
+  margin-top: 20px;
+}
+
+.sight-tips ol,
+.rhythm-tips ol,
+.loop-tips ol {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding-inline-start: 22px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.sight-tips li::marker,
+.rhythm-tips li::marker,
+.loop-tips li::marker {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ───────────── rhythm room ───────────── */
+
+.rhythm-mode-switch {
+  display: inline-flex;
+  gap: 4px;
+  margin: 20px 0 0;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.rhythm-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rhythm-mode:hover {
+  color: var(--text);
+}
+
+.rhythm-mode.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.rhythm-note,
+.tap-hint {
+  margin: 12px 0 0;
+  color: var(--faint);
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+
+.rhythm-tap-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.8fr);
+  gap: 22px;
+  align-items: start;
+  margin-top: 8px;
+}
+
+.rhythm-tap-score {
+  min-width: 0;
+}
+
+.tap-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.tap-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 132px;
+  border: 1px solid var(--accent-line);
+  border-radius: 16px;
+  background:
+    radial-gradient(220px 120px at 50% 0%, var(--accent-soft), transparent 70%),
+    var(--panel-2);
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: transform 0.08s, border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+
+.tap-pad:active,
+.tap-pad.good {
+  transform: scale(0.985);
+}
+
+.tap-pad span {
+  font-family: var(--serif);
+  font-size: 25px;
+  font-weight: 650;
+}
+
+.tap-pad small {
+  color: var(--faint);
+  font-size: 11px;
+}
+
+.tap-pad.good,
+.tap-pad.near {
+  border-color: rgba(143, 202, 155, 0.55);
+  box-shadow: 0 0 0 1px rgba(143, 202, 155, 0.12) inset;
+}
+
+.tap-pad.off {
+  border-color: rgba(232, 131, 111, 0.55);
+}
+
+.tap-stats {
+  display: flex;
+  justify-content: space-between;
+  color: var(--faint);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tap-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.tap-result {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.tap-result.good {
+  border-color: rgba(143, 202, 155, 0.42);
+  background: var(--green-soft);
+}
+
+.tap-result.near {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.tap-result.off {
+  border-color: rgba(232, 131, 111, 0.42);
+  background: var(--red-soft);
+}
+
+.tap-result > strong {
+  flex-shrink: 0;
+  min-width: 86px;
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+}
+
+.tap-result.good > strong {
+  color: var(--green);
+}
+
+.tap-result.off > strong {
+  color: var(--red);
+}
+
+.tap-result p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.tap-result small {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.tap-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 10px 0 6px;
+}
+
+.tap-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--line-strong);
+}
+
+.tap-dots span.hit {
+  background: var(--green);
+}
+
+.tap-dots span.miss {
+  background: var(--red);
+}
+
+.tap-verdict {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ───────────── backing loops ───────────── */
+
+.loop-styles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.loop-style {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.015);
+  color: var(--muted);
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, color 0.18s;
+}
+
+.loop-style:hover {
+  border-color: var(--accent-line);
+  color: var(--text);
+}
+
+.loop-style.selected {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.loop-style strong {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.loop-style small {
+  color: var(--faint);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.loop-style-tempo {
+  margin-top: 4px;
+  color: var(--accent);
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.loop-key-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.loop-key-label {
+  color: var(--faint);
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.loop-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.loop-key {
+  min-width: 38px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 650;
+  cursor: pointer;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.loop-key:hover {
+  border-color: var(--accent-line);
+  color: var(--text);
+}
+
+.loop-key.selected {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.loop-chords {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.loop-chord {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.018);
+  transition: border-color 0.14s, background 0.14s, transform 0.14s;
+}
+
+.loop-chord.active {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  transform: translateY(-2px);
+}
+
+.loop-chord-bar {
+  color: var(--faint);
+  font-size: 9.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.loop-chord strong {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.15;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+.loop-chord small {
+  color: var(--faint);
+  font-size: 10.5px;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+.loop-chord.active small {
+  color: var(--muted);
+}
+
+.loop-progress {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.loop-progress span {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--line);
+  transition: background 0.14s;
+}
+
+.loop-progress span.active {
+  background: var(--accent);
+}
+
+.loop-solo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.loop-solo > *,
+.rhythm-tap-layout > * {
+  min-width: 0;
+}
+
+.sight-score,
+.rhythm-score,
+.loop-score {
+  max-width: 100%;
+}
+
+.instrument-surface,
+.piano-wrap {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.loop-solo h3 {
+  margin: 4px 0 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.loop-score {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #08090c;
+  overflow-x: auto;
+}
+
+.loop-solo-surface {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #08090c;
+  overflow-x: auto;
+}
+
+.loop-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+html[dir='rtl'] .sight-count,
+html[dir='rtl'] .sight-slot,
+html[dir='rtl'] .sight-level-number,
+html[dir='rtl'] .rhythm-level-number,
+html[dir='rtl'] .tap-stats,
+html[dir='rtl'] .tap-result > strong,
+html[dir='rtl'] .loop-key,
+html[dir='rtl'] .loop-style-tempo {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+@media (max-width: 1080px) {
+  .sight-levels,
+  .rhythm-levels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .loop-solo {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .rhythm-tap-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .loop-styles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .sight-levels,
+  .rhythm-levels,
+  .loop-styles {
+    grid-template-columns: 1fr;
+  }
+
+  .loop-chords,
+  .loop-progress {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tap-result {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tap-result > strong {
+    font-size: 32px;
+  }
+
+  .sight-actions {
+    align-items: stretch;
+  }
+
+  .sight-count {
+    flex-basis: 100%;
+    margin-inline-end: 0;
+  }
+}

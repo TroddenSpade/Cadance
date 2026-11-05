@@ -47,6 +47,8 @@ export const faExerciseUi: Record<string, string> = {
   'Rhythm counting': 'شمارش ریتم',
   'Rhythm dictation': 'دیکتهٔ ریتمیک',
   'Scale degrees': 'درجات گام',
+  'Functional degrees': 'درجات گام در بافت',
+  'Chord functions': 'کارکردهای آکورد',
   'Melodic dictation': 'دیکتهٔ ملودیک',
   Progressions: 'پیش‌روی‌ها',
 

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import ChordDiagram from '../components/ChordDiagram';
 import Icon from '../components/Icons';
 import InstrumentSurface from '../components/InstrumentSurface';
@@ -280,6 +281,20 @@ export default function Explorer() {
           </div>
         </section>
       )}
+
+      <section className="panel explorer-links-panel">
+        <div className="loop-links">
+          <Link className="text-link" to="/loops">
+            {t('Backing loops')} <Icon name="arrow" size={14} />
+          </Link>
+          <Link className="text-link" to="/repertoire">
+            {t('Play a piece')} <Icon name="arrow" size={14} />
+          </Link>
+          <Link className="text-link" to="/sight-reading">
+            {t('Practice reading')} <Icon name="arrow" size={14} />
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

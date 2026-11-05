@@ -82,6 +82,30 @@ test.describe('metadata and shareability', () => {
     await expect(page).toHaveTitle('Backing loops — Cadence');
     await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /four-bar/i);
 
+    await openRoute(page, '/analysis');
+    await expect(page).toHaveTitle('Harmony analysis — Cadence');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /roman numerals/i);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      `${origin}/analysis`,
+    );
+
+    await openRoute(page, '/paths');
+    await expect(page).toHaveTitle('Style paths — Cadence');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /classical/i);
+
+    await openRoute(page, '/paths/classical');
+    await expect(page).toHaveTitle('The classical path — Cadence');
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');
+
+    await openRoute(page, '/glossary');
+    await expect(page).toHaveTitle('Glossary — Cadence');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /searchable/i);
+
+    await openRoute(page, '/assignments');
+    await expect(page).toHaveTitle('Assignments & worksheets — Cadence');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /printable/i);
+
     await openRoute(page, '/');
     await expect(page).toHaveTitle('Cadence — Music Theory Trainer');
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${origin}/`);
@@ -104,6 +128,17 @@ test.describe('metadata and shareability', () => {
     await expect(page).toHaveTitle('رپرتوار درجه‌بندی‌شده — کادنس');
     await openRoute(page, '/repertoire/ode-to-joy');
     await expect(page).toHaveTitle('سرود شادی — کادنس');
+
+    await openRoute(page, '/analysis');
+    await expect(page).toHaveTitle('تحلیل هارمونی — کادنس');
+    await openRoute(page, '/paths');
+    await expect(page).toHaveTitle('مسیرهای سبک — کادنس');
+    await openRoute(page, '/paths/classical');
+    await expect(page).toHaveTitle('مسیر کلاسیک — کادنس');
+    await openRoute(page, '/glossary');
+    await expect(page).toHaveTitle('واژه‌نامه — کادنس');
+    await openRoute(page, '/assignments');
+    await expect(page).toHaveTitle('تکالیف و برگه‌های تمرین — کادنس');
   });
 
   test('serves a sitemap covering courses and lessons plus a matching robots file', async ({
@@ -121,6 +156,11 @@ test.describe('metadata and shareability', () => {
     expect(xml).toContain('/sight-reading</loc>');
     expect(xml).toContain('/rhythm</loc>');
     expect(xml).toContain('/loops</loc>');
+    expect(xml).toContain('/analysis</loc>');
+    expect(xml).toContain('/paths</loc>');
+    expect(xml).toContain('/paths/classical</loc>');
+    expect(xml).toContain('/glossary</loc>');
+    expect(xml).toContain('/assignments</loc>');
     expect(xml).not.toContain('/settings/settings');
 
     const robots = await request.get('/robots.txt');
@@ -177,6 +217,28 @@ test.describe('metadata and shareability', () => {
     const loops = await request.get('/loops');
     expect(loops.status()).toBe(200);
     expect(await loops.text()).toContain('<title>Backing loops — Cadence</title>');
+
+    const analysis = await request.get('/analysis');
+    expect(analysis.status()).toBe(200);
+    expect(await analysis.text()).toContain('<title>Harmony analysis — Cadence</title>');
+
+    const stylePaths = await request.get('/paths');
+    expect(stylePaths.status()).toBe(200);
+    expect(await stylePaths.text()).toContain('<title>Style paths — Cadence</title>');
+
+    const stylePath = await request.get('/paths/classical');
+    expect(stylePath.status()).toBe(200);
+    const stylePathHtml = await stylePath.text();
+    expect(stylePathHtml).toContain('<title>The classical path — Cadence</title>');
+    expect(stylePathHtml).toContain('<meta property="og:type" content="article" />');
+
+    const glossary = await request.get('/glossary');
+    expect(glossary.status()).toBe(200);
+    expect(await glossary.text()).toContain('<title>Glossary — Cadence</title>');
+
+    const assignments = await request.get('/assignments');
+    expect(assignments.status()).toBe(200);
+    expect(await assignments.text()).toContain('<title>Assignments &amp; worksheets — Cadence</title>');
   });
 
   test('serves deep links directly and redirects old hash links', async ({ page }) => {

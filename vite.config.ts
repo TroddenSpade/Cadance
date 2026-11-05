@@ -6,6 +6,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { COURSES } from './src/data/curriculum';
 import { REPERTOIRE } from './src/data/repertoire';
+import { STYLE_PATHS } from './src/data/stylePaths';
 
 // GitHub Pages project sites live under /<repo>/. Set BASE_PATH when building
 // for Pages; local development and root-hosted sites keep "/".
@@ -50,6 +51,26 @@ const STATIC_PAGES: Record<string, { title: string; description: string }> = {
     description:
       'A bass line and chords in a repeating four-bar progression, with a solo scale in every key.',
   },
+  '/analysis': {
+    title: 'Harmony analysis — Cadence',
+    description:
+      'Take short progressions apart: roman numerals, chord functions, and authentic, plagal, deceptive, or half cadences.',
+  },
+  '/paths': {
+    title: 'Style paths — Cadence',
+    description:
+      'Four routes through the curriculum — classical, pop, jazz, and blues & folk — sequencing lessons, pieces, loops, and analysis.',
+  },
+  '/glossary': {
+    title: 'Glossary — Cadence',
+    description:
+      'A searchable glossary of notation, rhythm, intervals, harmony, form, and ear-training terms, linked to the lesson that teaches each one.',
+  },
+  '/assignments': {
+    title: 'Assignments & worksheets — Cadence',
+    description:
+      'Build a timed, printable practice sheet with a focus, a length, and tasks from every room in Cadence.',
+  },
   '/practice': {
     title: 'Daily practice — Cadence',
     description:
@@ -87,6 +108,9 @@ const LESSON_PATHS = new Map(
 const REPERTOIRE_PATHS = new Map(
   REPERTOIRE.map((piece) => [`/repertoire/${piece.id}`, piece]),
 );
+const STYLE_PATH_PATHS = new Map(
+  STYLE_PATHS.map((path) => [`/paths/${path.id}`, path]),
+);
 
 function escapeHtml(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -110,6 +134,14 @@ function pageMeta(path: string): { title: string; description: string; type: str
     return {
       title: `${piece.title} — Cadence`,
       description: piece.summary,
+      type: 'article',
+    };
+  }
+  const stylePath = STYLE_PATH_PATHS.get(path);
+  if (stylePath) {
+    return {
+      title: `${stylePath.title} — Cadence`,
+      description: stylePath.description,
       type: 'article',
     };
   }
@@ -158,6 +190,7 @@ function seoFiles(): Plugin {
     ...COURSES.map((course) => `/courses/${course.id}`),
     ...COURSES.flatMap((course) => course.lessons.map((lesson) => `/lesson/${lesson.id}`)),
     ...REPERTOIRE.map((piece) => `/repertoire/${piece.id}`),
+    ...STYLE_PATHS.map((path) => `/paths/${path.id}`),
   ];
   const uniquePaths = [...new Set(paths)];
 

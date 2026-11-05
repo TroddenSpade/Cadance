@@ -5,6 +5,7 @@ import Icon from '../components/Icons';
 import InstrumentSurface from '../components/InstrumentSurface';
 import MelodyScore from '../components/MelodyScore';
 import PlayAlongControls from '../components/PlayAlongControls';
+import PracticeRecorder from '../components/PracticeRecorder';
 import Tablature from '../components/Tablature';
 import { REPERTOIRE_LEVELS, REPERTOIRE_MAP, type RepertoirePiece } from '../data/repertoire';
 import { useCurriculum } from '../data/i18n';
@@ -303,6 +304,8 @@ export default function RepertoirePiecePage() {
           <li>{t('Raise the tempo only after three clean passes in a row.')}</li>
         </ol>
       </section>
+
+      <PracticeRecorder label={t('Record this piece')} />
     </div>
   );
 }

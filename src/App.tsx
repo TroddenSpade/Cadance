@@ -26,6 +26,11 @@ const Explorer = lazy(() => import('./pages/Explorer'));
 const SightReading = lazy(() => import('./pages/SightReading'));
 const Rhythm = lazy(() => import('./pages/Rhythm'));
 const Loops = lazy(() => import('./pages/Loops'));
+const Analysis = lazy(() => import('./pages/Analysis'));
+const Paths = lazy(() => import('./pages/Paths'));
+const StylePathPage = lazy(() => import('./pages/StylePath'));
+const Glossary = lazy(() => import('./pages/Glossary'));
+const Worksheets = lazy(() => import('./pages/Worksheets'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Tools = lazy(() => import('./pages/Tools'));
 const Trainer = lazy(() => import('./pages/Trainer'));
@@ -225,6 +230,11 @@ function Shell() {
             <Route path="/sight-reading" element={<SightReading />} />
             <Route path="/rhythm" element={<Rhythm />} />
             <Route path="/loops" element={<Loops />} />
+            <Route path="/analysis" element={<Analysis />} />
+            <Route path="/paths" element={<Paths />} />
+            <Route path="/paths/:pathId" element={<StylePathPage />} />
+            <Route path="/glossary" element={<Glossary />} />
+            <Route path="/assignments" element={<Worksheets />} />
             <Route path="/practice" element={<Practice />} />
             <Route path="/trainer" element={<Trainer />} />
             <Route path="/tools" element={<Tools />} />

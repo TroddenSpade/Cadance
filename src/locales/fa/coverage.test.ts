@@ -5,6 +5,10 @@ import { LESSON_INSTRUMENT_DEMOS } from '../../data/instrumentExamples';
 import { EXPANSION_LESSON_INSTRUMENT_DEMOS } from '../../data/expansion';
 import { EXERCISE_LABELS, STARTER_SPECS, TOPIC_SPECS } from '../../lib/exercises';
 import { INSTRUMENTS } from '../../lib/tunings';
+import { ANALYSIS_PROGRESSIONS } from '../../lib/analysis';
+import { STYLE_PATHS } from '../../data/stylePaths';
+import { GLOSSARY } from '../../data/glossary';
+import { WORKSHEET_ACTIVITIES, WORKSHEET_FOCUS } from '../../lib/worksheet';
 
 const missing = new Set<string>();
 
@@ -67,6 +71,47 @@ describe('Persian content coverage', () => {
         check(tuning.description);
       });
     });
+
+    ANALYSIS_PROGRESSIONS.forEach((progression) => {
+      check(progression.title);
+      check(progression.blurb);
+      check(progression.keyLabel);
+    });
+
+    STYLE_PATHS.forEach((path) => {
+      check(path.title);
+      check(path.tagline);
+      check(path.description);
+      check(path.level);
+    });
+
+    GLOSSARY.forEach((entry) => {
+      check(entry.term);
+      check(entry.category);
+      check(entry.definition);
+    });
+
+    WORKSHEET_ACTIVITIES.forEach((activity) => {
+      check(activity.title);
+      check(activity.instruction);
+    });
+
+    WORKSHEET_FOCUS.forEach((focus) => {
+      check(focus.title);
+      check(focus.description);
+    });
+
+    // Labels passed to t() through variables rather than literals.
+    [
+      'Read four bars, play them back in order, and check every pitch.',
+      'Echo a two-bar pattern by tapping, then play the same rhythm on one note.',
+      'Build a short drill on the topic this path is developing.',
+      'Choose another piece at the same level and read it once without stopping.',
+      'Lesson',
+      'Backing loop',
+      'Analysis',
+      'Practice room',
+    ].forEach(check);
 
     expect([...missing], `Missing Persian translations (${missing.size})`).toEqual([]);
   });

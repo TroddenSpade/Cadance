@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Icon from '../components/Icons';
 import InstrumentSurface from '../components/InstrumentSurface';
 import MelodyScore from '../components/MelodyScore';
 import PlayAlongControls from '../components/PlayAlongControls';
+import PracticeRecorder from '../components/PracticeRecorder';
 import type { MarkState } from '../components/Piano';
 import { useI18n } from '../lib/i18n';
 import { midiToName } from '../lib/music';
@@ -12,8 +13,17 @@ import { usePlayAlong } from '../lib/playAlong';
 
 export default function Loops() {
   const { t } = useI18n();
-  const [styleId, setStyleId] = useState<LoopStyleId>('pop');
-  const [keyPc, setKeyPc] = useState(0);
+  const [params] = useSearchParams();
+  const [styleId, setStyleId] = useState<LoopStyleId>(() => {
+    const requested = params.get('style');
+    return LOOP_STYLES.some((style) => style.id === requested)
+      ? (requested as LoopStyleId)
+      : 'pop';
+  });
+  const [keyPc, setKeyPc] = useState(() => {
+    const requested = Number(params.get('key'));
+    return Number.isInteger(requested) && requested >= 0 && requested < 12 ? requested : 0;
+  });
 
   const style = LOOP_STYLES.find((candidate) => candidate.id === styleId) ?? LOOP_STYLES[0];
   const key = LOOP_KEYS.find((candidate) => candidate.pc === keyPc) ?? LOOP_KEYS[0];
@@ -216,6 +226,8 @@ export default function Loops() {
           </Link>
         </div>
       </section>
+
+      <PracticeRecorder label={t('Record your solo')} />
     </div>
   );
 }

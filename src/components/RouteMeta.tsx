@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { REPERTOIRE_MAP } from '../data/repertoire';
+import { STYLE_PATH_MAP } from '../data/stylePaths';
 import { useCurriculum } from '../data/i18n';
 import { useI18n } from '../lib/i18n';
 
@@ -17,6 +18,10 @@ const STATIC_TITLES: Record<string, string> = {
   '/sight-reading': 'Sight reading',
   '/rhythm': 'Rhythm room',
   '/loops': 'Backing loops',
+  '/analysis': 'Harmony analysis',
+  '/paths': 'Style paths',
+  '/glossary': 'Glossary',
+  '/assignments': 'Assignments & worksheets',
   '/practice': 'Daily practice',
   '/trainer': 'Trainer',
   '/tools': 'Tools',
@@ -84,6 +89,18 @@ export default function RouteMeta() {
         '/loops': t(
           'A bass line and chords in a repeating four-bar progression, with a solo scale in every key.',
         ),
+        '/analysis': t(
+          'Take short progressions apart: roman numerals, chord functions, and authentic, plagal, deceptive, or half cadences.',
+        ),
+        '/paths': t(
+          'Four routes through the curriculum — classical, pop, jazz, and blues & folk — sequencing lessons, pieces, loops, and analysis.',
+        ),
+        '/glossary': t(
+          'A searchable glossary of notation, rhythm, intervals, harmony, form, and ear-training terms, linked to the lesson that teaches each one.',
+        ),
+        '/assignments': t(
+          'Build a timed, printable practice sheet with a focus, a length, and tasks from every room in Cadence.',
+        ),
         '/practice': t(
           'A daily mix of reading, listening, and instrument questions, scheduled by spaced review.',
         ),
@@ -124,6 +141,14 @@ export default function RouteMeta() {
               title: `${t(piece.title)} — ${t('Cadence')}`,
               description: t(piece.summary),
             };
+          } else {
+            const path = STYLE_PATH_MAP[pathname.replace(/^\/paths\//, '')];
+            if (pathname.startsWith('/paths/') && path) {
+              info = {
+                title: `${t(path.title)} — ${t('Cadence')}`,
+                description: t(path.description),
+              };
+            }
           }
         }
       }
@@ -132,7 +157,8 @@ export default function RouteMeta() {
     const isContentRoute =
       Boolean(courseMap[pathname.replace(/^\/courses\//, '')]) ||
       Boolean(lessonMap[pathname.replace(/^\/lesson\//, '')]) ||
-      Boolean(REPERTOIRE_MAP[pathname.replace(/^\/repertoire\//, '')]);
+      Boolean(REPERTOIRE_MAP[pathname.replace(/^\/repertoire\//, '')]) ||
+      Boolean(STYLE_PATH_MAP[pathname.replace(/^\/paths\//, '')]);
 
     document.title = info.title;
     upsertMeta('name', 'description', info.description);

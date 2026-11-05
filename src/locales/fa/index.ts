@@ -15,6 +15,11 @@ import { faSettings } from './settings';
 import { faExerciseUi } from './exercises';
 import { faExercisePrompts, faExercisePromptsPartTwo } from './exercisePrompts';
 import { faMusicTerms } from './music';
+import { faAnalysis } from './analysis';
+import { faPaths } from './paths';
+import { faGlossary } from './glossary';
+import { faWorksheets } from './worksheets';
+import { faRecorder } from './recorder';
 import faLevels from './content/levels.json';
 import faCoursesContent from './content/courses.json';
 import faLessonsContent from './content/lessons.json';
@@ -71,6 +76,11 @@ export const fa: Record<string, string> = {
   ...faExercisePrompts,
   ...faExercisePromptsPartTwo,
   ...faMusicTerms,
+  ...faAnalysis,
+  ...faPaths,
+  ...faGlossary,
+  ...faWorksheets,
+  ...faRecorder,
   ...GUIDE_FA,
   ...faLevels,
   ...faCoursesContent,

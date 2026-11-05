@@ -26,5 +26,8 @@ export const faTools: Record<string, string> = {
   'Start the metronome anywhere and it keeps time in the corner of the screen. Collapse it to a single button while you play, or open it to reach tempo, meter, subdivision, accent, and volume settings. On phones it sits just above the bottom navigation.':
     'مترونوم را هر جا شروع کنید، گوشهٔ صفحه زمان را نگه می‌دارد. هنگام نوازندگی می‌توانید آن را به یک دکمهٔ واحد جمع کنید، یا بازش کنید تا به تنظیمات تمپو، میزان، تقسیم‌بندی، تأکید و صدا دسترسی داشته باشید. روی گوشی‌ها درست بالای ناوبری پایین قرار می‌گیرد.',
 
+  'The utilities that sit beside the curriculum: a clock to keep time, a tuner to keep pitch honest, graded pieces to play, an explorer for every scale and chord, rooms for sight-reading, rhythm, and backing loops, and a studio for analysis, style paths, a glossary, and printable worksheets. Everything works offline.':
+    'ابزارهایی که کنار برنامهٔ درسی می‌نشینند: ساعتی برای نگه داشتن زمان، تیونری برای درست نگه داشتن کوک، قطعه‌های درجه‌بندی‌شده برای نواختن، کاوشگری برای هر گام و آکورد، اتاق‌هایی برای نت‌خوانی، ریتم و حلقه‌های همراهی، و استودیویی برای تحلیل، مسیرهای سبک، واژه‌نامه و برگه‌های تمرین قابل چاپ. همه‌چیز آفلاین کار می‌کند.',
+
   '404': '۴۰۴',
 };

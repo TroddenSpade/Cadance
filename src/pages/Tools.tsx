@@ -74,6 +74,46 @@ const TOOLS = [
       'A bass line and chord progression that repeats while you solo. Six styles, twelve keys, and the matching scale on the staff and your instrument.',
     points: ['Pop, rock, jazz, blues, waltz, and folk', 'Four-bar loops in every key', 'Two-octave solo scale on piano and guitar'],
   },
+  {
+    to: '/analysis',
+    icon: 'music' as const,
+    title: 'Harmony analysis',
+    eyebrow: 'Analyse',
+    open: 'Open harmony analysis',
+    description:
+      'Take eight short progressions apart: name each chord by function, follow the bass, and decide whether the phrase ends with an authentic, plagal, deceptive, or half cadence.',
+    points: ['Roman numerals and chord functions', 'Cadence listening check', 'Links to the harmony lessons'],
+  },
+  {
+    to: '/paths',
+    icon: 'courses' as const,
+    title: 'Style paths',
+    eyebrow: 'Follow',
+    open: 'Open style paths',
+    description:
+      'Four routes through the curriculum — classical, pop, jazz, and blues & folk. Each one orders lessons, pieces, loops, and analysis so the style makes sense as a whole.',
+    points: ['Four traditions, one sequence', 'Progress counted from completed lessons', 'Deep links into every practice room'],
+  },
+  {
+    to: '/glossary',
+    icon: 'book' as const,
+    title: 'Glossary',
+    eyebrow: 'Reference',
+    open: 'Open glossary',
+    description:
+      'The working vocabulary of the curriculum in one searchable place: notation, rhythm, intervals, harmony, form, and ear training, each linked to the lesson that teaches it.',
+    points: ['Search by term, alias, or definition', 'Filter by topic', 'Jump straight to the lesson'],
+  },
+  {
+    to: '/assignments',
+    icon: 'practice' as const,
+    title: 'Assignments & worksheets',
+    eyebrow: 'Plan',
+    open: 'Build a worksheet',
+    description:
+      'Build a timed practice sheet from the rooms in Cadence. Choose a focus, a length, and the activities to include, then print it and tick each task off.',
+    points: ['Five focuses from reading to harmony', '15 to 60 minutes', 'Print-ready, with a route for every task'],
+  },
 ];
 
 export default function Tools() {
@@ -88,7 +128,7 @@ export default function Tools() {
           <h1>{t('Tools')}</h1>
           <p>
             {t(
-              'The utilities that sit beside the curriculum: a clock to keep time, a tuner to keep pitch honest, graded pieces to play, an explorer for every scale and chord, and rooms for sight-reading, rhythm, and backing loops. Everything works offline.',
+              'The utilities that sit beside the curriculum: a clock to keep time, a tuner to keep pitch honest, graded pieces to play, an explorer for every scale and chord, rooms for sight-reading, rhythm, and backing loops, and a studio for analysis, style paths, a glossary, and printable worksheets. Everything works offline.',
             )}
           </p>
         </div>

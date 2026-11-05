@@ -12,6 +12,11 @@ import { faSettings } from './settings';
 import { faTools } from './tools';
 import { faTrainer } from './trainer';
 import { faTuner } from './tuner';
+import { faAnalysis } from './analysis';
+import { faPaths } from './paths';
+import { faGlossary } from './glossary';
+import { faWorksheets } from './worksheets';
+import { faRecorder } from './recorder';
 
 function collect(namespace: Record<string, unknown>): Record<string, string> {
   const result: Record<string, string> = {};
@@ -44,6 +49,11 @@ const modules: Array<[string, Record<string, string>]> = [
   ['tools', faTools],
   ['trainer', faTrainer],
   ['tuner', faTuner],
+  ['analysis', faAnalysis],
+  ['paths', faPaths],
+  ['glossary', faGlossary],
+  ['worksheets', faWorksheets],
+  ['recorder', faRecorder],
 ];
 
 describe('Persian dictionary', () => {
